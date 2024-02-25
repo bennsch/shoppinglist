@@ -28,5 +28,9 @@
         <item name="colorOnSurfaceInverse">@color/md_theme_dark_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/md_theme_dark_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_dark_inversePrimary</item>
+
+        <!--TODO: How to generate by Material Theme Builder? What's the correct color?-->
+        <item name="colorSurfaceContainerLow">@color/md_theme_dark_background</item>
+
     </style>
 </resources>
