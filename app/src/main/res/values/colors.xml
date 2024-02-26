@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <color name="md_theme_light_surfaceContainer">#e3e2da</color>
+    <color name="md_theme_dark_surfaceContainer">#22241e</color>
+
     <color name="seed">#456813</color>
 
     <color name="md_theme_light_primary">#456812</color>

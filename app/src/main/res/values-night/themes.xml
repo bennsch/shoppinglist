@@ -31,6 +31,8 @@
 
         <!--TODO: How to generate by Material Theme Builder? What's the correct color?-->
         <item name="colorSurfaceContainerLow">@color/md_theme_dark_background</item>
+        <item name="colorSurfaceContainer">@color/md_theme_dark_surfaceContainer</item>
+
 
     </style>
 </resources>

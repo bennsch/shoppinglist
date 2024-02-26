@@ -2,48 +2,67 @@
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:openDrawer="start">
+    tools:openDrawer="end">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true">
+            android:fitsSystemWindows="true"
+            app:liftOnScroll="true">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                app:title="List A" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!--  *** App content ***  -->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <!-- Note: A RecyclerView can also be used -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nesscrollview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
 
-            <TextView
-                android:id="@+id/text_view"
-                android:layout_width="wrap_content"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hello World!"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:orientation="vertical"
+                android:theme="@style/AppTheme.LargeText">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
+                <com.google.android.material.textview.MaterialTextView/>
 
-        <!--  *******************  -->
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
@@ -54,14 +73,14 @@
             android:layout_marginBottom="16dp"
             app:srcCompat="@android:drawable/ic_dialog_email" />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
+        app:menu="@menu/nav_drawer"
         app:headerLayout="@layout/nav_header"
-        app:menu="@menu/nav_drawer" />
+        android:layout_gravity="start" />
+
 </androidx.drawerlayout.widget.DrawerLayout>
