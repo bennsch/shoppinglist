@@ -38,7 +38,7 @@
 
         <!--TODO: How to generate by Material Theme Builder? What's the correct color?-->
         <item name="colorSurfaceContainerLow">@color/md_theme_light_background</item>
-        <item name="colorSurfaceContainer">@color/md_theme_light_surfaceContainer</item>
+        <item name="colorSurfaceContainer">@color/md_theme_light_surfaceVariant</item>
 
     </style>
 
