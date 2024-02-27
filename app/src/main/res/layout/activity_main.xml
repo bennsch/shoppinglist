@@ -5,7 +5,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:openDrawer="end">
+    tools:openDrawer="start">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordview"
@@ -78,6 +78,16 @@
         android:layout_height="match_parent"
         app:menu="@menu/nav_drawer"
         app:headerLayout="@layout/nav_header"
-        android:layout_gravity="start" />
+        android:layout_gravity="start">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="v0.0.1"
+            android:textColor="#77000000"
+            android:layout_gravity="bottom"
+            android:paddingLeft="8dp"/>
+
+    </com.google.android.material.navigation.NavigationView>
 
 </androidx.drawerlayout.widget.DrawerLayout>

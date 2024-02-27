@@ -3,18 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/group1"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_new_list"
-            android:icon="@android:drawable/stat_sys_data_bluetooth"
+            android:icon="@android:drawable/ic_menu_add"
             android:title="New List..." />
         <item
             android:id="@+id/nav_settings"
-            android:icon="@android:drawable/ic_menu_gallery"
+            android:icon="@android:drawable/ic_menu_manage"
             android:title="Settings" />
+    </group>
+
+    <group
+        android:id="@+id/group2"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_list_a"
-            android:icon="@android:drawable/ic_menu_slideshow"
+            android:icon="@android:drawable/ic_menu_myplaces"
             android:title="List A" />
     </group>
 </menu>

@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
             // as appropriate to your layout. You can also update the view's margin if
             // more appropriate.
             view.setPadding(0, 0, 0, insets.bottom);
+            this.binding.navView.setPadding(0, 0, 0, insets.bottom);
 
             // Return CONSUMED if you don't want the window insets to keep passing down
             // to descendant views.
