@@ -1,5 +1,6 @@
 package com.example.shoppinglist;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -49,10 +50,11 @@ public class ChecklistFragment extends Fragment {
                              Bundle savedInstanceState) {
         mBinding = FragmentChecklistBinding.inflate(inflater, container, false);
 
-        for (int i = 0; i < (mDisplayChecked ? 5 : 25); i++) {
+        for (int i = 0; i < (mDisplayChecked ? 25 : 5); i++) {
             MaterialTextView view = new MaterialTextView(getContext());
             view.setText("Item " + i);
             view.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 35);
+            view.setTextColor(mDisplayChecked ? Color.GRAY : Color.BLACK);
             mBinding.checklistItems.addView(view);
         }
 

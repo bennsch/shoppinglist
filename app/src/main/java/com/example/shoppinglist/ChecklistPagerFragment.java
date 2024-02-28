@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -14,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.Map;
 
@@ -50,6 +53,23 @@ public class ChecklistPagerFragment extends Fragment {
 //        mBinding.viewpager.setPageTransformer(new FanTransformer());
         return mBinding.getRoot();
     }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        new TabLayoutMediator(mBinding.tablayout, mBinding.viewpager,
+                (tab, position) -> tab.setText("OBJECT " + (position + 1))
+        ).attach();
+
+        new TabLayoutMediator(mBinding.tablayout, mBinding.viewpager,
+                new TabLayoutMediator.TabConfigurationStrategy() {
+                    @Override
+                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+//                        tab.setIcon(R.drawable.ic_launcher_foreground);
+                    }
+                }
+        ).attach();
+    }
 }
 
 
@@ -59,8 +79,8 @@ class ViewPagerAdapter extends FragmentStateAdapter {
 
     private final ChecklistFragment[] mCachedFragments = new ChecklistFragment[2];
     private static final Map<Integer, Boolean> mPageMap = Map.of(
-            0, true,
-            1, false
+            0, false,
+            1, true
     );
 
     public ViewPagerAdapter(FragmentActivity fragmentActivity) {
