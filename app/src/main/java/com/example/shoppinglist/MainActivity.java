@@ -9,6 +9,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -47,7 +48,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean onNavDrawerItemSelected(MenuItem item){
-        this.binding.drawerLayout.closeDrawer(GravityCompat.START);
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+//                .setCustomAnimations(R.anim.slide, R.anim.slide)
+                .replace(this.binding.fragmentContainerView.getId(),
+                         ChecklistPagerFragment.class,
+                         null)
+                .commit();
+
+        this.binding.drawerLayout.close();
         return true;
     }
 
@@ -70,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupEdgeToEdgeInsets() {
-        View view = this.binding.nesscrollview;
+        View view = this.binding.fragmentContainerView;
         ViewCompat.setOnApplyWindowInsetsListener(view, (v, windowInsets) -> {
             Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemGestures());
             // Apply the insets as padding to the view. Here, set all the dimensions

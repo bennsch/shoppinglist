@@ -5,7 +5,7 @@
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:openDrawer="start">
+    tools:openDrawer="end">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordview"
@@ -27,39 +27,11 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <!-- Note: A RecyclerView can also be used -->
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/nesscrollview"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:theme="@style/AppTheme.LargeText">
-
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-                <com.google.android.material.textview.MaterialTextView/>
-
-            </LinearLayout>
-
-        </androidx.core.widget.NestedScrollView>
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
