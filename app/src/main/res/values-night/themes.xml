@@ -32,7 +32,15 @@
         <!--TODO: How to generate by Material Theme Builder? What's the correct color?-->
         <item name="colorSurfaceContainerLow">@color/md_theme_dark_background</item>
         <item name="colorSurfaceContainer">@color/md_theme_dark_surfaceVariant</item>
-
-
     </style>
+
+
+    <style name="ChecklistItem.Unchecked">
+        <item name="android:textColor">@color/md_theme_dark_onBackground</item>
+    </style>
+
+    <style name="ChecklistItem.Checked">
+        <item name="android:textColor">#8C8C8C</item>
+    </style>
+
 </resources>
