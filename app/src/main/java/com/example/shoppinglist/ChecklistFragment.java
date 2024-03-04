@@ -84,19 +84,8 @@ public class ChecklistFragment extends Fragment {
 
     protected void onItemSubsetChanged(List<ChecklistRepository.Item> newItems) {
         // The newItems are already sorted by position
-
-//        Log.d(TAG, "onViewModelItemsChanged(): "+ mListTitle + "/" +
-//                mDesignation + "(newItems size=" + newItems.size() + ")");
-
-//        final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
-//                new MyCallback(mAdapter.getCachedItems(), newItems));
-
-//        mAdapter.setCachedItems(newItems);
-        // will trigger the appropriate animations
-//        diffResult.dispatchUpdatesTo(mAdapter);
-
         Log.d(TAG, "onItemSubsetChanged: " + (mDisplayChecked ? "Checked Items" : "Unchecked Items"));
-        mRecyclerViewAdapter.setItems(newItems);
+        mRecyclerViewAdapter.update(newItems);
     }
 
 
@@ -126,15 +115,21 @@ public class ChecklistFragment extends Fragment {
             return mCachedItems.size();
         }
 
-        public void setItems(List<ChecklistRepository.Item> items) {
-            mCachedItems = items;
-            notifyDataSetChanged();
+        public void update(List<ChecklistRepository.Item> newItems) {
+            final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
+                    new DiffCallback(getItems(), newItems));
+            mCachedItems = newItems;
+            // will trigger the appropriate animations
+            diffResult.dispatchUpdatesTo(this);
         }
 
         public ChecklistRepository.Item getItem(int pos) {
             return mCachedItems.get(pos);
         }
 
+        public List<ChecklistRepository.Item> getItems() {
+            return mCachedItems;
+        }
 
         class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -161,5 +156,49 @@ public class ChecklistFragment extends Fragment {
             }
         }
 
+        class DiffCallback extends DiffUtil.Callback {
+
+            private final List<ChecklistRepository.Item> mOldList;
+            private final List<ChecklistRepository.Item> mNewList;
+
+            public DiffCallback(List<ChecklistRepository.Item> oldList, List<ChecklistRepository.Item> newList) {
+                this.mOldList = oldList;
+                this.mNewList = newList;
+            }
+
+            @Nullable
+            @Override
+            public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+                return super.getChangePayload(oldItemPosition, newItemPosition);
+            }
+
+            @Override
+            public int getOldListSize() {
+                return mOldList.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return mNewList.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                //Called to check whether two objects represent the same item.
+                final ChecklistRepository.Item oldItem = mOldList.get(oldItemPosition);
+                final ChecklistRepository.Item newItem = mNewList.get(newItemPosition);
+                return oldItem.getUid().equals(newItem.getUid());
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                // If visual representation is same
+                // This method is called only if areItemsTheSame returns true for these items.
+                final ChecklistRepository.Item oldItem = mOldList.get(oldItemPosition);
+                final ChecklistRepository.Item newItem = mNewList.get(newItemPosition);
+                // TODO: 1/15/2024 more than name required here? IsChecked is part of visual representation
+                return oldItem.getName().equals(newItem.getName());
+            }
+        }
     }
 }
