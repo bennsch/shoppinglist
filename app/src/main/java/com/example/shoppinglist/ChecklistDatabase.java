@@ -117,6 +117,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         protected int mPosition;
 
         public Item(@NonNull String listTitle, @NonNull String name, @NonNull Boolean isChecked) {
+            // Don't provide any access to the UID, so the Database is the only one who can modify it
             mListTitle = listTitle;
             mName = name;
             mIsChecked = isChecked;

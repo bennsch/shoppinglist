@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,19 +35,22 @@ public class ChecklistFragment extends Fragment {
     private FragmentChecklistBinding mBinding;
     private RecyclerViewAdapter mRecyclerViewAdapter;
     private boolean mDisplayChecked;
-    private ChecklistRepository mRepo;
+    private ChecklistViewModel mViewModel;
 
     public ChecklistFragment() {
         // Required empty public constructor
     }
 
     public static ChecklistFragment newInstance(boolean displayChecked) {
+        Log.d(TAG, "newInstance: ");
         ChecklistFragment fragment = new ChecklistFragment();
         Bundle args = new Bundle();
         args.putBoolean(ARG_DISPLAY_CHECKED, displayChecked);
         fragment.setArguments(args);
         return fragment;
     }
+
+    // TODO: 3/5/2024 ViewModel onCleared() not called, so it seems the observers are never deleted
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,8 +59,7 @@ public class ChecklistFragment extends Fragment {
             mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
         }
         mRecyclerViewAdapter = new RecyclerViewAdapter();
-        mRepo = new ChecklistRepository(getActivity().getApplication());
-
+        mViewModel = new ViewModelProvider(this).get(ChecklistViewModel.class);
     }
 
     @Override
@@ -65,8 +68,11 @@ public class ChecklistFragment extends Fragment {
         mBinding = FragmentChecklistBinding.inflate(inflater, container, false);
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
         // TODO: 1/21/2024 getViewLifecycleOwner() or getParentFragment().getViewLifecycleOwner() ??
-        mRepo.getSubsetSortedByPosition("List A", mDisplayChecked).observe(getViewLifecycleOwner(), this::onItemSubsetChanged);
+        Log.d(TAG, "onCreateView: " + getViewLifecycleOwner());
+        mViewModel.getItems("List A", mDisplayChecked)
+                .observe(getViewLifecycleOwner(), this::onItemSubsetChanged);
         return mBinding.getRoot();
     }
 
@@ -75,14 +81,31 @@ public class ChecklistFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
+    @Override
+    public void onDetach() {
+        Log.d(TAG, "onDetach: ");
+        super.onDetach();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG, "onDestroyView: ");
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy: ");
+        super.onDestroy();
+    }
 
     private void onItemClicked(int adapterPosition) {
         Log.d(TAG, "onItemClicked: " + adapterPosition);
-            ChecklistRepository.Item item = mRecyclerViewAdapter.getItem(adapterPosition);
-            mRepo.flipChecked(item);
+        ChecklistItem item = mRecyclerViewAdapter.getItem(adapterPosition);
+        mViewModel.flipChecked(item);
     }
 
-    protected void onItemSubsetChanged(List<ChecklistRepository.Item> newItems) {
+    protected void onItemSubsetChanged(List<ChecklistItem> newItems) {
         // The newItems are already sorted by position
         Log.d(TAG, "onItemSubsetChanged: " + (mDisplayChecked ? "Checked Items" : "Unchecked Items"));
         mRecyclerViewAdapter.update(newItems);
@@ -91,7 +114,7 @@ public class ChecklistFragment extends Fragment {
 
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-        private List<ChecklistRepository.Item> mCachedItems = new ArrayList<>();
+        private List<ChecklistItem> mCachedItems = new ArrayList<>();
 
         @NonNull
         @Override
@@ -115,7 +138,7 @@ public class ChecklistFragment extends Fragment {
             return mCachedItems.size();
         }
 
-        public void update(List<ChecklistRepository.Item> newItems) {
+        public void update(List<ChecklistItem> newItems) {
             final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
                     new DiffCallback(getItems(), newItems));
             mCachedItems = newItems;
@@ -123,11 +146,11 @@ public class ChecklistFragment extends Fragment {
             diffResult.dispatchUpdatesTo(this);
         }
 
-        public ChecklistRepository.Item getItem(int pos) {
+        public ChecklistItem getItem(int pos) {
             return mCachedItems.get(pos);
         }
 
-        public List<ChecklistRepository.Item> getItems() {
+        public List<ChecklistItem> getItems() {
             return mCachedItems;
         }
 
@@ -158,10 +181,10 @@ public class ChecklistFragment extends Fragment {
 
         class DiffCallback extends DiffUtil.Callback {
 
-            private final List<ChecklistRepository.Item> mOldList;
-            private final List<ChecklistRepository.Item> mNewList;
+            private final List<ChecklistItem> mOldList;
+            private final List<ChecklistItem> mNewList;
 
-            public DiffCallback(List<ChecklistRepository.Item> oldList, List<ChecklistRepository.Item> newList) {
+            public DiffCallback(List<ChecklistItem> oldList, List<ChecklistItem> newList) {
                 this.mOldList = oldList;
                 this.mNewList = newList;
             }
@@ -185,8 +208,8 @@ public class ChecklistFragment extends Fragment {
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
                 //Called to check whether two objects represent the same item.
-                final ChecklistRepository.Item oldItem = mOldList.get(oldItemPosition);
-                final ChecklistRepository.Item newItem = mNewList.get(newItemPosition);
+                final ChecklistItem oldItem = mOldList.get(oldItemPosition);
+                final ChecklistItem newItem = mNewList.get(newItemPosition);
                 return oldItem.getUid().equals(newItem.getUid());
             }
 
@@ -194,8 +217,8 @@ public class ChecklistFragment extends Fragment {
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
                 // If visual representation is same
                 // This method is called only if areItemsTheSame returns true for these items.
-                final ChecklistRepository.Item oldItem = mOldList.get(oldItemPosition);
-                final ChecklistRepository.Item newItem = mNewList.get(newItemPosition);
+                final ChecklistItem oldItem = mOldList.get(oldItemPosition);
+                final ChecklistItem newItem = mNewList.get(newItemPosition);
                 // TODO: 1/15/2024 more than name required here? IsChecked is part of visual representation
                 return oldItem.getName().equals(newItem.getName());
             }

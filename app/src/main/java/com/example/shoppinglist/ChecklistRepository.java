@@ -20,7 +20,6 @@ public class ChecklistRepository {
     private static final String TAG = "ChecklistRepository";
 
     private ChecklistDatabase.ItemDao mItemDao;
-    private ChecklistDatabase.Item dbItem;
 
 
     public ChecklistRepository(@NonNull Application application) {
@@ -35,19 +34,18 @@ public class ChecklistRepository {
 //        return mItemDao.getSubsetAsLiveData(listTitle, isChecked);
 //    }
 
-    LiveData<List<Item>> getSubsetSortedByPosition(String listTitle, Boolean isChecked) {
+    LiveData<List<ChecklistItem>> getSubsetSortedByPosition(String listTitle, Boolean isChecked) {
         return Transformations.map(
                 mItemDao.getSubsetSortedByPositionAsLiveData(listTitle, isChecked),
-                ChecklistRepository::toRepoItems);
+                ChecklistRepository::toChecklistItems);
     }
 
 
-    void flipChecked(ChecklistRepository.Item item) {
+    void flipChecked(@NonNull Integer uid) {
         // TODO: 3/2/2024  why is observer called twice per list? (4 calls in total)
         //  Perform all updates on local list then commit to itemDao
         ChecklistDatabase.databaseWriteExecutor.execute(() -> {
-
-            ChecklistDatabase.Item dbItem = mItemDao.getItem(item.getUid());
+            ChecklistDatabase.Item dbItem = mItemDao.getItem(uid);
             dbItem.flipChecked();
             mItemDao.update(dbItem);
 
@@ -59,6 +57,14 @@ public class ChecklistRepository {
 //            dbItemsToAddTo.add(dbItem);
 
         });
+    }
+
+    private static List<ChecklistItem> toChecklistItems(List<ChecklistDatabase.Item> dbItems) {
+        return dbItems.stream().map(dbItem -> new ChecklistItem(
+                dbItem.getUID(),
+                dbItem.getListTitle(),
+                dbItem.getName(),
+                dbItem.isChecked())).collect(Collectors.toList());
     }
 
 //    void insertEnd(ChecklistDatabase.Item item) {
@@ -89,48 +95,4 @@ public class ChecklistRepository {
 //        }
 //        mItemDao.update(sorted);
 //    }
-
-    private static List<Item> toRepoItems(List<ChecklistDatabase.Item> databaseItems) {
-        return databaseItems.stream().map(Item::new).collect(Collectors.toList());
-    }
-
-
-    static class Item {
-        private final Integer mUid;
-        private String mName;
-        private String mListTitle;
-        private Boolean mIsChecked;
-
-        public Item(String listTitle, String name, boolean isChecked) {
-            // Only the database is allowed to generate the UID
-            mUid = null; // non-set
-            mListTitle = listTitle;
-            mName = name;
-            mIsChecked = isChecked;
-        }
-
-        public Item(ChecklistDatabase.Item databaseItem) {
-            mUid = databaseItem.getUID();
-            mListTitle = databaseItem.getListTitle();
-            mName = databaseItem.getName();
-            mIsChecked = databaseItem.isChecked();
-        }
-
-        @Nullable
-        public Integer getUid() {
-            return mUid;
-        }
-
-        public Boolean isChecked() {
-            return mIsChecked;
-        }
-
-        public String getName() {
-            return mName;
-        }
-
-        public String getListTitle() {
-            return mListTitle;
-        }
-    }
 }
