@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import android.util.Log;
@@ -18,6 +19,7 @@ import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import java.util.Calendar;
 import java.util.Map;
 
 
@@ -28,6 +30,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private FragmentChecklistPagerBinding mBinding;
     private ViewPagerAdapter mViewPagerAdapter;
+    private ChecklistViewModel mViewModel;
 
 
     class ViewPagerAdapter extends FragmentStateAdapter {
@@ -60,6 +63,9 @@ public class ChecklistPagerFragment extends Fragment {
             return mCachedFragments.length;
         }
 
+        public boolean getChecked(int position) {
+            return mPageMap.get(position);
+        }
 //    public ListItem.Designation getDesignation(int position) {
 //        if (position == 0) {
 //            return ListItem.Designation.OPEN;
@@ -77,6 +83,7 @@ public class ChecklistPagerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: ");
         super.onCreate(savedInstanceState);
+        mViewModel = new ViewModelProvider(this).get(ChecklistViewModel.class);
     }
 
     @Override
@@ -88,6 +95,7 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.viewpager.setAdapter(mViewPagerAdapter);
         mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
 //        mBinding.viewpager.setPageTransformer(new FanTransformer());
+        mBinding.fab.setOnClickListener(view -> this.onFabClicked());
         return mBinding.getRoot();
     }
 
@@ -107,5 +115,11 @@ public class ChecklistPagerFragment extends Fragment {
                     }
                 }
         ).attach();
+    }
+
+    void onFabClicked() {
+        boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
+        ChecklistItem item = new ChecklistItem("List A", "Item " + Calendar.getInstance().get(Calendar.MILLISECOND), currentChecked);
+        mViewModel.insertItem(item);
     }
 }

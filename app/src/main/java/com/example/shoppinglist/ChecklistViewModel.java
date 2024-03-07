@@ -34,6 +34,10 @@ public class ChecklistViewModel extends AndroidViewModel {
         mChecklistRepo.flipChecked(item.getUid());
     }
 
+    public void insertItem(ChecklistItem item) {
+        mChecklistRepo.insert(item);
+    }
+
     @Override
     protected void onCleared() {
         Log.d(TAG, "onCleared: ");

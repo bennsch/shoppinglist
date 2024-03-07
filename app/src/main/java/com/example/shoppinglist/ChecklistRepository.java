@@ -59,6 +59,16 @@ public class ChecklistRepository {
         });
     }
 
+    void insert(ChecklistItem item) {
+        ChecklistDatabase.databaseWriteExecutor.execute(() -> {
+            ChecklistDatabase.Item dbItem = new ChecklistDatabase.Item(
+                    item.getListTitle(),
+                    item.getName(),
+                    item.isChecked());
+            mItemDao.insert(dbItem);
+        });
+    }
+
     private static List<ChecklistItem> toChecklistItems(List<ChecklistDatabase.Item> dbItems) {
         return dbItems.stream().map(dbItem -> new ChecklistItem(
                 dbItem.getUID(),

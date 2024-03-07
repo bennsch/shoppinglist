@@ -9,15 +9,21 @@ public class ChecklistItem {
     private String mListTitle;
     private Boolean mIsChecked;
 
-    public ChecklistItem(@NonNull Integer uid, String listTitle, String name, boolean isChecked) {
+    public ChecklistItem(String listTitle, String name, boolean isChecked) {
         // Only the database is allowed to generate the UID
-        mUid = uid; // null means non-set (for room database)
+        mUid = null; // null means non-set (for room database)
         mListTitle = listTitle;
         mName = name;
         mIsChecked = isChecked;
     }
 
-    @NonNull
+    ChecklistItem(@NonNull Integer uid, String listTitle, String name, boolean isChecked) {
+        mUid = uid;
+        mListTitle = listTitle;
+        mName = name;
+        mIsChecked = isChecked;
+    }
+
     public Integer getUid() {
         return mUid;
     }
