@@ -50,8 +50,6 @@ public class ChecklistFragment extends Fragment {
         return fragment;
     }
 
-    // TODO: 3/5/2024 ViewModel onCleared() not called, so it seems the observers are never deleted
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,24 +77,6 @@ public class ChecklistFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    @Override
-    public void onDetach() {
-        Log.d(TAG, "onDetach: ");
-        super.onDetach();
-    }
-
-    @Override
-    public void onDestroyView() {
-        Log.d(TAG, "onDestroyView: ");
-        super.onDestroyView();
-    }
-
-    @Override
-    public void onDestroy() {
-        Log.d(TAG, "onDestroy: ");
-        super.onDestroy();
     }
 
     private void onItemClicked(int adapterPosition) {
