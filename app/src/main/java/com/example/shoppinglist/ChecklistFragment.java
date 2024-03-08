@@ -1,6 +1,5 @@
 package com.example.shoppinglist;
 
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,15 +11,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.example.shoppinglist.databinding.FragmentChecklistBinding;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,22 +25,26 @@ import java.util.List;
 public class ChecklistFragment extends Fragment {
 
     private static final String TAG = "ChecklistFragment";
+    private static final String ARG_LIST_TITLE = "list_title";
     private static final String ARG_DISPLAY_CHECKED = "display_checked";
 
 
     private FragmentChecklistBinding mBinding;
     private RecyclerViewAdapter mRecyclerViewAdapter;
     private boolean mDisplayChecked;
+    private String mListTitle;
     private ChecklistViewModel mViewModel;
 
     public ChecklistFragment() {
+        Log.d(TAG, "ChecklistFragment: Ctor");
         // Required empty public constructor
     }
 
-    public static ChecklistFragment newInstance(boolean displayChecked) {
+    public static ChecklistFragment newInstance(String listTitle, boolean displayChecked) {
         Log.d(TAG, "newInstance: ");
         ChecklistFragment fragment = new ChecklistFragment();
         Bundle args = new Bundle();
+        args.putString(ARG_LIST_TITLE, listTitle);
         args.putBoolean(ARG_DISPLAY_CHECKED, displayChecked);
         fragment.setArguments(args);
         return fragment;
@@ -53,9 +53,9 @@ public class ChecklistFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
-        }
+        assert getArguments() != null;
+        mListTitle = getArguments().getString(ARG_LIST_TITLE);
+        mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
         mRecyclerViewAdapter = new RecyclerViewAdapter();
         mViewModel = new ViewModelProvider(this).get(ChecklistViewModel.class);
     }
@@ -66,11 +66,9 @@ public class ChecklistFragment extends Fragment {
         mBinding = FragmentChecklistBinding.inflate(inflater, container, false);
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // TODO: 1/21/2024 getViewLifecycleOwner() or getParentFragment().getViewLifecycleOwner() ??
         Log.d(TAG, "onCreateView: " + getViewLifecycleOwner());
-        mViewModel.getItems("List A", mDisplayChecked)
-                .observe(getViewLifecycleOwner(), this::onItemSubsetChanged);
+        mViewModel.getItems(mListTitle, mDisplayChecked)
+                .observe(getViewLifecycleOwner(), this::onItemsChanged);
         return mBinding.getRoot();
     }
 
@@ -85,9 +83,9 @@ public class ChecklistFragment extends Fragment {
         mViewModel.flipChecked(item);
     }
 
-    protected void onItemSubsetChanged(List<ChecklistItem> newItems) {
+    protected void onItemsChanged(List<ChecklistItem> newItems) {
         // The newItems are already sorted by position
-        Log.d(TAG, "onItemSubsetChanged: " + (mDisplayChecked ? "Checked Items" : "Unchecked Items"));
+        Log.d(TAG, "onItemSubsetChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
         mRecyclerViewAdapter.update(newItems);
     }
 

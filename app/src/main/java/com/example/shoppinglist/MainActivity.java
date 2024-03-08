@@ -48,17 +48,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean onNavDrawerItemSelected(MenuItem item){
+        if (this.binding.navView.getCheckedItem() != item) { // if not already selected
+            if (item.getGroupId() == R.id.group_checklists) {
+                showChecklistPagerFragment(item.getTitle().toString());
+            } else {
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
+            }
+        }
+        this.binding.drawerLayout.close();
+        // Return true, to display the item as the selected item.
+        return true;
+    }
+
+    private void showChecklistPagerFragment(String listTitle) {
+        getSupportFragmentManager().beginTransaction()
 //                .setCustomAnimations(R.anim.slide, R.anim.slide)
                 .replace(this.binding.fragmentContainerView.getId(),
-                         ChecklistPagerFragment.class,
-                         null)
+                        ChecklistPagerFragment.class,
+                        ChecklistPagerFragment.makeArgs(listTitle))
                 .commit();
-
-        this.binding.drawerLayout.close();
-        return true;
+        this.binding.toolbar.setTitle(listTitle);
     }
 
     private void setupNavDrawer() {
