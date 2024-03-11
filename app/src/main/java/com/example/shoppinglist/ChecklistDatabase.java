@@ -16,7 +16,6 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
@@ -68,12 +67,12 @@ public abstract class ChecklistDatabase extends RoomDatabase {
                 dao.deleteAll();
                 List<Item> items = new ArrayList<>();
                 for (int i = 0; i < 3; ++i) {
-                    Item item = new ChecklistDatabase.Item("List A", "Item (unchecked) " + i, false);
+                    Item item = new ChecklistDatabase.Item(null, "List A", "Item (unchecked) " + i, false);
 //                    item.setPosition(i);
                     items.add(item);
                 }
                 for (int i = 0; i < 3; ++i) {
-                    Item item = new ChecklistDatabase.Item("List A", "Item (checked) " + i, true);
+                    Item item = new ChecklistDatabase.Item(null, "List A", "Item (checked) " + i, true);
 //                    item.setPosition(i);
                     items.add(item);
                 }
@@ -99,7 +98,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
         @PrimaryKey(autoGenerate = true) // autoGenerate: null is treated as "non-set"
         @ColumnInfo(name = "uid")
-        protected Integer mUID;
+        protected Integer mUid;
 
         @NonNull
         @ColumnInfo(name = "list_title")
@@ -116,8 +115,9 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @ColumnInfo(name = "position")
         protected int mPosition;
 
-        public Item(@NonNull String listTitle, @NonNull String name, @NonNull Boolean isChecked) {
+        public Item(Integer uid, @NonNull String listTitle, @NonNull String name, @NonNull Boolean isChecked) {
             // Don't provide any access to the UID, so the Database is the only one who can modify it
+            mUid = uid;
             mListTitle = listTitle;
             mName = name;
             mIsChecked = isChecked;
@@ -147,11 +147,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 //        } // TODO: 3/3/2024 make private
 //
         public Integer getUID() {
-            return mUID;
-        }
-
-        public void flipChecked() {
-            mIsChecked = !mIsChecked;
+            return mUid;
         }
     }
 
@@ -172,6 +168,9 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
         @Query("SELECT * FROM items WHERE list_title LIKE :listTitle AND is_checked == :isChecked ORDER BY position ASC")
         List<Item> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
+
+        @Query("SELECT * FROM items WHERE list_title LIKE :listTitle")
+        List<Item> getList(String listTitle);
 
         @Query("SELECT * FROM items WHERE list_title LIKE :listTitle AND is_checked == :isChecked ORDER BY position ASC")
         LiveData<List<Item>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);

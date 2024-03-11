@@ -30,9 +30,17 @@ public class ChecklistRepository {
     // databaseWriteExecutor not required for call that return LiveData
     // (async code will be performed automatically by the DAO if return type is LiveData)
 
-//    LiveData<List<ChecklistDatabase.Item>> getSubset(String listTitle, Boolean isChecked) {
-//        return mItemDao.getSubsetAsLiveData(listTitle, isChecked);
-//    }
+    ChecklistItem getItem(@NonNull Integer uid) {
+        return toChecklistItem(mItemDao.getItem(uid));
+    }
+
+    void update(List<ChecklistItem> items) {
+        mItemDao.update(toDatabaseItems(items));
+    }
+
+    List<ChecklistItem> getList(String listTitle) {
+        return toChecklistItems(mItemDao.getList(listTitle));
+    }
 
     LiveData<List<ChecklistItem>> getSubsetSortedByPosition(String listTitle, Boolean isChecked) {
         return Transformations.map(
@@ -40,41 +48,36 @@ public class ChecklistRepository {
                 ChecklistRepository::toChecklistItems);
     }
 
-
-    void flipChecked(@NonNull Integer uid) {
-        // TODO: 3/2/2024  why is observer called twice per list? (4 calls in total)
-        //  Perform all updates on local list then commit to itemDao
-        ChecklistDatabase.databaseWriteExecutor.execute(() -> {
-            ChecklistDatabase.Item dbItem = mItemDao.getItem(uid);
-            dbItem.flipChecked();
-            mItemDao.update(dbItem);
-
-//            ChecklistDatabase.Item dbItem = mItemDao.getItem(item.getUid());
-//            List<ChecklistDatabase.Item> dbItemsToRemoveFrom = mItemDao.getSubsetSortedByPosition(item.getListTitle(), item.isChecked());
-//            dbItemsToRemoveFrom.remove(dbItem);
-//            List<ChecklistDatabase.Item> dbItemsToAddTo = mItemDao.getSubsetSortedByPosition(item.getListTitle(), !item.isChecked());
-//            dbItem.flipChecked();
-//            dbItemsToAddTo.add(dbItem);
-
-        });
-    }
-
     void insert(ChecklistItem item) {
-        ChecklistDatabase.databaseWriteExecutor.execute(() -> {
-            ChecklistDatabase.Item dbItem = new ChecklistDatabase.Item(
-                    item.getListTitle(),
-                    item.getName(),
-                    item.isChecked());
-            mItemDao.insert(dbItem);
-        });
+        mItemDao.insert(toDatabaseItem(item));
     }
 
     private static List<ChecklistItem> toChecklistItems(List<ChecklistDatabase.Item> dbItems) {
-        return dbItems.stream().map(dbItem -> new ChecklistItem(
+        return dbItems.stream()
+                .map(ChecklistRepository::toChecklistItem)
+                .collect(Collectors.toList());
+    }
+
+    private static ChecklistItem toChecklistItem(ChecklistDatabase.Item dbItem) {
+        return new ChecklistItem(
                 dbItem.getUID(),
                 dbItem.getListTitle(),
                 dbItem.getName(),
-                dbItem.isChecked())).collect(Collectors.toList());
+                dbItem.isChecked());
+    }
+
+    private static ChecklistDatabase.Item toDatabaseItem(ChecklistItem clItem) {
+        return new ChecklistDatabase.Item(
+                clItem.getUid(),
+                clItem.getListTitle(),
+                clItem.getName(),
+                clItem.isChecked());
+    }
+
+    private static List<ChecklistDatabase.Item> toDatabaseItems(List<ChecklistItem> clItems) {
+        return clItems.stream()
+                .map(ChecklistRepository::toDatabaseItem)
+                .collect(Collectors.toList());
     }
 
 //    void insertEnd(ChecklistDatabase.Item item) {

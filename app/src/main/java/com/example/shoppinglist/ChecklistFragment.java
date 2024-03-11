@@ -67,7 +67,7 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         Log.d(TAG, "onCreateView: " + getViewLifecycleOwner());
-        mViewModel.getItems(mListTitle, mDisplayChecked)
+        mViewModel.getFilteredList(mListTitle, mDisplayChecked)
                 .observe(getViewLifecycleOwner(), this::onItemsChanged);
         return mBinding.getRoot();
     }

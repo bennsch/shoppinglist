@@ -24,6 +24,10 @@ public class ChecklistItem {
         mIsChecked = isChecked;
     }
 
+    public void flipChecked() {
+        mIsChecked = !mIsChecked;
+    }
+
     public Integer getUid() {
         return mUid;
     }
