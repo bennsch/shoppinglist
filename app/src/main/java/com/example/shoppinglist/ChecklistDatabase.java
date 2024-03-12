@@ -67,13 +67,11 @@ public abstract class ChecklistDatabase extends RoomDatabase {
                 dao.deleteAll();
                 List<Item> items = new ArrayList<>();
                 for (int i = 0; i < 3; ++i) {
-                    Item item = new ChecklistDatabase.Item(null, "List A", "Item (unchecked) " + i, false);
-//                    item.setPosition(i);
+                    Item item = new ChecklistDatabase.Item(null, "List A", "Item " + i, false, i);
                     items.add(item);
                 }
                 for (int i = 0; i < 3; ++i) {
-                    Item item = new ChecklistDatabase.Item(null, "List A", "Item (checked) " + i, true);
-//                    item.setPosition(i);
+                    Item item = new ChecklistDatabase.Item(null, "List A", "Item " + i, true, i);
                     items.add(item);
                 }
 //                for (int i = 0; i < 2; ++i) {
@@ -113,14 +111,15 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         protected Boolean mIsChecked;
 
         @ColumnInfo(name = "position")
-        protected int mPosition;
+        protected Integer mPosition;
 
-        public Item(Integer uid, @NonNull String listTitle, @NonNull String name, @NonNull Boolean isChecked) {
+        public Item(Integer uid, @NonNull String listTitle, @NonNull String name, @NonNull Boolean isChecked, Integer position) {
             // Don't provide any access to the UID, so the Database is the only one who can modify it
             mUid = uid;
             mListTitle = listTitle;
             mName = name;
             mIsChecked = isChecked;
+            mPosition = position;
         }
 
         @NonNull
@@ -138,7 +137,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
             return mIsChecked;
         }
 
-        public int getPosition() {
+        public Integer getPosition() {
             return mPosition;
         }
 
@@ -160,8 +159,12 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Query("SELECT * FROM items WHERE uid == :uid LIMIT 1")
         Item getItem(Integer uid);
 
+//        @Query("SELECT COUNT() FROM items WHERE list_title LIKE :listTitle AND is_checked == :isChecked")
+
+
         @Query("SELECT * FROM items WHERE list_title LIKE :listTitle AND is_checked LIKE :isChecked")
         LiveData<List<Item>> getSubsetAsLiveData(String listTitle, boolean isChecked);
+
 
         @Query("SELECT MAX(position) FROM items WHERE list_title LIKE :listTitle AND is_checked LIKE :isChecked")
         int getSubSetMaxPosition(String listTitle, Boolean isChecked);

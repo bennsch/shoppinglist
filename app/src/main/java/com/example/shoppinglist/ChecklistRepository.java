@@ -1,16 +1,11 @@
 package com.example.shoppinglist;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,8 +33,22 @@ public class ChecklistRepository {
         mItemDao.update(toDatabaseItems(items));
     }
 
+    void update(ChecklistItem item) {
+        mItemDao.update(toDatabaseItem(item));
+    }
+
+    int getSubSetMaxPosition(String listTitle, Boolean isChecked) {
+        return mItemDao.getSubSetMaxPosition(listTitle, isChecked);
+    }
+
+
+
     List<ChecklistItem> getList(String listTitle) {
         return toChecklistItems(mItemDao.getList(listTitle));
+    }
+
+    List<ChecklistItem> getSublistSorted(@NonNull String listTitle, @NonNull Boolean isChecked) {
+        return toChecklistItems(mItemDao.getSubsetSortedByPosition(listTitle, isChecked));
     }
 
     LiveData<List<ChecklistItem>> getSubsetSortedByPosition(String listTitle, Boolean isChecked) {
@@ -48,8 +57,8 @@ public class ChecklistRepository {
                 ChecklistRepository::toChecklistItems);
     }
 
-    void insert(ChecklistItem item) {
-        mItemDao.insert(toDatabaseItem(item));
+    void insert(String listTitle, String name, Boolean isChecked) {
+        mItemDao.insert(new ChecklistDatabase.Item(null, listTitle, name, isChecked, null));
     }
 
     private static List<ChecklistItem> toChecklistItems(List<ChecklistDatabase.Item> dbItems) {
@@ -63,7 +72,8 @@ public class ChecklistRepository {
                 dbItem.getUID(),
                 dbItem.getListTitle(),
                 dbItem.getName(),
-                dbItem.isChecked());
+                dbItem.isChecked(),
+                dbItem.getPosition());
     }
 
     private static ChecklistDatabase.Item toDatabaseItem(ChecklistItem clItem) {
@@ -71,7 +81,8 @@ public class ChecklistRepository {
                 clItem.getUid(),
                 clItem.getListTitle(),
                 clItem.getName(),
-                clItem.isChecked());
+                clItem.isChecked(),
+                clItem.getPosition());
     }
 
     private static List<ChecklistDatabase.Item> toDatabaseItems(List<ChecklistItem> clItems) {

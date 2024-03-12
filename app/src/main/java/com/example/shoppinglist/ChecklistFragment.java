@@ -80,7 +80,7 @@ public class ChecklistFragment extends Fragment {
     private void onItemClicked(int adapterPosition) {
         Log.d(TAG, "onItemClicked: " + adapterPosition);
         ChecklistItem item = mRecyclerViewAdapter.getItem(adapterPosition);
-        mViewModel.flipChecked(item);
+        mViewModel.flipChecked(item.getUid());
     }
 
     protected void onItemsChanged(List<ChecklistItem> newItems) {
