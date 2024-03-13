@@ -44,8 +44,13 @@ public class ChecklistViewModel extends AndroidViewModel {
         mExecutor.execute(() -> {
             ChecklistItem item = mChecklistRepo.getItem(toBeFlippedUid);
 
+            if (item == null) {
+                throw new IndexOutOfBoundsException("UID not found in database " + toBeFlippedUid);
+            }
             List<ChecklistItem> dbMirrorRemovedFrom = mChecklistRepo.getSublistSorted(item.getListTitle(), item.isChecked());
-            dbMirrorRemovedFrom.remove(item);
+            if (!(dbMirrorRemovedFrom.removeIf(item1 -> item1.getUid().equals(item.getUid())))) {
+                throw new IndexOutOfBoundsException("No item with such UID " + toBeFlippedUid);
+            }
             updatePositions(dbMirrorRemovedFrom);
 
             List<ChecklistItem> dbMirrorAddTo = mChecklistRepo.getSublistSorted(item.getListTitle(), !item.isChecked());
@@ -72,9 +77,6 @@ public class ChecklistViewModel extends AndroidViewModel {
                 dbMirror.add(0, newItem);
             }
             updatePositions(dbMirror);
-            // TODO: 3/11/2024 Let repo detect new items and insert them
-            // TODO: 3/11/2024 use Database @Transaction!
-            mChecklistRepo.insert(listTitle, name, isChecked);
             mChecklistRepo.update(dbMirror);
         });
     }

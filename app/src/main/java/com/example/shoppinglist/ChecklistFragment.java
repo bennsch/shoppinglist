@@ -1,5 +1,6 @@
 package com.example.shoppinglist;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.example.shoppinglist.databinding.FragmentChecklistBinding;
@@ -103,7 +105,14 @@ public class ChecklistFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.getBinding().textView.setText(mCachedItems.get(position).getName());
+            ChecklistItem item = mCachedItems.get(position);
+            holder.getBinding().textView.setText(item.getName());
+//            holder.getBinding().textView2.setText((item.getPosition() != null ? item.getPosition() : "null") + " (" + position + ")");
+//            if ((item.getPosition() == null) || (item.getPosition() != position)) {
+//                holder.getBinding().textView2.setTextColor(Color.RED);
+//            }else {
+//                holder.getBinding().textView2.setTextColor(Color.BLACK);
+//            }
             if (mCachedItems.get(position).isChecked()) {
                 holder.getBinding().textView.setTextAppearance(R.style.ChecklistItem_Checked);
             } else {
@@ -119,6 +128,15 @@ public class ChecklistFragment extends Fragment {
         public void update(List<ChecklistItem> newItems) {
             final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
                     new DiffCallback(getItems(), newItems));
+
+            for (int i = 0; i < newItems.size(); ++i) {
+                if (newItems.get(i).getPosition() != i) {
+                    // TODO: 3/13/2024 Is this due to not using Database @Transaction ?
+                    Log.w(TAG, "newItems position " + newItems.get(i).getPosition() + " != cachedItems position " + i);
+                    Toast.makeText(getContext(), "position mismatch", Toast.LENGTH_SHORT).show();
+                }
+            }
+
             mCachedItems = newItems;
             // will trigger the appropriate animations
             diffResult.dispatchUpdatesTo(this);
