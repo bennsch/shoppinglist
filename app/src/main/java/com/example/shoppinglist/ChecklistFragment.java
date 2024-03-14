@@ -131,7 +131,6 @@ public class ChecklistFragment extends Fragment {
 
             for (int i = 0; i < newItems.size(); ++i) {
                 if (newItems.get(i).getPosition() != i) {
-                    // TODO: 3/13/2024 Is this due to not using Database @Transaction ?
                     Log.w(TAG, "newItems position " + newItems.get(i).getPosition() + " != cachedItems position " + i);
                     Toast.makeText(getContext(), "position mismatch", Toast.LENGTH_SHORT).show();
                 }

@@ -43,6 +43,7 @@ public class ChecklistViewModel extends AndroidViewModel {
     public void flipChecked(@NonNull Integer toBeFlippedUid) {
         mExecutor.execute(() -> {
             ChecklistItem item = mChecklistRepo.getItem(toBeFlippedUid);
+            List<ChecklistItem> items;
 
             if (item == null) {
                 throw new IndexOutOfBoundsException("UID not found in database " + toBeFlippedUid);
@@ -52,6 +53,7 @@ public class ChecklistViewModel extends AndroidViewModel {
                 throw new IndexOutOfBoundsException("No item with such UID " + toBeFlippedUid);
             }
             updatePositions(dbMirrorRemovedFrom);
+            items = dbMirrorRemovedFrom;
 
             List<ChecklistItem> dbMirrorAddTo = mChecklistRepo.getSublistSorted(item.getListTitle(), !item.isChecked());
             item.flipChecked();
@@ -61,9 +63,9 @@ public class ChecklistViewModel extends AndroidViewModel {
                 dbMirrorAddTo.add(item);
             }
             updatePositions(dbMirrorAddTo);
-
-            dbMirrorRemovedFrom.addAll(dbMirrorAddTo);
-            mChecklistRepo.update(dbMirrorRemovedFrom);
+            items.addAll(dbMirrorAddTo);
+            // Make sure that only a single repo function is called (only single database update)
+            mChecklistRepo.updateAndOrInsert(items);
         });
     }
 
@@ -77,7 +79,7 @@ public class ChecklistViewModel extends AndroidViewModel {
                 dbMirror.add(0, newItem);
             }
             updatePositions(dbMirror);
-            mChecklistRepo.update(dbMirror);
+            mChecklistRepo.updateAndOrInsert(dbMirror);
         });
     }
 

@@ -29,32 +29,13 @@ public class ChecklistRepository {
         return toChecklistItem(mItemDao.getItem(uid));
     }
 
-    void update(List<ChecklistItem> items) {
-        // TODO: 3/11/2024 use Database @Transaction?? (seems like LiveData observers only get called once)
-        List<ChecklistDatabase.Item> dbItems = toDatabaseItems(items);
-        dbItems.forEach(dbItem -> {
-            if (dbItem.getUID() == null) {
-                mItemDao.insert(dbItem);
-            } else {
-//                mItemDao.update(dbItem);
-            }
-        });
-        mItemDao.update(dbItems);
-    }
-
-    void update(ChecklistItem item) {
-        if (item.getUid() == null) {
-            mItemDao.insert(toDatabaseItem(item));
-        } else {
-            mItemDao.update(toDatabaseItem(item));
-        }
+    void updateAndOrInsert(List<ChecklistItem> items) {
+        mItemDao.updateAndOrInsert(toDatabaseItems(items));
     }
 
     int getSubSetMaxPosition(String listTitle, Boolean isChecked) {
         return mItemDao.getSubSetMaxPosition(listTitle, isChecked);
     }
-
-
 
     List<ChecklistItem> getList(String listTitle) {
         return toChecklistItems(mItemDao.getList(listTitle));

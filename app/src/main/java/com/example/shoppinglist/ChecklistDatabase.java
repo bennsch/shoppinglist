@@ -16,6 +16,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
@@ -178,11 +179,15 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Query("SELECT * FROM items WHERE list_title LIKE :listTitle AND is_checked == :isChecked ORDER BY position ASC")
         LiveData<List<Item>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);
 
-//        @Transaction
-//        default void trans(Item item){
-//            delete(item);
-//            insert(item);
-//        }
+        @Transaction
+        default void updateAndOrInsert(List<Item> items) {
+            items.forEach(item -> {
+                if (item.getUID() == null) {
+                    insert(item);
+                }
+            });
+            update(items);
+        }
 
         @Query("DELETE FROM items WHERE uid == :uid")
         void delete(Integer uid);
