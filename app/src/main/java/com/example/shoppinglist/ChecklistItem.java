@@ -15,6 +15,7 @@ public class ChecklistItem {
         mListTitle = listTitle;
         mName = name;
         mIsChecked = isChecked;
+        // TODO: 3/17/2024 Try to eliminate the need for mPosition in ChecklistItem
         mPosition = null;
     }
 

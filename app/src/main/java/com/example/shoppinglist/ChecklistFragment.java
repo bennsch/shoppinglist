@@ -1,6 +1,5 @@
 package com.example.shoppinglist;
 
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,7 +21,9 @@ import com.example.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.example.shoppinglist.databinding.FragmentChecklistBinding;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class ChecklistFragment extends Fragment {
@@ -70,7 +72,7 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         Log.d(TAG, "onCreateView: " + getViewLifecycleOwner());
         mViewModel.getFilteredList(mListTitle, mDisplayChecked)
-                .observe(getViewLifecycleOwner(), this::onItemsChanged);
+                .observe(getViewLifecycleOwner(), this::onLiveDataChanged);
         return mBinding.getRoot();
     }
 
@@ -79,22 +81,27 @@ public class ChecklistFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    private void onItemClicked(int adapterPosition) {
-        Log.d(TAG, "onItemClicked: " + adapterPosition);
-        ChecklistItem item = mRecyclerViewAdapter.getItem(adapterPosition);
-        mViewModel.flipChecked(item.getUid());
-    }
-
-    protected void onItemsChanged(List<ChecklistItem> newItems) {
+    protected void onLiveDataChanged(List<ChecklistItem> newItems) {
         // The newItems are already sorted by position
         Log.d(TAG, "onItemSubsetChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
         mRecyclerViewAdapter.update(newItems);
+    }
+    // TODO: 3/12/2024 Use ChecklistItem as parameter
+    private void onItemClicked(int adapterPosition) {
+        Log.d(TAG, "onItemClicked: " + adapterPosition);
+        ChecklistItem item = mRecyclerViewAdapter.getCachedItem(adapterPosition);
+        mViewModel.flipChecked(item.getUid());
+    }
+
+    protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
+        mViewModel.updateItemPositions(itemsSortedByPosition);
     }
 
 
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
         private List<ChecklistItem> mCachedItems = new ArrayList<>();
+        private ItemTouchHelper mItemTouchHelper;
 
         @NonNull
         @Override
@@ -107,17 +114,41 @@ public class ChecklistFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             ChecklistItem item = mCachedItems.get(position);
             holder.getBinding().textView.setText(item.getName());
-//            holder.getBinding().textView2.setText((item.getPosition() != null ? item.getPosition() : "null") + " (" + position + ")");
-//            if ((item.getPosition() == null) || (item.getPosition() != position)) {
-//                holder.getBinding().textView2.setTextColor(Color.RED);
-//            }else {
-//                holder.getBinding().textView2.setTextColor(Color.BLACK);
-//            }
             if (mCachedItems.get(position).isChecked()) {
                 holder.getBinding().textView.setTextAppearance(R.style.ChecklistItem_Checked);
             } else {
                 holder.getBinding().textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
+        }
+
+        @Override
+        public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
+            mItemTouchHelper = new ItemTouchHelper(
+                    new ItemTouchHelper.SimpleCallback(
+                            ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    return onItemMove(viewHolder, target);
+                }
+
+                @Override
+                public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+                    super.onSelectedChanged(viewHolder, actionState);
+                    if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
+                        onMoveCompleted();
+                    }
+                }
+
+                @Override
+                public boolean isLongPressDragEnabled() {
+                    return false;
+                }
+
+                        @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {}
+            });
+            mItemTouchHelper.attachToRecyclerView(recyclerView);
         }
 
         @Override
@@ -127,7 +158,7 @@ public class ChecklistFragment extends Fragment {
 
         public void update(List<ChecklistItem> newItems) {
             final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
-                    new DiffCallback(getItems(), newItems));
+                    new DiffCallback(getCachedItems(), newItems));
 
             for (int i = 0; i < newItems.size(); ++i) {
                 if (newItems.get(i).getPosition() != i) {
@@ -141,13 +172,56 @@ public class ChecklistFragment extends Fragment {
             diffResult.dispatchUpdatesTo(this);
         }
 
-        public ChecklistItem getItem(int pos) {
+        public boolean onItemMove(@NonNull RecyclerView.ViewHolder itemFrom,
+                                  @NonNull RecyclerView.ViewHolder itemTo) {
+            int from = itemFrom.getAdapterPosition();
+            int to = itemTo.getAdapterPosition();
+
+            if ((from == RecyclerView.NO_POSITION) ||
+                    (to == RecyclerView.NO_POSITION)) {
+                Log.w(TAG, "Item move ignored");
+                return false;
+            } else {
+
+                // We need to update cachedItems, otherwise DiffUtil.calculateDiff in update()
+                // would not work properly.
+                // Basically, the newItems will already match the cachedItems when the
+                // ViewModel has updated the database and calls the callback, so it is
+                // redundant. But updating the cachedItems ensures that the RecyclerView
+                // visually matches it's underlying data (cachedItems). So any subsequent
+                // moves will result in correct calls to  update the ViewModel.
+                if (from < to) {
+                    for (int i = from; i < to; i++) {
+                        Collections.swap(mCachedItems, i, i + 1);
+                    }
+                } else {
+                    for (int i = from; i > to; i--) {
+                        Collections.swap(mCachedItems, i, i - 1);
+                    }
+                }
+                // Animate the move (visually move the items)
+                notifyItemMoved(from, to);
+                return true;
+            }
+        }
+
+        public void onMoveCompleted() {
+            onItemsMoved(mCachedItems);
+        }
+
+        public ChecklistItem getCachedItem(int pos) {
             return mCachedItems.get(pos);
         }
 
-        public List<ChecklistItem> getItems() {
+        public List<ChecklistItem> getCachedItems() {
             return mCachedItems;
         }
+
+        public boolean onDragHandleTouch(ViewHolder dragHandle) {
+            mItemTouchHelper.startDrag(dragHandle);
+            return true; // true if the listener has consumed the event
+        }
+
 
         class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
@@ -157,6 +231,7 @@ public class ChecklistFragment extends Fragment {
                 super(binding.getRoot());
                 mBinding = binding;
                 mBinding.textView.setOnClickListener(this);
+                mBinding.dragHandle.setOnTouchListener((view, motionEvent) -> onDragHandleTouch(this));
             }
 
             @Override
@@ -173,6 +248,7 @@ public class ChecklistFragment extends Fragment {
                 return mBinding;
             }
         }
+
 
         class DiffCallback extends DiffUtil.Callback {
 
