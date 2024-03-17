@@ -159,14 +159,6 @@ public class ChecklistFragment extends Fragment {
         public void update(List<ChecklistItem> newItems) {
             final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
                     new DiffCallback(getCachedItems(), newItems));
-
-            for (int i = 0; i < newItems.size(); ++i) {
-                if (newItems.get(i).getPosition() != i) {
-                    Log.w(TAG, "newItems position " + newItems.get(i).getPosition() + " != cachedItems position " + i);
-                    Toast.makeText(getContext(), "position mismatch", Toast.LENGTH_SHORT).show();
-                }
-            }
-
             mCachedItems = newItems;
             // will trigger the appropriate animations
             diffResult.dispatchUpdatesTo(this);

@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 
@@ -47,7 +49,7 @@ public class ChecklistViewModel extends AndroidViewModel {
     public void flipChecked(@NonNull Integer toBeFlippedUid) {
         mExecutor.execute(() -> {
             ChecklistItem item = mChecklistRepo.getItem(toBeFlippedUid);
-            List<ChecklistItem> items;
+            List<ChecklistRepository.ItemWithPosition> itemsWithPosition = new ArrayList<>();
 
             if (item == null) {
                 throw new IndexOutOfBoundsException("UID not found in database " + toBeFlippedUid);
@@ -56,8 +58,7 @@ public class ChecklistViewModel extends AndroidViewModel {
             if (!(dbMirrorRemovedFrom.removeIf(item1 -> item1.getUid().equals(item.getUid())))) {
                 throw new IndexOutOfBoundsException("No item with such UID " + toBeFlippedUid);
             }
-            updatePositions(dbMirrorRemovedFrom);
-            items = dbMirrorRemovedFrom;
+            itemsWithPosition.addAll(mapPositionByOrder(dbMirrorRemovedFrom));
 
             List<ChecklistItem> dbMirrorAddTo = mChecklistRepo.getSublistSorted(item.getListTitle(), !item.isChecked());
             item.flipChecked();
@@ -66,10 +67,9 @@ public class ChecklistViewModel extends AndroidViewModel {
             } else {
                 dbMirrorAddTo.add(item);
             }
-            updatePositions(dbMirrorAddTo);
-            items.addAll(dbMirrorAddTo);
+            itemsWithPosition.addAll(mapPositionByOrder(dbMirrorAddTo));
             // Make sure that only a single repo function is called (only single database update)
-            mChecklistRepo.updateAndOrInsert(items);
+            mChecklistRepo.updateAndOrInsert(itemsWithPosition);
         });
     }
 
@@ -82,22 +82,24 @@ public class ChecklistViewModel extends AndroidViewModel {
             } else {
                 dbMirror.add(0, newItem);
             }
-            updatePositions(dbMirror);
-            mChecklistRepo.updateAndOrInsert(dbMirror);
+            mChecklistRepo.updateAndOrInsert(mapPositionByOrder(dbMirror));
 
         });
     }
 
+    // TODO: 3/17/2024 use a Map (or such) to map a position to each item
+    //  Because the items may not be from the same sublist
     public void updateItemPositions(final List<ChecklistItem> itemsSortedByPos) {
         mExecutor.execute(() -> {
-            updatePositions(itemsSortedByPos);
-            mChecklistRepo.updateAndOrInsert(itemsSortedByPos);
+            mChecklistRepo.updateAndOrInsert(mapPositionByOrder(itemsSortedByPos));
         });
     }
 
-    private static void updatePositions(List<ChecklistItem> items) {
-        AtomicInteger position = new AtomicInteger(0);
-        items.forEach(item -> item.setPosition(position.getAndIncrement()));
+    private static List<ChecklistRepository.ItemWithPosition> mapPositionByOrder(List<ChecklistItem> items) {
+        AtomicLong position = new AtomicLong(0);
+        return items.stream()
+                .map(item -> new ChecklistRepository.ItemWithPosition(position.getAndIncrement(), item))
+                .collect(Collectors.toList());
     }
 
     @Override

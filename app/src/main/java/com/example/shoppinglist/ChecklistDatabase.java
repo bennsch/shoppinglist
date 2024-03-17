@@ -67,11 +67,11 @@ public abstract class ChecklistDatabase extends RoomDatabase {
                 ItemDao dao = INSTANCE.itemDao();
                 dao.deleteAll();
                 List<Item> items = new ArrayList<>();
-                for (int i = 0; i < 3; ++i) {
+                for (long i = 0; i < 3; ++i) {
                     Item item = new ChecklistDatabase.Item(null, "List A", "Item " + i, false, i);
                     items.add(item);
                 }
-                for (int i = 0; i < 3; ++i) {
+                for (long i = 0; i < 3; ++i) {
                     Item item = new ChecklistDatabase.Item(null, "List A", "Item " + i, true, i);
                     items.add(item);
                 }
@@ -112,9 +112,10 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         protected Boolean mIsChecked;
 
         @ColumnInfo(name = "position")
-        protected Integer mPosition;
+        protected Long mPosition;
 
-        public Item(Integer uid, @NonNull String listTitle, @NonNull String name, @NonNull Boolean isChecked, Integer position) {
+
+        public Item(Integer uid, @NonNull String listTitle, @NonNull String name, @NonNull Boolean isChecked, Long position) {
             // Don't provide any access to the UID, so the Database is the only one who can modify it
             mUid = uid;
             mListTitle = listTitle;
@@ -138,7 +139,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
             return mIsChecked;
         }
 
-        public Integer getPosition() {
+        public Long getPosition() {
             return mPosition;
         }
 

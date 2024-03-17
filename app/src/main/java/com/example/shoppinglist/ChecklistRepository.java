@@ -6,7 +6,9 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -15,6 +17,17 @@ public class ChecklistRepository {
     private static final String TAG = "ChecklistRepository";
 
     private ChecklistDatabase.ItemDao mItemDao;
+
+
+    public static class ItemWithPosition {
+        private final long mPosition;
+        private final ChecklistItem mItem;
+        public ItemWithPosition(long position, ChecklistItem item) {
+            assert position >= 0;
+            mPosition = position;
+            mItem = item;
+        }
+    }
 
 
     public ChecklistRepository(@NonNull Application application) {
@@ -29,7 +42,7 @@ public class ChecklistRepository {
         return toChecklistItem(mItemDao.getItem(uid));
     }
 
-    void updateAndOrInsert(List<ChecklistItem> items) {
+    void updateAndOrInsert(List<ItemWithPosition> items) {
         mItemDao.updateAndOrInsert(toDatabaseItems(items));
     }
 
@@ -66,22 +79,17 @@ public class ChecklistRepository {
                 dbItem.getUID(),
                 dbItem.getListTitle(),
                 dbItem.getName(),
-                dbItem.isChecked(),
-                dbItem.getPosition());
+                dbItem.isChecked());
     }
 
-    private static ChecklistDatabase.Item toDatabaseItem(ChecklistItem clItem) {
-        return new ChecklistDatabase.Item(
-                clItem.getUid(),
-                clItem.getListTitle(),
-                clItem.getName(),
-                clItem.isChecked(),
-                clItem.getPosition());
-    }
-
-    private static List<ChecklistDatabase.Item> toDatabaseItems(List<ChecklistItem> clItems) {
+    private static List<ChecklistDatabase.Item> toDatabaseItems(List<ItemWithPosition> clItems) {
         return clItems.stream()
-                .map(ChecklistRepository::toDatabaseItem)
+                .map(itemWithPosition -> new ChecklistDatabase.Item(
+                        itemWithPosition.mItem.getUid(),
+                        itemWithPosition.mItem.getListTitle(),
+                        itemWithPosition.mItem.getName(),
+                        itemWithPosition.mItem.isChecked(),
+                        itemWithPosition.mPosition))
                 .collect(Collectors.toList());
     }
 
