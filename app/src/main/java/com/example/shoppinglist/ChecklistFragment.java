@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.example.shoppinglist.databinding.FragmentChecklistBinding;
@@ -23,7 +22,6 @@ import com.example.shoppinglist.databinding.FragmentChecklistBinding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class ChecklistFragment extends Fragment {
@@ -90,11 +88,11 @@ public class ChecklistFragment extends Fragment {
     private void onItemClicked(int adapterPosition) {
         Log.d(TAG, "onItemClicked: " + adapterPosition);
         ChecklistItem item = mRecyclerViewAdapter.getCachedItem(adapterPosition);
-        mViewModel.flipChecked(item.getUid());
+        mViewModel.flipItemChecked(mListTitle, item.getName());
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
-        mViewModel.updateItemPositions(itemsSortedByPosition);
+        mViewModel.updateItemPositions(mListTitle, itemsSortedByPosition);
     }
 
 
@@ -273,7 +271,7 @@ public class ChecklistFragment extends Fragment {
                 //Called to check whether two objects represent the same item.
                 final ChecklistItem oldItem = mOldList.get(oldItemPosition);
                 final ChecklistItem newItem = mNewList.get(newItemPosition);
-                return oldItem.getUid().equals(newItem.getUid());
+                return oldItem.getName().equals(newItem.getName());
             }
 
             @Override

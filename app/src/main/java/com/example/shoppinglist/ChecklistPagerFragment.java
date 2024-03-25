@@ -86,7 +86,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     void onFabClicked() {
         boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
-        mViewModel.insertItem(mListTitle, "Item " + Calendar.getInstance().get(Calendar.MILLISECOND), currentChecked);
+        mViewModel.insertItem(mListTitle, new ChecklistItem("Item " + Calendar.getInstance().get(Calendar.MILLISECOND), currentChecked));
     }
 
 

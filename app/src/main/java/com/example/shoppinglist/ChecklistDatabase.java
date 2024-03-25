@@ -5,13 +5,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
-import androidx.room.Delete;
 import androidx.room.Entity;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
@@ -26,14 +23,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-@Database(entities = {ChecklistDatabase.Item.class}, version = 1 /*exportSchema = false*/)
+@Database(entities = {
+            ChecklistDatabase.Checklist.class,
+            ChecklistDatabase.Item.class}
+        , version = 1 /*exportSchema = false*/)
 public abstract class ChecklistDatabase extends RoomDatabase {
 
     private static final String TAG = "ListItemDatabase";
 
     private static volatile ChecklistDatabase INSTANCE;
-    private static final int NUMBER_OF_THREADS = 4;
-    static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(1);
 
     public abstract ItemDao itemDao();
 
@@ -59,165 +58,152 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
             super.onCreate(db);
 
-            // If you want to keep data through app restarts,
-            // comment out the following block
             databaseWriteExecutor.execute(() -> {
-                // Populate the database in the background.
-                // If you want to start with more words, just add them.
                 ItemDao dao = INSTANCE.itemDao();
-                dao.deleteAll();
-                List<Item> items = new ArrayList<>();
-                for (long i = 0; i < 3; ++i) {
-                    Item item = new ChecklistDatabase.Item(null, "List A", "Item " + i, false, i);
-                    items.add(item);
+                INSTANCE.clearAllTables();
+                {
+                    Checklist checklist = new Checklist("NuovoList A");
+                    dao.insert(checklist);
+                    List<Item> items = new ArrayList<>();
+                    for (long i = 0; i < 3; ++i) {
+                        Item item = new ChecklistDatabase.Item("Item (Unchecked)" + i, false, i, checklist.checklistTitle);
+                        items.add(item);
+                    }
+                    for (long i = 0; i < 2; ++i) {
+                        Item item = new ChecklistDatabase.Item("Item (Checked)" + i, true, i, checklist.checklistTitle);
+                        items.add(item);
+                    }
+                    dao.insert(items);
                 }
-                for (long i = 0; i < 3; ++i) {
-                    Item item = new ChecklistDatabase.Item(null, "List A", "Item " + i, true, i);
-                    items.add(item);
+                {
+                    Checklist checklist = new Checklist("NuovoList B");
+                    dao.insert(checklist);
+                    List<Item> items = new ArrayList<>();
+                    for (long i = 0; i < 3; ++i) {
+                        Item item = new ChecklistDatabase.Item("Item (Unchecked)" + i, false, i, checklist.checklistTitle);
+                        items.add(item);
+                    }
+                    for (long i = 0; i < 2; ++i) {
+                        Item item = new ChecklistDatabase.Item("Item (Checked)" + i, true, i, checklist.checklistTitle);
+                        items.add(item);
+                    }
+                    dao.insert(items);
                 }
-//                for (int i = 0; i < 2; ++i) {
-//                    ListItem item = new ListItem("List B", "ListB_open_" + i, ListItem.Designation.OPEN);
-//                    item.setPosition(i);
-//                    items.add(item);
-//                }
-//                for (int i = 0; i < 10; ++i) {
-//                    ListItem item = new ListItem("List B", "ListB_closed_" + i, ListItem.Designation.CLOSED);
-//                    item.setPosition(i);
-//                    items.add(item);
-//                }
-                dao.insert(items);
             });
         }
     };
 
 
+    @Entity(tableName = "checklists")
+    static class Checklist {
+        @PrimaryKey @NonNull private String checklistTitle;
 
-    @Entity(tableName = "items")
-    static class Item{
-
-        @PrimaryKey(autoGenerate = true) // autoGenerate: null is treated as "non-set"
-        @ColumnInfo(name = "uid")
-        protected Integer mUid;
-
-        @NonNull
-        @ColumnInfo(name = "list_title")
-        protected String mListTitle;
-
-        @NonNull
-        @ColumnInfo(name = "name")
-        protected String mName;
-
-        @NonNull
-        @ColumnInfo(name = "is_checked")
-        protected Boolean mIsChecked;
-
-        @ColumnInfo(name = "position")
-        protected Long mPosition;
-
-
-        public Item(Integer uid, @NonNull String listTitle, @NonNull String name, @NonNull Boolean isChecked, Long position) {
-            // Don't provide any access to the UID, so the Database is the only one who can modify it
-            mUid = uid;
-            mListTitle = listTitle;
-            mName = name;
-            mIsChecked = isChecked;
-            mPosition = position;
+        public Checklist(@NonNull String checklistTitle) {
+            this.checklistTitle = checklistTitle;
         }
 
         @NonNull
-        public String getListTitle() {
-            return mListTitle;
+        public String getChecklistTitle() {
+            return checklistTitle;
+        }
+    }
+
+    @Entity(tableName = "items")
+    static class Item {
+        @PrimaryKey(autoGenerate = true) // autoGenerate: null is treated as "non-set"
+        private Long itemId;
+
+        private String belongsToChecklistTitle;
+
+        @NonNull
+        private String name;
+
+        private boolean isChecked;
+
+        private long positionInSublist;
+
+        public Item(@NonNull String name, boolean isChecked, long positionInSublist, String belongsToChecklistTitle) {
+            this.name = name;
+            this.isChecked = isChecked;
+            this.positionInSublist = positionInSublist;
+            this.belongsToChecklistTitle = belongsToChecklistTitle;
+        }
+
+        public Long getItemId() {
+            return itemId;
+        }
+
+        public String getBelongsToChecklistTitle() {
+            return belongsToChecklistTitle;
         }
 
         @NonNull
         public String getName() {
-            return mName;
+            return name;
         }
 
-        @NonNull
-        public Boolean isChecked() {
-            return mIsChecked;
+        public boolean isChecked() {
+            return isChecked;
         }
 
-        public Long getPosition() {
-            return mPosition;
+        public long getPositionInSublist() {
+            return positionInSublist;
         }
 
-//        public void setPosition(int position) {
-//            this.mPosition = position;
-//        } // TODO: 3/3/2024 make private
-//
-        public Integer getUID() {
-            return mUid;
+        public void setItemId(Long itemId) {
+            this.itemId = itemId;
+        }
+
+        public void setBelongsToChecklistTitle(String belongsToChecklistTitle) {
+            this.belongsToChecklistTitle = belongsToChecklistTitle;
+        }
+
+        public void setName(@NonNull String name) {
+            this.name = name;
+        }
+
+        public void setChecked(boolean checked) {
+            isChecked = checked;
+        }
+
+        public void setPositionInSublist(long positionInSublist) {
+            this.positionInSublist = positionInSublist;
         }
     }
 
 
     @Dao
     interface ItemDao {
-        @Query("SELECT * FROM items")
-        LiveData<List<Item>> getAllItems();
-
-        @Query("SELECT * FROM items WHERE uid == :uid LIMIT 1")
-        Item getItem(Integer uid);
-
-//        @Query("SELECT COUNT() FROM items WHERE list_title LIKE :listTitle AND is_checked == :isChecked")
-
-
-        @Query("SELECT * FROM items WHERE list_title LIKE :listTitle AND is_checked LIKE :isChecked")
-        LiveData<List<Item>> getSubsetAsLiveData(String listTitle, boolean isChecked);
-
-
-        @Query("SELECT MAX(position) FROM items WHERE list_title LIKE :listTitle AND is_checked LIKE :isChecked")
-        int getSubSetMaxPosition(String listTitle, Boolean isChecked);
-
-        @Query("SELECT * FROM items WHERE list_title LIKE :listTitle AND is_checked == :isChecked ORDER BY position ASC")
-        List<Item> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
-
-        @Query("SELECT * FROM items WHERE list_title LIKE :listTitle")
-        List<Item> getList(String listTitle);
-
-        @Query("SELECT * FROM items WHERE list_title LIKE :listTitle AND is_checked == :isChecked ORDER BY position ASC")
-        LiveData<List<Item>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);
 
         @Transaction
-        default void updateAndOrInsert(List<Item> items) {
-            items.forEach(item -> {
-                if (item.getUID() == null) {
-                    insert(item);
-                }
-            });
-            update(items);
+        default void insertAndUpdate(String listTitle, List<Item> itemsToInsert, List<Item> itemsToUpdate) {
+            insert(itemsToInsert);
+            update(itemsToUpdate);
         }
 
-        @Query("DELETE FROM items WHERE uid == :uid")
-        void delete(Integer uid);
+        @Query("SELECT * FROM checklists")
+        LiveData<List<Checklist>> getAllChecklists();
 
-        @Query("DELETE FROM items")
-        void deleteAll();
+        @Query("SELECT * FROM items WHERE belongsToChecklistTitle LIKE :listTitle AND name LIKE :name")
+        Item getItem(String listTitle, String name);
 
-        @Delete
-        void delete(Item item);
-        
-        @Update
-        void update(Item item);
+        @Query("SELECT * FROM items WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
+        LiveData<List<Item>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);
 
-        @Update
-        void update(Item... items);
+        @Query("SELECT * FROM items WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
+        List<Item> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
+
+        @Insert
+        void insert(Checklist checklist);
+
+        @Insert
+        void insert(Item item);
+
+        @Insert
+        void insert(List<Item> items);
 
         @Update
         void update(List<Item> items);
-
-        @Insert(onConflict = OnConflictStrategy.ABORT)
-        void insert(Item item);
-
-        @Insert(onConflict = OnConflictStrategy.ABORT)
-        void insert(List<Item> items);
-
-        @Insert(onConflict = OnConflictStrategy.ABORT)
-        void insert(Item... items);
-
-
     }
 
 }

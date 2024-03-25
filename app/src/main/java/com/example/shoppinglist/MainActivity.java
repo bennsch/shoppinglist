@@ -10,18 +10,30 @@ import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 
 import com.example.shoppinglist.databinding.ActivityMainBinding;
 
+import java.util.Calendar;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+
+
+    private static final String TAG = "MainActivity";
 
     private ActivityMainBinding binding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    private ChecklistViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(this.binding.getRoot());
+
+        this.viewModel = new ViewModelProvider(this).get(ChecklistViewModel.class);
+        viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
+
         setSupportActionBar(this.binding.toolbar);
         setupNavDrawer();
         setupEdgeToEdgeInsets();
@@ -51,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
         if (this.binding.navView.getCheckedItem() != item) { // if not already selected
             if (item.getGroupId() == R.id.group_checklists) {
                 showChecklistPagerFragment(item.getTitle().toString());
+            } else if (item.getItemId() == R.id.nav_new_list) {
+                viewModel.insertChecklist("List " + Calendar.getInstance().get(Calendar.MILLISECOND));
+                return false;
             } else {
 
             }
@@ -58,6 +77,14 @@ public class MainActivity extends AppCompatActivity {
         this.binding.drawerLayout.close();
         // Return true, to display the item as the selected item.
         return true;
+    }
+
+    private void onChecklistTitlesChanged(List<String> newChecklistTitles) {
+        Log.d(TAG, "onChecklistTitlesChanged: " + newChecklistTitles);
+        this.binding.navView.getMenu().removeGroup(R.id.group_checklists);
+        newChecklistTitles.forEach(title -> {
+            this.binding.navView.getMenu().add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
+        });
     }
 
     private void showChecklistPagerFragment(String listTitle) {

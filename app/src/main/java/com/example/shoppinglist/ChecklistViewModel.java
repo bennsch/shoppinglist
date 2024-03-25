@@ -7,16 +7,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ReportFragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -42,25 +37,30 @@ public class ChecklistViewModel extends AndroidViewModel {
         }
     }
 
+    LiveData<List<String>> getAllChecklistTitles() {
+        return mChecklistRepo.getAllChecklistTitles();
+    }
+
     LiveData<List<ChecklistItem>> getFilteredList(String listTitle, boolean isChecked) {
         return mChecklistRepo.getSubsetSortedByPosition(listTitle, isChecked);
     }
 
-    public void flipChecked(@NonNull Integer toBeFlippedUid) {
+    public void flipItemChecked(String listTitle, String name) {
         mExecutor.execute(() -> {
-            ChecklistItem item = mChecklistRepo.getItem(toBeFlippedUid);
+            ChecklistItem item = mChecklistRepo.getItem(listTitle, name);
             List<ChecklistRepository.ItemWithPosition> itemsWithPosition = new ArrayList<>();
 
             if (item == null) {
-                throw new IndexOutOfBoundsException("UID not found in database " + toBeFlippedUid);
+                throw new IndexOutOfBoundsException("Item not found " + name);
             }
-            List<ChecklistItem> dbMirrorRemovedFrom = mChecklistRepo.getSublistSorted(item.getListTitle(), item.isChecked());
-            if (!(dbMirrorRemovedFrom.removeIf(item1 -> item1.getUid().equals(item.getUid())))) {
-                throw new IndexOutOfBoundsException("No item with such UID " + toBeFlippedUid);
+
+            List<ChecklistItem> dbMirrorRemovedFrom = mChecklistRepo.getSublistSorted(listTitle, item.isChecked());
+            if (!(dbMirrorRemovedFrom.removeIf(item1 -> item1.getName().equals(item.getName())))) {
+                throw new IndexOutOfBoundsException("No item with such name " + name);
             }
             itemsWithPosition.addAll(mapPositionByOrder(dbMirrorRemovedFrom));
 
-            List<ChecklistItem> dbMirrorAddTo = mChecklistRepo.getSublistSorted(item.getListTitle(), !item.isChecked());
+            List<ChecklistItem> dbMirrorAddTo = mChecklistRepo.getSublistSorted(listTitle, !item.isChecked());
             item.flipChecked();
             if (item.isChecked()) {
                 dbMirrorAddTo.add(0, item);
@@ -69,29 +69,34 @@ public class ChecklistViewModel extends AndroidViewModel {
             }
             itemsWithPosition.addAll(mapPositionByOrder(dbMirrorAddTo));
             // Make sure that only a single repo function is called (only single database update)
-            mChecklistRepo.updateAndOrInsert(itemsWithPosition);
+            mChecklistRepo.updateAndOrInsert(listTitle, itemsWithPosition);
         });
     }
 
-    public void insertItem(String listTitle, String name, Boolean isChecked) {
+    public void insertItem(String listTitle, ChecklistItem item) {
         mExecutor.execute(() -> {
-            List<ChecklistItem> dbMirror = mChecklistRepo.getSublistSorted(listTitle, isChecked);
-            ChecklistItem newItem = new ChecklistItem(listTitle, name, isChecked);
+            List<ChecklistItem> dbMirror = mChecklistRepo.getSublistSorted(listTitle, item.isChecked());
             if (mSettings.getBoolean(SETTING_NEW_ITEM_END)) {
-                dbMirror.add(newItem);
+                dbMirror.add(item);
             } else {
-                dbMirror.add(0, newItem);
+                dbMirror.add(0, item);
             }
-            mChecklistRepo.updateAndOrInsert(mapPositionByOrder(dbMirror));
-
+            mChecklistRepo.updateAndOrInsert(listTitle, mapPositionByOrder(dbMirror));
         });
     }
+
+    public void insertChecklist(String listTitle) {
+        mExecutor.execute(() -> {
+            mChecklistRepo.insertChecklist(listTitle);
+        });
+    }
+
 
     // TODO: 3/17/2024 use a Map (or such) to map a position to each item
     //  Because the items may not be from the same sublist
-    public void updateItemPositions(final List<ChecklistItem> itemsSortedByPos) {
+    public void updateItemPositions(String listTitle, final List<ChecklistItem> itemsSortedByPos) {
         mExecutor.execute(() -> {
-            mChecklistRepo.updateAndOrInsert(mapPositionByOrder(itemsSortedByPos));
+            mChecklistRepo.updateAndOrInsert(listTitle, mapPositionByOrder(itemsSortedByPos));
         });
     }
 
@@ -101,6 +106,7 @@ public class ChecklistViewModel extends AndroidViewModel {
                 .map(item -> new ChecklistRepository.ItemWithPosition(position.getAndIncrement(), item))
                 .collect(Collectors.toList());
     }
+
 
     @Override
     protected void onCleared() {
