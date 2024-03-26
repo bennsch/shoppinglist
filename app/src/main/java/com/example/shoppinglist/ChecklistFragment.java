@@ -69,7 +69,7 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         Log.d(TAG, "onCreateView: " + getViewLifecycleOwner());
-        mViewModel.getFilteredList(mListTitle, mDisplayChecked)
+        mViewModel.getSubsetSortedByPosition(mListTitle, mDisplayChecked)
                 .observe(getViewLifecycleOwner(), this::onLiveDataChanged);
         return mBinding.getRoot();
     }
@@ -88,7 +88,7 @@ public class ChecklistFragment extends Fragment {
     private void onItemClicked(int adapterPosition) {
         Log.d(TAG, "onItemClicked: " + adapterPosition);
         ChecklistItem item = mRecyclerViewAdapter.getCachedItem(adapterPosition);
-        mViewModel.flipItemChecked(mListTitle, item.getName());
+        mViewModel.flipItem(mListTitle, item);
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
