@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -65,38 +66,45 @@ public class ChecklistViewModel extends AndroidViewModel {
                 dbMirror.add(0, newRepoItem);
             }
             assignPositionByOrder(dbMirror);
+
+            Log.d(TAG, "item: " + newRepoItem.getName() + ": " + newRepoItem.getPositionInSublist());
+            dbMirror.forEach(repoItem -> {
+                Log.d(TAG, "mirror:" + repoItem.getName() + ": " + repoItem.getPositionInSublist());
+            });
+
             mChecklistRepo.insertAndUpdate(newRepoItem, dbMirror);
         });
     }
 
     public void flipItem(String listTitle, ChecklistItem clItem) {
         mExecutor.execute(() -> {
-            List<RepoItem> dbMirror = mChecklistRepo.getItemsFromList(listTitle);
-
-            List<RepoItem> dbMirrorRemovedFrom = dbMirror.stream()
-                    .filter(item -> item.isChecked() == clItem.isChecked())
-                    .collect(Collectors.toList());
-            boolean removed = dbMirrorRemovedFrom.removeIf(item -> item.getName().equals(clItem.getName()));
-            assert removed;
-
-            List<RepoItem> dbMirrorAddTo= dbMirror.stream()
-                    .filter(item -> item.isChecked() != clItem.isChecked())
-                    .collect(Collectors.toList());
-            RepoItem repoItem = dbMirror.stream()
+            // TODO: 3/26/2024 Redo the whole thing
+            List<RepoItem> dbMirrorRemovedFrom = mChecklistRepo.getSublistSorted(listTitle, clItem.isChecked());
+            RepoItem repoItem = dbMirrorRemovedFrom.stream()
                     .filter(item -> item.getName().equals(clItem.getName()))
                     .findFirst()
                     .orElse(null);
             assert repoItem != null;
+
+            boolean removed = dbMirrorRemovedFrom.remove(repoItem);
+            assert removed;
+
+            List<RepoItem> dbMirrorAddTo = mChecklistRepo.getSublistSorted(listTitle, !clItem.isChecked());
             repoItem.setChecked(!repoItem.isChecked());
             if (repoItem.isChecked()) {
                 dbMirrorAddTo.add(0, repoItem);
             } else {
                 dbMirrorAddTo.add(repoItem);
             }
+
             // Make sure that only a single repo function is called (only single database update)
             assignPositionByOrder(dbMirrorRemovedFrom);
             assignPositionByOrder(dbMirrorAddTo);
-            mChecklistRepo.update(dbMirror);
+
+            List<RepoItem> dbMirrorCombined = new ArrayList<>();
+            dbMirrorCombined.addAll(dbMirrorRemovedFrom);
+            dbMirrorCombined.addAll(dbMirrorAddTo);
+            mChecklistRepo.update(dbMirrorCombined);
         });
     }
 
