@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -58,7 +59,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.checklist_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.clmenu_delete_list) {
+            String currentList = this.binding.navView.getCheckedItem().getTitle().toString();
+            this.viewModel.deleteChecklist(currentList);
+        } else if (item.getItemId() == R.id.clmenu_rename_list) {
+            String currentList = this.binding.navView.getCheckedItem().getTitle().toString();
+            this.viewModel.updateChecklistName(currentList, currentList + "-renamed*");
+        }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);
     }
@@ -70,11 +85,6 @@ public class MainActivity extends AppCompatActivity {
                 showChecklistPagerFragment(item.getTitle().toString());
             } else if (item.getItemId() == R.id.nav_new_list) {
                 viewModel.insertChecklist("List " + Calendar.getInstance().get(Calendar.MILLISECOND));
-                return false;
-            } else if (item.getItemId() == R.id.nav_delete_list) {
-                String currentList = this.binding.navView.getCheckedItem().getTitle().toString();
-//                this.viewModel.deleteChecklist(currentList);
-                this.viewModel.updateChecklistName(currentList, "huu");
                 return false;
             }
         }

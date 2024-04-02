@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/clmenu_delete_list"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="Delete List" />
+
+    <item
+        android:id="@+id/clmenu_rename_list"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="Rename List" />
+
+    <item
+        android:id="@+id/clmenu_config"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="Configuration" />
+
+    <item
+        android:id="@+id/clmenu_delete_item"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="Delete Item" />
+</menu>
