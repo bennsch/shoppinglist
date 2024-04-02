@@ -131,6 +131,12 @@ public class ChecklistViewModel extends AndroidViewModel {
         });
     }
 
+    public void deleteChecklist(String checklistTitle) {
+        mExecutor.execute(() -> {
+            mChecklistRepo.deleteChecklist(checklistTitle);
+        });
+    }
+
     static void assignPositionByOrder(List<DbChecklistItem> repoItems) {
         for (int i = 0; i < repoItems.size(); i++) {
             repoItems.get(i).setPositionInSublist(i);

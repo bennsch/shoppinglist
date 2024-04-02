@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Database;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Room;
@@ -60,7 +61,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
                 ItemDao dao = INSTANCE.itemDao();
                 INSTANCE.clearAllTables();
                 {
-                    DbChecklist checklist = new DbChecklist("NuovoList A");
+                    DbChecklist checklist = new DbChecklist("NuovoList A", false);
                     dao.insert(checklist);
                     List<DbChecklistItem> items = new ArrayList<>();
                     for (long i = 0; i < 3; ++i) {
@@ -74,7 +75,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
                     dao.insert(items);
                 }
                 {
-                    DbChecklist checklist = new DbChecklist("NuovoList B");
+                    DbChecklist checklist = new DbChecklist("NuovoList B", true);
                     dao.insert(checklist);
                     List<DbChecklistItem> items = new ArrayList<>();
                     for (long i = 0; i < 3; ++i) {
@@ -128,6 +129,12 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
         @Update
         void update(List<DbChecklistItem> items);
+
+        @Query("DELETE FROM dbchecklist WHERE checklistTitle LIKE :checklistTitle")
+        void delete(String checklistTitle);
+
+        @Update
+        void update(DbChecklist dbChecklist);
     }
 
 }

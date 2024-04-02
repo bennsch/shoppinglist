@@ -2,10 +2,19 @@ package com.example.shoppinglist.data;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 
-@Entity
+@Entity(foreignKeys = {
+        @ForeignKey(
+        entity = DbChecklist.class,
+        parentColumns = "checklistTitle",
+        childColumns = "belongsToChecklistTitle",
+        onDelete = ForeignKey.CASCADE
+//        onUpdate = ForeignKey.CASCADE
+        )
+})
 public class DbChecklistItem {
     @PrimaryKey(autoGenerate = true) // autoGenerate: null is treated as "non-set"
     private Long itemId;

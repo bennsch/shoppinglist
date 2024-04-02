@@ -64,14 +64,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean onNavDrawerItemSelected(MenuItem item){
+        item.setCheckable(true);// TODO: 4/1/2024 don't do like this
         if (this.binding.navView.getCheckedItem() != item) { // if not already selected
             if (item.getGroupId() == R.id.group_checklists) {
                 showChecklistPagerFragment(item.getTitle().toString());
             } else if (item.getItemId() == R.id.nav_new_list) {
                 viewModel.insertChecklist("List " + Calendar.getInstance().get(Calendar.MILLISECOND));
                 return false;
-            } else {
-
+            } else if (item.getItemId() == R.id.nav_delete_list) {
+                String currentList = this.binding.navView.getCheckedItem().getTitle().toString();
+                this.viewModel.deleteChecklist(currentList);
+                return false;
             }
         }
         this.binding.drawerLayout.close();
@@ -83,7 +86,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onChecklistTitlesChanged: " + newChecklistTitles);
         this.binding.navView.getMenu().removeGroup(R.id.group_checklists);
         newChecklistTitles.forEach(title -> {
-            this.binding.navView.getMenu().add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
+            Menu menu = this.binding.navView.getMenu();
+            menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
         });
     }
 

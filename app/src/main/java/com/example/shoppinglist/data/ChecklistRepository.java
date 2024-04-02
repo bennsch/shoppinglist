@@ -3,6 +3,7 @@ package com.example.shoppinglist.data;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.menu.ListMenuItemView;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
@@ -25,14 +26,6 @@ public class ChecklistRepository {
         mItemDao = db.itemDao();
     }
 
-    public DbChecklistItem getItem(String listTitle, String name) {
-        return mItemDao.getItem(listTitle, name);
-    }
-
-    public List<DbChecklistItem> getItemsFromList(String listTitle) {
-        return mItemDao.getAllItemsFromChecklist(listTitle);
-    }
-
     public LiveData<List<String>> getAllChecklistTitles() {
         return Transformations.map(
                 mItemDao.getAllChecklists(),
@@ -42,11 +35,15 @@ public class ChecklistRepository {
     }
 
     public void insertChecklist(String listTitle) {
-        mItemDao.insert(new DbChecklist(listTitle));
+        mItemDao.insert(new DbChecklist(listTitle, false));
     }
 
     public void update(List<DbChecklistItem> items) {
         mItemDao.update(items);
+    }
+
+    public void deleteChecklist(String listTitle) {
+        mItemDao.delete(listTitle);
     }
 
     public void insertAndUpdate(DbChecklistItem itemToInsert,
