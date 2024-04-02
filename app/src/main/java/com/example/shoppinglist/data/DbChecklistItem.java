@@ -11,8 +11,8 @@ import androidx.room.PrimaryKey;
         entity = DbChecklist.class,
         parentColumns = "checklistTitle",
         childColumns = "belongsToChecklistTitle",
-        onDelete = ForeignKey.CASCADE
-//        onUpdate = ForeignKey.CASCADE
+        onDelete = ForeignKey.CASCADE,
+        onUpdate = ForeignKey.CASCADE
         )
 })
 public class DbChecklistItem {

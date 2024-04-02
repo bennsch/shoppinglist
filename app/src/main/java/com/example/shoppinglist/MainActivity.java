@@ -73,7 +73,8 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             } else if (item.getItemId() == R.id.nav_delete_list) {
                 String currentList = this.binding.navView.getCheckedItem().getTitle().toString();
-                this.viewModel.deleteChecklist(currentList);
+//                this.viewModel.deleteChecklist(currentList);
+                this.viewModel.updateChecklistName(currentList, "huu");
                 return false;
             }
         }

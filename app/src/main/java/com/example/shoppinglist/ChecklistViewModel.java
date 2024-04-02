@@ -29,12 +29,13 @@ public class ChecklistViewModel extends AndroidViewModel {
 
     private static final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
     private final ChecklistRepository mChecklistRepo;
+    private LiveData<List<String>> mChecklistTitles;
 
     public ChecklistViewModel(@NonNull Application application) {
         super(application);
         Log.d(TAG, "ChecklistViewModel: Ctor");
         mChecklistRepo = new ChecklistRepository(application);
-
+        mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
         if (mSettings == null) {
             mSettings = new Bundle();
             mSettings.putBoolean(SETTING_NEW_ITEM_END, false);
@@ -42,7 +43,7 @@ public class ChecklistViewModel extends AndroidViewModel {
     }
 
     LiveData<List<String>> getAllChecklistTitles() {
-        return mChecklistRepo.getAllChecklistTitles();
+        return mChecklistTitles;
     }
 
     public void insertChecklist(String listTitle) {
@@ -135,6 +136,16 @@ public class ChecklistViewModel extends AndroidViewModel {
         mExecutor.execute(() -> {
             mChecklistRepo.deleteChecklist(checklistTitle);
         });
+    }
+
+    public void updateChecklistName(String checklistTitle, String newTitle) {
+        if (mChecklistTitles.getValue().contains(newTitle)) {
+            throw new IllegalArgumentException("Checklist title '" + newTitle + "' already present");
+        } else {
+            mExecutor.execute(() -> {
+                mChecklistRepo.updateChecklistName(checklistTitle, newTitle);
+            });
+        }
     }
 
     static void assignPositionByOrder(List<DbChecklistItem> repoItems) {

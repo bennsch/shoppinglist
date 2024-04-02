@@ -133,8 +133,8 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Query("DELETE FROM dbchecklist WHERE checklistTitle LIKE :checklistTitle")
         void delete(String checklistTitle);
 
-        @Update
-        void update(DbChecklist dbChecklist);
+        @Query("UPDATE dbchecklist SET checklistTitle = :newChecklistName WHERE checklistTitle LIKE :checklistName")
+        void update(String checklistName, String newChecklistName);
     }
 
 }

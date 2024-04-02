@@ -42,9 +42,15 @@ public class ChecklistRepository {
         mItemDao.update(items);
     }
 
+    public void updateChecklistName(String checklistTitle, String newTitle) {
+        mItemDao.update(checklistTitle, newTitle);
+    }
+
+
     public void deleteChecklist(String listTitle) {
         mItemDao.delete(listTitle);
     }
+
 
     public void insertAndUpdate(DbChecklistItem itemToInsert,
                                 List<DbChecklistItem> itemsToUpdate) {
