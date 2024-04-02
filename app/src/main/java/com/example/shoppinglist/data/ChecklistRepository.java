@@ -1,4 +1,4 @@
-package com.example.shoppinglist;
+package com.example.shoppinglist.data;
 
 import android.app.Application;
 
@@ -25,40 +25,40 @@ public class ChecklistRepository {
         mItemDao = db.itemDao();
     }
 
-    RepoItem getItem(String listTitle, String name) {
+    public DbChecklistItem getItem(String listTitle, String name) {
         return mItemDao.getItem(listTitle, name);
     }
 
-    List<RepoItem> getItemsFromList(String listTitle) {
+    public List<DbChecklistItem> getItemsFromList(String listTitle) {
         return mItemDao.getAllItemsFromChecklist(listTitle);
     }
 
-    LiveData<List<String>> getAllChecklistTitles() {
+    public LiveData<List<String>> getAllChecklistTitles() {
         return Transformations.map(
                 mItemDao.getAllChecklists(),
                 checklists -> checklists.stream()
-                        .map(ChecklistDatabase.Checklist::getChecklistTitle)
+                        .map(DbChecklist::getChecklistTitle)
                         .collect(Collectors.toList()));
     }
 
-    void insertChecklist(String listTitle) {
-        mItemDao.insert(new ChecklistDatabase.Checklist(listTitle));
+    public void insertChecklist(String listTitle) {
+        mItemDao.insert(new DbChecklist(listTitle));
     }
 
-    void update(List<RepoItem> items) {
+    public void update(List<DbChecklistItem> items) {
         mItemDao.update(items);
     }
 
-    void insertAndUpdate(RepoItem itemToInsert,
-                         List<RepoItem> itemsToUpdate) {
+    public void insertAndUpdate(DbChecklistItem itemToInsert,
+                                List<DbChecklistItem> itemsToUpdate) {
         mItemDao.insertAndUpdate(itemToInsert, itemsToUpdate);
     }
 
-    List<RepoItem> getSublistSorted(@NonNull String listTitle, @NonNull Boolean isChecked) {
+    public List<DbChecklistItem> getSublistSorted(@NonNull String listTitle, @NonNull Boolean isChecked) {
         return mItemDao.getSubsetSortedByPosition(listTitle, isChecked);
     }
 
-    LiveData<List<RepoItem>> getSublistSortedLiveData(@NonNull String listTitle, @NonNull Boolean isChecked) {
+    public LiveData<List<DbChecklistItem>> getSublistSortedLiveData(@NonNull String listTitle, @NonNull Boolean isChecked) {
         return mItemDao.getSubsetSortedByPositionAsLiveData(listTitle, isChecked);
     }
 }

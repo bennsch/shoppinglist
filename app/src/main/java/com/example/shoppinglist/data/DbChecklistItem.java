@@ -1,12 +1,12 @@
-package com.example.shoppinglist;
+package com.example.shoppinglist.data;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 
-@Entity(tableName = "items")
-public class RepoItem {
+@Entity
+public class DbChecklistItem {
     @PrimaryKey(autoGenerate = true) // autoGenerate: null is treated as "non-set"
     private Long itemId;
 
@@ -19,7 +19,7 @@ public class RepoItem {
 
     private long positionInSublist;
 
-    public RepoItem(@NonNull String name, boolean isChecked, long positionInSublist, String belongsToChecklistTitle) {
+    public DbChecklistItem(@NonNull String name, boolean isChecked, long positionInSublist, String belongsToChecklistTitle) {
         // itemId not available as parameter because Database should be the only one which set this id.
         // (null means generate new id)
         this.name = name;

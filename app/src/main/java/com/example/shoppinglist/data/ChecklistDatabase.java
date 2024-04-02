@@ -1,4 +1,4 @@
-package com.example.shoppinglist;
+package com.example.shoppinglist.data;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,9 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Database;
-import androidx.room.Entity;
 import androidx.room.Insert;
-import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -24,8 +22,8 @@ import java.util.concurrent.Executors;
 
 
 @Database(entities = {
-            ChecklistDatabase.Checklist.class,
-            RepoItem.class}
+            DbChecklist.class,
+            DbChecklistItem.class}
         , version = 1 /*exportSchema = false*/)
 public abstract class ChecklistDatabase extends RoomDatabase {
 
@@ -62,29 +60,29 @@ public abstract class ChecklistDatabase extends RoomDatabase {
                 ItemDao dao = INSTANCE.itemDao();
                 INSTANCE.clearAllTables();
                 {
-                    Checklist checklist = new Checklist("NuovoList A");
+                    DbChecklist checklist = new DbChecklist("NuovoList A");
                     dao.insert(checklist);
-                    List<RepoItem> items = new ArrayList<>();
+                    List<DbChecklistItem> items = new ArrayList<>();
                     for (long i = 0; i < 3; ++i) {
-                        RepoItem item = new RepoItem("RepoItem (Unchecked)" + i, false, i, checklist.checklistTitle);
+                        DbChecklistItem item = new DbChecklistItem("RepoItem (Unchecked)" + i, false, i, checklist.getChecklistTitle());
                         items.add(item);
                     }
                     for (long i = 0; i < 2; ++i) {
-                        RepoItem item = new RepoItem("RepoItem (Checked)" + i, true, i, checklist.checklistTitle);
+                        DbChecklistItem item = new DbChecklistItem("RepoItem (Checked)" + i, true, i, checklist.getChecklistTitle());
                         items.add(item);
                     }
                     dao.insert(items);
                 }
                 {
-                    Checklist checklist = new Checklist("NuovoList B");
+                    DbChecklist checklist = new DbChecklist("NuovoList B");
                     dao.insert(checklist);
-                    List<RepoItem> items = new ArrayList<>();
+                    List<DbChecklistItem> items = new ArrayList<>();
                     for (long i = 0; i < 3; ++i) {
-                        RepoItem item = new RepoItem("RepoItem (Unchecked)" + i, false, i, checklist.checklistTitle);
+                        DbChecklistItem item = new DbChecklistItem("RepoItem (Unchecked)" + i, false, i, checklist.getChecklistTitle());
                         items.add(item);
                     }
                     for (long i = 0; i < 2; ++i) {
-                        RepoItem item = new RepoItem("RepoItem (Checked)" + i, true, i, checklist.checklistTitle);
+                        DbChecklistItem item = new DbChecklistItem("RepoItem (Checked)" + i, true, i, checklist.getChecklistTitle());
                         items.add(item);
                     }
                     dao.insert(items);
@@ -94,56 +92,42 @@ public abstract class ChecklistDatabase extends RoomDatabase {
     };
 
 
-    @Entity(tableName = "checklists")
-    static class Checklist {
-        @PrimaryKey @NonNull private String checklistTitle;
-
-        public Checklist(@NonNull String checklistTitle) {
-            this.checklistTitle = checklistTitle;
-        }
-
-        @NonNull
-        public String getChecklistTitle() {
-            return checklistTitle;
-        }
-    }
-
 
     @Dao
     interface ItemDao {
 
         @Transaction
-        default void insertAndUpdate(RepoItem itemToInsert, List<RepoItem> itemsToUpdate) {
+        default void insertAndUpdate(DbChecklistItem itemToInsert, List<DbChecklistItem> itemsToUpdate) {
             insert(itemToInsert);
             update(itemsToUpdate);
         }
 
-        @Query("SELECT * FROM items WHERE belongsToChecklistTitle LIKE :checklistTitle")
-        List<RepoItem> getAllItemsFromChecklist(String checklistTitle);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :checklistTitle")
+        List<DbChecklistItem> getAllItemsFromChecklist(String checklistTitle);
 
-        @Query("SELECT * FROM checklists")
-        LiveData<List<Checklist>> getAllChecklists();
+        @Query("SELECT * FROM DbChecklist")
+        LiveData<List<DbChecklist>> getAllChecklists();
 
-        @Query("SELECT * FROM items WHERE belongsToChecklistTitle LIKE :listTitle AND name LIKE :name")
-        RepoItem getItem(String listTitle, String name);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND name LIKE :name")
+        DbChecklistItem getItem(String listTitle, String name);
 
-        @Query("SELECT * FROM items WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
-        LiveData<List<RepoItem>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
+        LiveData<List<DbChecklistItem>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);
 
-        @Query("SELECT * FROM items WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
-        List<RepoItem> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
-
-        @Insert
-        void insert(Checklist checklist);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
+        List<DbChecklistItem> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
 
         @Insert
-        void insert(RepoItem item);
+        void insert(DbChecklist checklist);
 
         @Insert
-        void insert(List<RepoItem> items);
+        void insert(DbChecklistItem item);
+
+        @Insert
+        void insert(List<DbChecklistItem> items);
 
         @Update
-        void update(List<RepoItem> items);
+        void update(List<DbChecklistItem> items);
     }
 
 }

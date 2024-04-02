@@ -9,6 +9,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
+import com.example.shoppinglist.data.ChecklistRepository;
+import com.example.shoppinglist.data.DbChecklistItem;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -58,8 +61,8 @@ public class ChecklistViewModel extends AndroidViewModel {
 
     public void insertItem(String listTitle, ChecklistItem item) {
         mExecutor.execute(() -> {
-            List<RepoItem> dbMirror = mChecklistRepo.getSublistSorted(listTitle, item.isChecked());
-            RepoItem newRepoItem = new RepoItem(item.getName(), item.isChecked(), 0, listTitle);
+            List<DbChecklistItem> dbMirror = mChecklistRepo.getSublistSorted(listTitle, item.isChecked());
+            DbChecklistItem newRepoItem = new DbChecklistItem(item.getName(), item.isChecked(), 0, listTitle);
             if (mSettings.getBoolean(SETTING_NEW_ITEM_END)) {
                 dbMirror.add(newRepoItem);
             } else {
@@ -79,8 +82,8 @@ public class ChecklistViewModel extends AndroidViewModel {
     public void flipItem(String listTitle, ChecklistItem clItem) {
         mExecutor.execute(() -> {
             // TODO: 3/26/2024 Redo the whole thing
-            List<RepoItem> dbMirrorRemovedFrom = mChecklistRepo.getSublistSorted(listTitle, clItem.isChecked());
-            RepoItem repoItem = dbMirrorRemovedFrom.stream()
+            List<DbChecklistItem> dbMirrorRemovedFrom = mChecklistRepo.getSublistSorted(listTitle, clItem.isChecked());
+            DbChecklistItem repoItem = dbMirrorRemovedFrom.stream()
                     .filter(item -> item.getName().equals(clItem.getName()))
                     .findFirst()
                     .orElse(null);
@@ -89,7 +92,7 @@ public class ChecklistViewModel extends AndroidViewModel {
             boolean removed = dbMirrorRemovedFrom.remove(repoItem);
             assert removed;
 
-            List<RepoItem> dbMirrorAddTo = mChecklistRepo.getSublistSorted(listTitle, !clItem.isChecked());
+            List<DbChecklistItem> dbMirrorAddTo = mChecklistRepo.getSublistSorted(listTitle, !clItem.isChecked());
             repoItem.setChecked(!repoItem.isChecked());
             if (repoItem.isChecked()) {
                 dbMirrorAddTo.add(0, repoItem);
@@ -101,7 +104,7 @@ public class ChecklistViewModel extends AndroidViewModel {
             assignPositionByOrder(dbMirrorRemovedFrom);
             assignPositionByOrder(dbMirrorAddTo);
 
-            List<RepoItem> dbMirrorCombined = new ArrayList<>();
+            List<DbChecklistItem> dbMirrorCombined = new ArrayList<>();
             dbMirrorCombined.addAll(dbMirrorRemovedFrom);
             dbMirrorCombined.addAll(dbMirrorAddTo);
             mChecklistRepo.update(dbMirrorCombined);
@@ -115,10 +118,10 @@ public class ChecklistViewModel extends AndroidViewModel {
             // TODO: Redo properly
             boolean isChecked = itemsSortedByPos.get(0).isChecked();
             assert itemsSortedByPos.stream().allMatch(item -> item.isChecked() == isChecked);
-            List<RepoItem> dbMirror = mChecklistRepo.getSublistSorted(listTitle, isChecked);
+            List<DbChecklistItem> dbMirror = mChecklistRepo.getSublistSorted(listTitle, isChecked);
             AtomicLong pos = new AtomicLong(0);
             itemsSortedByPos.forEach(item -> {
-                RepoItem found = dbMirror.stream()
+                DbChecklistItem found = dbMirror.stream()
                         .filter(item1 -> item1.getName().equals(item.getName()))
                         .findFirst().orElse(null);
                 assert found != null;
@@ -128,7 +131,7 @@ public class ChecklistViewModel extends AndroidViewModel {
         });
     }
 
-    static void assignPositionByOrder(List<RepoItem> repoItems) {
+    static void assignPositionByOrder(List<DbChecklistItem> repoItems) {
         for (int i = 0; i < repoItems.size(); i++) {
             repoItems.get(i).setPositionInSublist(i);
         }
