@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Database;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Room;
@@ -103,8 +102,8 @@ public abstract class ChecklistDatabase extends RoomDatabase {
             update(itemsToUpdate);
         }
 
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :checklistTitle")
-        List<DbChecklistItem> getAllItemsFromChecklist(String checklistTitle);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :checklistTitle ORDER BY positionInSublist ASC")
+        LiveData<List<DbChecklistItem>> getAllItemsFromChecklistSorted(String checklistTitle);
 
         @Query("SELECT * FROM DbChecklist")
         LiveData<List<DbChecklist>> getAllChecklists();

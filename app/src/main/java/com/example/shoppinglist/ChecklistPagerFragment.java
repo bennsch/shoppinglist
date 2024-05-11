@@ -8,17 +8,21 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.adapter.FragmentViewHolder;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
+import com.example.shoppinglist.viewmodel.SingleChecklistViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 
@@ -30,7 +34,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private FragmentChecklistPagerBinding mBinding;
     private ViewPagerAdapter mViewPagerAdapter;
-    private ChecklistViewModel mViewModel;
+    private SingleChecklistViewModel mViewModel;
     private String mListTitle;
 
 
@@ -43,7 +47,12 @@ public class ChecklistPagerFragment extends Fragment {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
-        mViewModel = new ViewModelProvider(this).get(ChecklistViewModel.class);
+        mViewModel = new ViewModelProvider(
+                this,
+                new SingleChecklistViewModel.Factory(
+                        this.getActivity().getApplication(),
+                        mListTitle))
+                .get(SingleChecklistViewModel.class);
         mViewPagerAdapter = new ViewPagerAdapter(this);
         Log.d(TAG, "onCreate: " + mListTitle);
     }
@@ -57,6 +66,7 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
 //        mBinding.viewpager.setPageTransformer(new FanTransformer());
         mBinding.fab.setOnClickListener(view -> this.onFabClicked());
+//        mViewModel.getAllItemsSorted().observe(getViewLifecycleOwner(), this::onItemsChanged);
         return mBinding.getRoot();
     }
 
@@ -85,10 +95,18 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     void onFabClicked() {
-        boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
-        mViewModel.insertItem(mListTitle, new ChecklistItem("Item " + Calendar.getInstance().get(Calendar.MILLISECOND), currentChecked));
+        try {
+            boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
+            mViewModel.insertItem(new ChecklistItem("Item " + Calendar.getInstance().get(Calendar.SECOND), currentChecked));
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(getContext(), "Item already exists", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
+//    private void onItemsChanged(List<ChecklistItem> newItems) {
+//         Update suggestions for text input (new item)
+//    }
 
     private class ViewPagerAdapter extends FragmentStateAdapter {
 
@@ -123,7 +141,13 @@ public class ChecklistPagerFragment extends Fragment {
         public boolean getChecked(int position) {
             return PAGE_MAP.get(position);
         }
-//    public ListItem.Designation getDesignation(int position) {
+
+        @Override
+        public void onBindViewHolder(@NonNull FragmentViewHolder holder, int position, @NonNull List<Object> payloads) {
+            super.onBindViewHolder(holder, position, payloads);
+        }
+
+        //    public ListItem.Designation getDesignation(int position) {
 //        if (position == 0) {
 //            return ListItem.Designation.OPEN;
 //        } else {

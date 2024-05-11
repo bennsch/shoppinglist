@@ -18,10 +18,12 @@ import android.view.ViewGroup;
 
 import com.example.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.example.shoppinglist.databinding.FragmentChecklistBinding;
+import com.example.shoppinglist.viewmodel.SingleChecklistViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class ChecklistFragment extends Fragment {
@@ -35,7 +37,7 @@ public class ChecklistFragment extends Fragment {
     private RecyclerViewAdapter mRecyclerViewAdapter;
     private boolean mDisplayChecked;
     private String mListTitle;
-    private ChecklistViewModel mViewModel;
+    private SingleChecklistViewModel mViewModel;
 
     public ChecklistFragment() {
         Log.d(TAG, "ChecklistFragment: Ctor");
@@ -59,7 +61,12 @@ public class ChecklistFragment extends Fragment {
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
         mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
         mRecyclerViewAdapter = new RecyclerViewAdapter();
-        mViewModel = new ViewModelProvider(this).get(ChecklistViewModel.class);
+        mViewModel = new ViewModelProvider(
+                this,
+                new SingleChecklistViewModel.Factory(
+                        this.getActivity().getApplication(),
+                        mListTitle))
+                .get(SingleChecklistViewModel.class);
     }
 
     @Override
@@ -69,7 +76,7 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         Log.d(TAG, "onCreateView: " + getViewLifecycleOwner());
-        mViewModel.getSubsetSortedByPosition(mListTitle, mDisplayChecked)
+        mViewModel.getAllItemsSortedLiveData()
                 .observe(getViewLifecycleOwner(), this::onLiveDataChanged);
         return mBinding.getRoot();
     }
@@ -81,8 +88,11 @@ public class ChecklistFragment extends Fragment {
 
     protected void onLiveDataChanged(List<ChecklistItem> newItems) {
         // The newItems are already sorted by position
-        Log.d(TAG, "onItemSubsetChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
-        mRecyclerViewAdapter.update(newItems);
+        Log.d(TAG, "onLiveDataChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
+        mRecyclerViewAdapter.update(
+                newItems.stream()
+                .filter(item -> item.isChecked() == mDisplayChecked)
+                .collect(Collectors.toList()));
     }
     // TODO: 3/12/2024 Use ChecklistItem as parameter
     private void onItemClicked(int adapterPosition) {
