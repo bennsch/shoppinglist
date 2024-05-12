@@ -18,7 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.shoppinglist.databinding.ActivityMainBinding;
-import com.example.shoppinglist.viewmodel.ChecklistViewModel;
+import com.example.shoppinglist.viewmodel.AppViewModel;
 
 import java.util.Calendar;
 import java.util.List;
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private ChecklistViewModel viewModel;
+    private AppViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         this.binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(this.binding.getRoot());
 
-        this.viewModel = new ViewModelProvider(this).get(ChecklistViewModel.class);
+        this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
         setSupportActionBar(this.binding.toolbar);

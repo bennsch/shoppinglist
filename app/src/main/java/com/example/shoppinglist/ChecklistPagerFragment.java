@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
-import com.example.shoppinglist.viewmodel.SingleChecklistViewModel;
+import com.example.shoppinglist.viewmodel.ChecklistViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -34,7 +34,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private FragmentChecklistPagerBinding mBinding;
     private ViewPagerAdapter mViewPagerAdapter;
-    private SingleChecklistViewModel mViewModel;
+    private ChecklistViewModel mViewModel;
     private String mListTitle;
 
 
@@ -49,10 +49,10 @@ public class ChecklistPagerFragment extends Fragment {
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
         mViewModel = new ViewModelProvider(
                 this,
-                new SingleChecklistViewModel.Factory(
+                new ChecklistViewModel.Factory(
                         this.getActivity().getApplication(),
                         mListTitle))
-                .get(SingleChecklistViewModel.class);
+                .get(ChecklistViewModel.class);
         mViewPagerAdapter = new ViewPagerAdapter(this);
         Log.d(TAG, "onCreate: " + mListTitle);
     }
