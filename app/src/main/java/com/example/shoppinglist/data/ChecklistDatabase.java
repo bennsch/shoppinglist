@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Insert;
+import androidx.room.MapColumn;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -17,6 +18,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -102,9 +104,6 @@ public abstract class ChecklistDatabase extends RoomDatabase {
             update(itemsToUpdate);
         }
 
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :checklistTitle ORDER BY positionInSublist ASC")
-        LiveData<List<DbChecklistItem>> getAllItemsFromChecklistSorted(String checklistTitle);
-
         @Query("SELECT * FROM DbChecklist")
         LiveData<List<DbChecklist>> getAllChecklists();
 
@@ -116,6 +115,9 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
         @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
         List<DbChecklistItem> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
+
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle")
+        List<DbChecklistItem> getItemsFromList(@NonNull final String listTitle);
 
         @Insert
         void insert(DbChecklist checklist);

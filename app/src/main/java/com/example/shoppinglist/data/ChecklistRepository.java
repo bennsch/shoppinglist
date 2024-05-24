@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -50,21 +51,20 @@ public class ChecklistRepository {
         mItemDao.delete(listTitle);
     }
 
-
     public void insertAndUpdate(DbChecklistItem itemToInsert,
                                 List<DbChecklistItem> itemsToUpdate) {
         mItemDao.insertAndUpdate(itemToInsert, itemsToUpdate);
     }
 
-    public LiveData<List<DbChecklistItem>> getItemsSorted(@NonNull String listTitle) {
-        return mItemDao.getAllItemsFromChecklistSorted(listTitle);
+    public List<DbChecklistItem> getItemsFromList(@NonNull final String listTitle) {
+        return mItemDao.getItemsFromList(listTitle);
     }
 
     public List<DbChecklistItem> getSublistSorted(@NonNull String listTitle, @NonNull Boolean isChecked) {
         return mItemDao.getSubsetSortedByPosition(listTitle, isChecked);
     }
 
-    public LiveData<List<DbChecklistItem>> getSublistSortedLiveData(@NonNull String listTitle, @NonNull Boolean isChecked) {
+    public LiveData<List<DbChecklistItem>> getItemsSortedByPosition(@NonNull String listTitle, @NonNull Boolean isChecked) {
         return mItemDao.getSubsetSortedByPositionAsLiveData(listTitle, isChecked);
     }
 }

@@ -5,11 +5,13 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.adapter.FragmentViewHolder;
 
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +19,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
-import com.example.shoppinglist.viewmodel.ChecklistViewModel;
+import com.example.shoppinglist.viewmodel.AppViewModel;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Calendar;
 import java.util.List;
@@ -34,7 +39,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private FragmentChecklistPagerBinding mBinding;
     private ViewPagerAdapter mViewPagerAdapter;
-    private ChecklistViewModel mViewModel;
+    private AppViewModel mViewModel;
     private String mListTitle;
 
 
@@ -47,12 +52,7 @@ public class ChecklistPagerFragment extends Fragment {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
-        mViewModel = new ViewModelProvider(
-                this,
-                new ChecklistViewModel.Factory(
-                        this.getActivity().getApplication(),
-                        mListTitle))
-                .get(ChecklistViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(AppViewModel.class);
         mViewPagerAdapter = new ViewPagerAdapter(this);
         Log.d(TAG, "onCreate: " + mListTitle);
     }
@@ -94,19 +94,34 @@ public class ChecklistPagerFragment extends Fragment {
         return bundle;
     }
 
-    void onFabClicked() {
-        try {
-            boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
-            mViewModel.insertItem(new ChecklistItem("Item " + Calendar.getInstance().get(Calendar.SECOND), currentChecked));
-        } catch (IllegalArgumentException e) {
-            Toast.makeText(getContext(), "Item already exists", Toast.LENGTH_SHORT).show();
-        }
-
+    private void onFabClicked() {
+        insertNewItem();
     }
 
-//    private void onItemsChanged(List<ChecklistItem> newItems) {
-//         Update suggestions for text input (new item)
-//    }
+    private void insertNewItem() {
+        boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
+        ListenableFuture<Void> result = mViewModel.insertItem(
+                mListTitle,
+                new ChecklistItem("Item " + Calendar.getInstance().get(Calendar.SECOND), currentChecked));
+        Futures.addCallback(result, new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                vibrate();
+            }
+        }, ContextCompat.getMainExecutor(getContext()));
+    }
+
+    private void vibrate() {
+        Vibrator vibrator = getContext().getSystemService(Vibrator.class);
+        vibrator.vibrate(250);
+    }
+
 
     private class ViewPagerAdapter extends FragmentStateAdapter {
 
