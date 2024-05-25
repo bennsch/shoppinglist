@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -133,8 +134,20 @@ public class MainActivity extends AppCompatActivity {
             // Apply the insets as padding to the view. Here, set all the dimensions
             // as appropriate to your layout. You can also update the view's margin if
             // more appropriate.
-            view.setPadding(0, 0, 0, insets.bottom);
-            this.binding.navView.setPadding(0, 0, 0, insets.bottom);
+
+
+            // Usually using "appbar_scrolling_view_behavior" for the fragmentContainerView would take care of that,
+            // but that cannot be used here, because then "windowSoftInputMode="adjustResize" is unable to resize the view.
+            // So we have to manually add some padding.
+            TypedValue tv = new TypedValue();
+            getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true);
+            int actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data,getResources().getDisplayMetrics());
+            int requiredPadding = actionBarHeight + insets.top;
+            view.setPadding(0, requiredPadding, 0, 0); // use margin instead?
+
+
+            this.binding.navView.setPadding(0, 0, 0, insets.bottom); // to show version number above bottom navigation bar
+
 
             // Return CONSUMED if you don't want the window insets to keep passing down
             // to descendant views.

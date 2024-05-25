@@ -1,5 +1,6 @@
 package com.example.shoppinglist;
 
+import android.content.Context;
 import android.os.Bundle;
 
 
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
@@ -95,7 +97,16 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void onFabClicked() {
-        insertNewItem();
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (mBinding.edittext.getVisibility() == View.VISIBLE) {
+            imm.hideSoftInputFromWindow(mBinding.edittext.getWindowToken(), 0);
+            mBinding.edittext.setVisibility(View.GONE);
+            insertNewItem();
+        } else {
+            mBinding.edittext.setVisibility(View.VISIBLE);
+            mBinding.edittext.requestFocus();
+            imm.showSoftInput(mBinding.edittext, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     private void insertNewItem() {
