@@ -124,7 +124,7 @@ public class ChecklistPagerFragment extends Fragment {
         activity.getOnBackPressedDispatcher().addCallback(lifecycleOwner, mOnBackPressedCallback);
     }
 
-    private void showItemInput(boolean show) {
+    private void showItemNameBox(boolean show) {
         if (show) {
             mBinding.itemNameBox.setVisibility(View.VISIBLE);
             mOnBackPressedCallback.setEnabled(true);
@@ -132,55 +132,63 @@ public class ChecklistPagerFragment extends Fragment {
             mIMEHelper.showIME(mBinding.itemNameBox, true);
         } else {
             mBinding.itemNameBox.clearFocus();
+            mBinding.itemNameBox.setText("");
             mBinding.itemNameBox.setVisibility(View.GONE);
             mOnBackPressedCallback.setEnabled(false);
         }
     }
 
-    private boolean isItemEditTextVisible() {
+    private boolean isItemNameBoxVisible() {
         return mBinding.itemNameBox.getVisibility() == View.VISIBLE;
     }
 
     private void onBackPressed() {
-        showItemInput(false);
+        showItemNameBox(false);
     }
 
     private void onIMEToggled(View view, boolean imeVisible, int imeHeight) {
         if (!imeVisible) {
-            showItemInput(false);
+            showItemNameBox(false);
         }
     }
 
     private void onFabClicked() {
         // TODO: Make "Return" button on IME behave like FAB
-        if (isItemEditTextVisible()) {
+        // TODO: fix landscape layout for FAB and EditText
+        if (isItemNameBoxVisible()) {
             insertNewItem();
         } else {
-            showItemInput(true);
+            showItemNameBox(true);
         }
     }
 
     private void insertNewItem() {
         boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
+        String itemName = mBinding.itemNameBox.getText().toString();
+
+        if (itemName.isEmpty()) {
+            return;
+        }
+
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
-                new ChecklistItem("Item " + Calendar.getInstance().get(Calendar.SECOND), currentChecked));
+                new ChecklistItem(itemName, currentChecked));
         Futures.addCallback(result, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-
+                mBinding.itemNameBox.setText("");
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
                 vibrate();
             }
-        }, ContextCompat.getMainExecutor(getContext()));
+        }, ContextCompat.getMainExecutor(requireContext()));
     }
 
     private void vibrate() {
-        Vibrator vibrator = getContext().getSystemService(Vibrator.class);
+        Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
         vibrator.vibrate(125);
     }
 
