@@ -31,7 +31,10 @@
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_container_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"/>
+<!--        "appbar_scrolling_view_behavior" would also move the view below
+            the ActionBar, but then IME animation would not work anymore -->
 <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

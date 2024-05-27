@@ -4,10 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.adapter.FragmentViewHolder;
@@ -17,7 +20,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
@@ -43,6 +45,8 @@ public class ChecklistPagerFragment extends Fragment {
     private ViewPagerAdapter mViewPagerAdapter;
     private AppViewModel mViewModel;
     private String mListTitle;
+    private OnBackPressedCallback mOnBackPressedCallback;
+    private IMEHelper mIMEHelper;
 
 
     public ChecklistPagerFragment() {
@@ -51,12 +55,12 @@ public class ChecklistPagerFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: " + mListTitle);
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
         mViewModel = new ViewModelProvider(this).get(AppViewModel.class);
         mViewPagerAdapter = new ViewPagerAdapter(this);
-        Log.d(TAG, "onCreate: " + mListTitle);
     }
 
     @Override
@@ -68,7 +72,6 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
 //        mBinding.viewpager.setPageTransformer(new FanTransformer());
         mBinding.fab.setOnClickListener(view -> this.onFabClicked());
-//        mViewModel.getAllItemsSorted().observe(getViewLifecycleOwner(), this::onItemsChanged);
         return mBinding.getRoot();
     }
 
@@ -88,6 +91,12 @@ public class ChecklistPagerFragment extends Fragment {
                     }
                 }
         ).attach();
+        setupItemNameBox(requireActivity(), requireContext(), this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     public static Bundle makeArgs(String listTitle) {
@@ -96,16 +105,58 @@ public class ChecklistPagerFragment extends Fragment {
         return bundle;
     }
 
+    // TODO: Put all ItemNameBox related stuff into separate class.
+    //  Or extend custom EditText class
+    private void setupItemNameBox(@NonNull ComponentActivity activity,
+                                  @NonNull Context context,
+                                  @NonNull LifecycleOwner lifecycleOwner) {
+        mIMEHelper = new IMEHelper(context);
+        mIMEHelper.setOnIMEToggledListener(mBinding.itemNameBox, this::onIMEToggled);
+        // TODO: animation looks weird. Wrap constrainedlayout in another layout?
+//        mIMEHelper.enableIMETransitionAnimation(mBinding.getRoot());
+
+        mOnBackPressedCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                onBackPressed();
+            }
+        };
+        activity.getOnBackPressedDispatcher().addCallback(lifecycleOwner, mOnBackPressedCallback);
+    }
+
+    private void showItemInput(boolean show) {
+        if (show) {
+            mBinding.itemNameBox.setVisibility(View.VISIBLE);
+            mOnBackPressedCallback.setEnabled(true);
+            mBinding.itemNameBox.requestFocus();
+            mIMEHelper.showIME(mBinding.itemNameBox, true);
+        } else {
+            mBinding.itemNameBox.clearFocus();
+            mBinding.itemNameBox.setVisibility(View.GONE);
+            mOnBackPressedCallback.setEnabled(false);
+        }
+    }
+
+    private boolean isItemEditTextVisible() {
+        return mBinding.itemNameBox.getVisibility() == View.VISIBLE;
+    }
+
+    private void onBackPressed() {
+        showItemInput(false);
+    }
+
+    private void onIMEToggled(View view, boolean imeVisible, int imeHeight) {
+        if (!imeVisible) {
+            showItemInput(false);
+        }
+    }
+
     private void onFabClicked() {
-        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (mBinding.edittext.getVisibility() == View.VISIBLE) {
-            imm.hideSoftInputFromWindow(mBinding.edittext.getWindowToken(), 0);
-            mBinding.edittext.setVisibility(View.GONE);
+        // TODO: Make "Return" button on IME behave like FAB
+        if (isItemEditTextVisible()) {
             insertNewItem();
         } else {
-            mBinding.edittext.setVisibility(View.VISIBLE);
-            mBinding.edittext.requestFocus();
-            imm.showSoftInput(mBinding.edittext, InputMethodManager.SHOW_IMPLICIT);
+            showItemInput(true);
         }
     }
 
@@ -130,7 +181,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private void vibrate() {
         Vibrator vibrator = getContext().getSystemService(Vibrator.class);
-        vibrator.vibrate(250);
+        vibrator.vibrate(125);
     }
 
 
