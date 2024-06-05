@@ -17,9 +17,12 @@ import androidx.viewpager2.adapter.FragmentViewHolder;
 
 import android.os.Vibrator;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
@@ -92,6 +95,7 @@ public class ChecklistPagerFragment extends Fragment {
                 }
         ).attach();
         setupItemNameBox(requireActivity(), requireContext(), this);
+
     }
 
     @Override
@@ -122,6 +126,17 @@ public class ChecklistPagerFragment extends Fragment {
             }
         };
         activity.getOnBackPressedDispatcher().addCallback(lifecycleOwner, mOnBackPressedCallback);
+
+        int itemActionId = EditorInfo.IME_ACTION_DONE;
+        mBinding.itemNameBox.setImeOptions(itemActionId);
+        mBinding.itemNameBox.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == itemActionId) {
+                onFabClicked();
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     private void showItemNameBox(boolean show) {
@@ -165,11 +180,6 @@ public class ChecklistPagerFragment extends Fragment {
     private void insertNewItem() {
         boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
         String itemName = mBinding.itemNameBox.getText().toString();
-
-        if (itemName.isEmpty()) {
-            return;
-        }
-
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
                 new ChecklistItem(itemName, currentChecked));

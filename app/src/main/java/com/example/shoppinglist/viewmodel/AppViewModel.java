@@ -90,9 +90,12 @@ public class AppViewModel extends AndroidViewModel {
                 AppViewModel::toChecklistItems);
     }
 
-    public ListenableFuture<Void> insertItem(final String listTitle, final ChecklistItem item) {
+    public ListenableFuture<Void> insertItem(final @NonNull String listTitle, final @NonNull ChecklistItem item) {
         return mLexec.submit(() -> {
-            if (mChecklistRepo.getItemsFromList(listTitle)
+            if (item.getName().isEmpty()) {
+                throw new Exception("Empty");
+            }
+            else if (mChecklistRepo.getItemsFromList(listTitle)
                     .stream()
                     .anyMatch(dbItem -> dbItem.getName().equals(item.getName()))) {
                 throw new Exception("\"" + item.getName() + "\" already present");
