@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -82,8 +83,9 @@ public class ChecklistFragment extends Fragment {
 
     protected void onLiveDataChanged(List<ChecklistItem> newItemsSorted) {
         Log.d(TAG, "onLiveDataChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
-        mRecyclerViewAdapter.update(newItemsSorted);
+        mRecyclerViewAdapter.updateItems(newItemsSorted);
     }
+
 
     // TODO: 3/12/2024 Use ChecklistItem as parameter
     private void onItemClicked(int adapterPosition) {
@@ -96,6 +98,7 @@ public class ChecklistFragment extends Fragment {
         mViewModel.itemsHaveBeenMoved(mListTitle, itemsSortedByPosition);
     }
 
+    // TODO: move to separate file?
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
         private List<ChecklistItem> mCachedItems = new ArrayList<>();
@@ -154,12 +157,37 @@ public class ChecklistFragment extends Fragment {
             return mCachedItems.size();
         }
 
-        public void update(List<ChecklistItem> newItems) {
+        public void updateItems(List<ChecklistItem> newItems) {
             final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
                     new DiffCallback(getCachedItems(), newItems));
             mCachedItems = newItems;
             // will trigger the appropriate animations
-            diffResult.dispatchUpdatesTo(this);
+            diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
+                @Override
+                public void onInserted(int position, int count) {
+                    notifyItemRangeInserted(position, count);
+                    if (count == 1) {
+                        // If a single item has been added, scroll to it.
+                        mBinding.recyclerView.smoothScrollToPosition(position);
+                    }
+                    // TODO: highlight the new item (e.g. flash animation)?
+                }
+
+                @Override
+                public void onRemoved(int position, int count) {
+                    notifyItemRangeRemoved(position, count);
+                }
+
+                @Override
+                public void onMoved(int fromPosition, int toPosition) {
+                    notifyItemMoved(fromPosition, toPosition);
+                }
+
+                @Override
+                public void onChanged(int position, int count, @Nullable Object payload) {
+                    notifyItemRangeChanged(position, count, payload);
+                }
+            });
         }
 
         public boolean onItemMove(@NonNull RecyclerView.ViewHolder itemFrom,
