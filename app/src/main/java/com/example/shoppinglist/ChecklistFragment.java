@@ -81,6 +81,18 @@ public class ChecklistFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
+    public void scrollTo(boolean bottom) {
+        // TODO: Limit scrolling time (calculate scroll distance and then adjust scrolling speed
+        //  so that it will always take the same amount of time.
+        int pos;
+        if (bottom) {
+            pos = (mRecyclerViewAdapter.getItemCount() > 0) ? (mRecyclerViewAdapter.getItemCount() - 1) : 0;
+        } else {
+            pos = 0;
+        }
+        mBinding.recyclerView.smoothScrollToPosition(pos);
+    }
+
     protected void onLiveDataChanged(List<ChecklistItem> newItemsSorted) {
         Log.d(TAG, "onLiveDataChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
         mRecyclerViewAdapter.updateItems(newItemsSorted);

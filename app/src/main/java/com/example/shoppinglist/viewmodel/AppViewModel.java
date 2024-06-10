@@ -53,12 +53,16 @@ public class AppViewModel extends AndroidViewModel {
 
         if (mSettings == null) {
             mSettings = new Bundle();
-            mSettings.putBoolean(SETTING_NEW_ITEM_END, false);
+            mSettings.putBoolean(SETTING_NEW_ITEM_END, true);
         }
     }
 
     public LiveData<List<String>> getAllChecklistTitles() {
         return mListTitles;
+    }
+
+    public boolean isNewItemInsertBottom() {
+        return mSettings.getBoolean(SETTING_NEW_ITEM_END);
     }
 
     public void insertChecklist(String listTitle) {

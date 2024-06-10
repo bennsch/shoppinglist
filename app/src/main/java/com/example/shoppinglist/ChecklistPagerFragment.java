@@ -12,17 +12,16 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.adapter.FragmentViewHolder;
 
 import android.os.Vibrator;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
@@ -33,7 +32,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -162,7 +160,9 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void onIMEToggled(View view, boolean imeVisible, int imeHeight) {
-        if (!imeVisible) {
+        if (imeVisible) {
+            scrollCurrentChecklist();
+        } else {
             showItemNameBox(false);
         }
     }
@@ -177,8 +177,19 @@ public class ChecklistPagerFragment extends Fragment {
         }
     }
 
+    private void scrollCurrentChecklist() {
+        // TODO: don't use viewmodel. retrieve from global settings directly?
+        ChecklistFragment currentFragment = mViewPagerAdapter.getFragment(mBinding.viewpager.getCurrentItem());
+        if (currentFragment != null) {
+            currentFragment.scrollTo(mViewModel.isNewItemInsertBottom());
+        } else {
+            Log.w(TAG, "scrollCurrentChecklist: currentFragment==null");
+        }
+
+    }
+
     private void insertNewItem() {
-        boolean currentChecked = mViewPagerAdapter.getChecked(mBinding.viewpager.getCurrentItem());
+        boolean currentChecked = mViewPagerAdapter.isPageCheckedList(mBinding.viewpager.getCurrentItem());
         String itemName = mBinding.itemNameBox.getText().toString();
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
@@ -220,6 +231,7 @@ public class ChecklistPagerFragment extends Fragment {
             super(fragment);
         }
 
+
         @NonNull
         @Override
         public Fragment createFragment(int position) {
@@ -233,21 +245,19 @@ public class ChecklistPagerFragment extends Fragment {
             return mCachedFragments.length;
         }
 
-        public boolean getChecked(int position) {
+        public boolean isPageCheckedList(int position) {
             return PAGE_MAP.get(position);
+        }
+
+        @Nullable
+        public ChecklistFragment getFragment(int position) {
+            return mCachedFragments[position];
         }
 
         @Override
         public void onBindViewHolder(@NonNull FragmentViewHolder holder, int position, @NonNull List<Object> payloads) {
+            Log.d(TAG, "onBindViewHolder: " + position);
             super.onBindViewHolder(holder, position, payloads);
         }
-
-        //    public ListItem.Designation getDesignation(int position) {
-//        if (position == 0) {
-//            return ListItem.Designation.OPEN;
-//        } else {
-//            return ListItem.Designation.CLOSED;
-//        }
-//    }
     }
 }
