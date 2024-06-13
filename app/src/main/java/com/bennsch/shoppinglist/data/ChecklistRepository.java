@@ -1,4 +1,4 @@
-package com.example.shoppinglist.data;
+package com.bennsch.shoppinglist.data;
 
 import android.app.Application;
 
@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 

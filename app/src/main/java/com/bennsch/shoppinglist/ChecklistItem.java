@@ -1,7 +1,4 @@
-package com.example.shoppinglist;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+package com.bennsch.shoppinglist;
 
 public class ChecklistItem {
     private String mName;

@@ -1,4 +1,4 @@
-package com.example.shoppinglist;
+package com.bennsch.shoppinglist;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,7 +12,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.adapter.FragmentViewHolder;
 
@@ -24,8 +23,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
-import com.example.shoppinglist.databinding.FragmentChecklistPagerBinding;
-import com.example.shoppinglist.viewmodel.AppViewModel;
+import com.bennsch.shoppinglist.databinding.FragmentChecklistPagerBinding;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.common.util.concurrent.FutureCallback;

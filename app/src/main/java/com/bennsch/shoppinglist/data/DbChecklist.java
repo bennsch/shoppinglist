@@ -1,8 +1,7 @@
-package com.example.shoppinglist.data;
+package com.bennsch.shoppinglist.data;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 

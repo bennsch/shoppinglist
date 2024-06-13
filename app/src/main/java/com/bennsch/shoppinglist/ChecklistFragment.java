@@ -1,4 +1,4 @@
-package com.example.shoppinglist;
+package com.bennsch.shoppinglist;
 
 import android.os.Bundle;
 
@@ -17,9 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.shoppinglist.databinding.ChecklistItemViewholderBinding;
-import com.example.shoppinglist.databinding.FragmentChecklistBinding;
-import com.example.shoppinglist.viewmodel.AppViewModel;
+import com.bennsch.shoppinglist.databinding.ChecklistItemViewholderBinding;
+import com.bennsch.shoppinglist.databinding.FragmentChecklistBinding;
 
 import java.util.ArrayList;
 import java.util.Collections;

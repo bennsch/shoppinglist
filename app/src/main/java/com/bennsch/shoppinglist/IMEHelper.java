@@ -1,7 +1,6 @@
-package com.example.shoppinglist;
+package com.bennsch.shoppinglist;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 

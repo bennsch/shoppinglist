@@ -1,4 +1,4 @@
-package com.example.shoppinglist;
+package com.bennsch.shoppinglist;
 
 import org.junit.Test;
 

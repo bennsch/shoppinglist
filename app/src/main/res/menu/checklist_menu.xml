@@ -8,15 +8,18 @@
     <item
         android:id="@+id/clmenu_rename_list"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="Rename List" />
+        android:title="Rename List"
+        android:enabled="false"/>
 
     <item
         android:id="@+id/clmenu_config"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="Configuration" />
+        android:title="Configuration"
+        android:enabled="false"/>
 
     <item
         android:id="@+id/clmenu_delete_item"
         android:icon="@android:drawable/ic_menu_delete"
-        android:title="Delete Item" />
+        android:title="Delete Item"
+        android:enabled="false"/>
 </menu>

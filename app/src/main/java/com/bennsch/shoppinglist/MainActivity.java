@@ -1,36 +1,30 @@
-package com.example.shoppinglist;
+package com.bennsch.shoppinglist;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsAnimationCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
-import com.example.shoppinglist.databinding.ActivityMainBinding;
-import com.example.shoppinglist.viewmodel.AppViewModel;
+import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
 
 import java.util.Calendar;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
 
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -81,8 +75,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean onNavDrawerItemSelected(MenuItem item){
-        item.setCheckable(true);// TODO: 4/1/2024 don't do like this
-        if (this.binding.navView.getCheckedItem() != item) { // if not already selected
+        item.setCheckable(true);// TODO: don't do like this
+        if (this.binding.navView.getCheckedItem() == item) {
+            // Item already selected. Do nothing.
+        }
+        else {
             if (item.getGroupId() == R.id.group_checklists) {
                 showChecklistPagerFragment(item.getTitle().toString());
             } else if (item.getItemId() == R.id.nav_new_list) {
@@ -145,5 +142,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
 }

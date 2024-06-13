@@ -1,4 +1,4 @@
-package com.example.shoppinglist.viewmodel;
+package com.bennsch.shoppinglist;
 
 import android.app.Application;
 import android.os.Bundle;
@@ -7,25 +7,18 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
-import com.example.shoppinglist.ChecklistItem;
-import com.example.shoppinglist.data.ChecklistRepository;
-import com.example.shoppinglist.data.DbChecklistItem;
+import com.bennsch.shoppinglist.data.ChecklistRepository;
+import com.bennsch.shoppinglist.data.DbChecklistItem;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
-import java.nio.InvalidMarkException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.PrimitiveIterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
