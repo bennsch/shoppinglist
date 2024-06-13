@@ -21,13 +21,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-@Database(entities = {
-            DbChecklist.class,
-            DbChecklistItem.class}
-        , version = 1 /*exportSchema = false*/)
+@Database(entities = {DbChecklist.class,
+                      DbChecklistItem.class},
+          version = 1
+         /*exportSchema = false*/)
 public abstract class ChecklistDatabase extends RoomDatabase {
-
-    private static final String TAG = "ListItemDatabase";
 
     private static volatile ChecklistDatabase INSTANCE;
     static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(1);
@@ -35,13 +33,12 @@ public abstract class ChecklistDatabase extends RoomDatabase {
     public abstract ItemDao itemDao();
 
     static ChecklistDatabase getDatabase(final Context context) {
-        Log.d(TAG, "getDatabase: ");
         if (INSTANCE == null) {
             synchronized (ChecklistDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     ChecklistDatabase.class, "checklist_database")
-                            .addCallback(sRoomDatabaseCallback)
+                            .addCallback(populateInitialDatabase)
                             .build();
                 }
             }
@@ -49,43 +46,28 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         return INSTANCE;
     }
 
-    private static RoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
+    private static final RoomDatabase.Callback populateInitialDatabase = new RoomDatabase.Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
-            Log.d(TAG, "onCreate: Callback");
-
             super.onCreate(db);
-
             databaseWriteExecutor.execute(() -> {
-                ItemDao dao = INSTANCE.itemDao();
                 INSTANCE.clearAllTables();
-                {
-                    DbChecklist checklist = new DbChecklist("NuovoList A", false);
-                    dao.insert(checklist);
-                    List<DbChecklistItem> items = new ArrayList<>();
-                    for (long i = 0; i < 3; ++i) {
-                        DbChecklistItem item = new DbChecklistItem("RepoItem (Unchecked)" + i, false, i, checklist.getChecklistTitle());
-                        items.add(item);
-                    }
-                    for (long i = 0; i < 2; ++i) {
-                        DbChecklistItem item = new DbChecklistItem("RepoItem (Checked)" + i, true, i, checklist.getChecklistTitle());
-                        items.add(item);
-                    }
-                    dao.insert(items);
+                ItemDao dao = INSTANCE.itemDao();
+
+                DbChecklist shortList = new DbChecklist("Short List", false);
+                dao.insert(shortList);
+                dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle()));
+                dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle()));
+                dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle()));
+
+                DbChecklist longList = new DbChecklist("Long", true);
+                dao.insert(longList);
+                int sizeUnchecked = 20;
+                for (int i = 0; i < sizeUnchecked; i++) {
+                    dao.insert(new DbChecklistItem("Item " + i, false, i, longList.getChecklistTitle()));
                 }
-                {
-                    DbChecklist checklist = new DbChecklist("NuovoList B", true);
-                    dao.insert(checklist);
-                    List<DbChecklistItem> items = new ArrayList<>();
-                    for (long i = 0; i < 3; ++i) {
-                        DbChecklistItem item = new DbChecklistItem("RepoItem (Unchecked)" + i, false, i, checklist.getChecklistTitle());
-                        items.add(item);
-                    }
-                    for (long i = 0; i < 2; ++i) {
-                        DbChecklistItem item = new DbChecklistItem("RepoItem (Checked)" + i, true, i, checklist.getChecklistTitle());
-                        items.add(item);
-                    }
-                    dao.insert(items);
+                for (int i = 0; i < 10; i++) {
+                    dao.insert(new DbChecklistItem("Item " + (i + sizeUnchecked), true, i, longList.getChecklistTitle()));
                 }
             });
         }

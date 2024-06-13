@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -38,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(this.binding.getRoot());
+
+        this.binding.versionLabel.setText("v" + getVersionName());
 
         this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
@@ -72,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
         }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);
+    }
+
+    private String getVersionName() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "onCreate: ", e);
+            return "?.?";
+        }
     }
 
     private boolean onNavDrawerItemSelected(MenuItem item){
