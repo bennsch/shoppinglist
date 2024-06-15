@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    private ActivityMainBinding binding;
+    private ActivityMainBinding mBinding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private AppViewModel viewModel;
 
@@ -37,15 +37,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
-        this.binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(this.binding.getRoot());
+        mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
-        this.binding.versionLabel.setText("v" + getVersionName());
+        mBinding.versionLabel.setText("v" + getVersionName());
 
         this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
-        setSupportActionBar(this.binding.toolbar);
+        setSupportActionBar(mBinding.toolbar);
         setupNavDrawer();
         setupEdgeToEdgeInsets();
     }
@@ -67,10 +67,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.clmenu_delete_list) {
-            String currentList = this.binding.navView.getCheckedItem().getTitle().toString();
+            String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
             this.viewModel.deleteChecklist(currentList);
         } else if (item.getItemId() == R.id.clmenu_rename_list) {
-            String currentList = this.binding.navView.getCheckedItem().getTitle().toString();
+            String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
             this.viewModel.updateChecklistName(currentList, currentList + "-renamed*");
         }
         // Open navigation drawer if toolbar icon is clicked.
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean onNavDrawerItemSelected(MenuItem item){
         item.setCheckable(true);// TODO: don't do like this
-        if (this.binding.navView.getCheckedItem() == item) {
+        if (mBinding.navView.getCheckedItem() == item) {
             // Item already selected. Do nothing.
         }
         else {
@@ -99,42 +99,42 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         }
-        this.binding.drawerLayout.close();
+        mBinding.drawerLayout.close();
         // Return true, to display the item as the selected item.
         return true;
     }
 
     private void onChecklistTitlesChanged(List<String> newChecklistTitles) {
         Log.d(TAG, "onChecklistTitlesChanged: " + newChecklistTitles);
-        this.binding.navView.getMenu().removeGroup(R.id.group_checklists);
+        mBinding.navView.getMenu().removeGroup(R.id.group_checklists);
         newChecklistTitles.forEach(title -> {
-            Menu menu = this.binding.navView.getMenu();
+            Menu menu = mBinding.navView.getMenu();
             menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
         });
     }
 
     private void showChecklistPagerFragment(String listTitle) {
         getSupportFragmentManager().beginTransaction()
-//                .setCustomAnimations(R.anim.slide, R.anim.slide)
-                .replace(this.binding.fragmentContainerView.getId(),
+                //.setCustomAnimations(R.anim.slide, R.anim.slide)
+                .replace(mBinding.fragmentContainerView.getId(),
                         ChecklistPagerFragment.class,
                         ChecklistPagerFragment.makeArgs(listTitle))
                 .commit();
-        this.binding.toolbar.setTitle(listTitle);
+        mBinding.toolbar.setTitle(listTitle);
     }
 
     private void setupNavDrawer() {
-        this.binding.navView.setNavigationItemSelectedListener(this::onNavDrawerItemSelected);
+        mBinding.navView.setNavigationItemSelectedListener(this::onNavDrawerItemSelected);
         // drawer layout instance to toggle the menu icon to
         // open drawer and back button to close drawer
         this.actionBarDrawerToggle = new ActionBarDrawerToggle(
                 this,
-                this.binding.drawerLayout,
+                mBinding.drawerLayout,
                 R.string.navdrawer_open,
                 R.string.navdrawer_close);
         // pass the Open and Close toggle for the drawer layout listener
         // to toggle the button
-        this.binding.drawerLayout.addDrawerListener(this.actionBarDrawerToggle);
+        mBinding.drawerLayout.addDrawerListener(this.actionBarDrawerToggle);
         // to make the Navigation drawer icon always appear on the action bar
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -142,13 +142,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupEdgeToEdgeInsets() {
-        View view = this.binding.fragmentContainerView;
+        View view = mBinding.fragmentContainerView;
         ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
             @NonNull
             @Override
             public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
                 Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
-                binding.navView.setPadding(0, 0, 0, insetsNormal.bottom); // to show version number above bottom navigation bar
+                mBinding.navView.setPadding(0, 0, 0, insetsNormal.bottom); // to show version number above bottom navigation bar
                 return insets;
                 // return WindowInsetsCompat.CONSUMED;
             }

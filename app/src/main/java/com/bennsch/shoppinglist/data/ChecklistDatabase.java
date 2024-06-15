@@ -27,6 +27,49 @@ import java.util.concurrent.Executors;
          /*exportSchema = false*/)
 public abstract class ChecklistDatabase extends RoomDatabase {
 
+    @Dao
+    interface ItemDao {
+
+        @Transaction
+        default void insertAndUpdate(DbChecklistItem itemToInsert, List<DbChecklistItem> itemsToUpdate) {
+            insert(itemToInsert);
+            update(itemsToUpdate);
+        }
+
+        @Query("SELECT * FROM DbChecklist")
+        LiveData<List<DbChecklist>> getAllChecklists();
+
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND name LIKE :name")
+        DbChecklistItem getItem(String listTitle, String name);
+
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
+        LiveData<List<DbChecklistItem>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);
+
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
+        List<DbChecklistItem> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
+
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle")
+        List<DbChecklistItem> getItemsFromList(@NonNull final String listTitle);
+
+        @Insert
+        void insert(DbChecklist checklist);
+
+        @Insert
+        void insert(DbChecklistItem item);
+
+        @Insert
+        void insert(List<DbChecklistItem> items);
+
+        @Update
+        void update(List<DbChecklistItem> items);
+
+        @Query("DELETE FROM dbchecklist WHERE checklistTitle LIKE :checklistTitle")
+        void delete(String checklistTitle);
+
+        @Query("UPDATE dbchecklist SET checklistTitle = :newChecklistName WHERE checklistTitle LIKE :checklistName")
+        void update(String checklistName, String newChecklistName);
+    }
+
     private static volatile ChecklistDatabase INSTANCE;
     static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(1);
 
@@ -72,51 +115,5 @@ public abstract class ChecklistDatabase extends RoomDatabase {
             });
         }
     };
-
-
-
-    @Dao
-    interface ItemDao {
-
-        @Transaction
-        default void insertAndUpdate(DbChecklistItem itemToInsert, List<DbChecklistItem> itemsToUpdate) {
-            insert(itemToInsert);
-            update(itemsToUpdate);
-        }
-
-        @Query("SELECT * FROM DbChecklist")
-        LiveData<List<DbChecklist>> getAllChecklists();
-
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND name LIKE :name")
-        DbChecklistItem getItem(String listTitle, String name);
-
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
-        LiveData<List<DbChecklistItem>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);
-
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
-        List<DbChecklistItem> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
-
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle")
-        List<DbChecklistItem> getItemsFromList(@NonNull final String listTitle);
-
-        @Insert
-        void insert(DbChecklist checklist);
-
-        @Insert
-        void insert(DbChecklistItem item);
-
-        @Insert
-        void insert(List<DbChecklistItem> items);
-
-        @Update
-        void update(List<DbChecklistItem> items);
-
-        @Query("DELETE FROM dbchecklist WHERE checklistTitle LIKE :checklistTitle")
-        void delete(String checklistTitle);
-
-        @Query("UPDATE dbchecklist SET checklistTitle = :newChecklistName WHERE checklistTitle LIKE :checklistName")
-        void update(String checklistName, String newChecklistName);
-    }
-
 }
 
