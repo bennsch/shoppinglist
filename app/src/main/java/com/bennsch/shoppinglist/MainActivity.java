@@ -48,12 +48,14 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mBinding.toolbar);
         setupNavDrawer();
         setupEdgeToEdgeInsets();
+        showChecklistPagerFragment("Short List"); // TODO: select respective NavDrawer item
     }
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         // avoid starting with arrow in toolbar
         this.actionBarDrawerToggle.syncState();
+
         super.onPostCreate(savedInstanceState);
     }
 
@@ -150,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
                 mBinding.navView.setPadding(0, 0, 0, insetsNormal.bottom); // to show version number above bottom navigation bar
                 return insets;
-                // return WindowInsetsCompat.CONSUMED;
+//                 return WindowInsetsCompat.CONSUMED;
             }
         });
     }
