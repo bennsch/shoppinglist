@@ -135,17 +135,26 @@ public class ChecklistPagerFragment extends Fragment {
         });
     }
 
-    private void showItemNameBox(boolean show) {
+    private void toggleItemNameBox(boolean show) {
         if (show) {
-            mBinding.itemNameBox.setVisibility(View.VISIBLE);
             mOnBackPressedCallback.setEnabled(true);
+            mBinding.itemNameBox.setVisibility(View.VISIBLE);
+            // Set layout_height to 0, so that the constraint will be used (to top of itemNameBox)
+            ViewGroup.LayoutParams params = mBinding.viewpager.getLayoutParams();
+            params.height = 0;
+            mBinding.viewpager.setLayoutParams(params);
             mBinding.itemNameBox.requestFocus();
             mIMEHelper.showIME(mBinding.itemNameBox, true);
         } else {
+            mOnBackPressedCallback.setEnabled(false);
             mBinding.itemNameBox.clearFocus();
             mBinding.itemNameBox.setText("");
             mBinding.itemNameBox.setVisibility(View.GONE);
-            mOnBackPressedCallback.setEnabled(false);
+            ViewGroup.LayoutParams params = mBinding.viewpager.getLayoutParams();
+            // Set layout_height to a value, so that the constraint (to top of itemNameBox)
+            // will be ignored and viewpager expands to bottom of screen
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            mBinding.viewpager.setLayoutParams(params);
         }
     }
 
@@ -154,14 +163,14 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void onBackPressed() {
-        showItemNameBox(false);
+        toggleItemNameBox(false);
     }
 
     private void onIMEToggled(View view, boolean imeVisible, int imeHeight) {
         if (imeVisible) {
             scrollCurrentChecklist();
         } else {
-            showItemNameBox(false);
+            toggleItemNameBox(false);
         }
     }
 
@@ -171,7 +180,7 @@ public class ChecklistPagerFragment extends Fragment {
         if (isItemNameBoxVisible()) {
             insertNewItem();
         } else {
-            showItemNameBox(true);
+            toggleItemNameBox(true);
         }
     }
 
