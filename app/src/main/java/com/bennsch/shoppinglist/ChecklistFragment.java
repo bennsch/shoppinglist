@@ -128,6 +128,7 @@ public class ChecklistFragment extends Fragment {
             holder.getBinding().textView.setText(item.getName());
             if (mCachedItems.get(position).isChecked()) {
                 holder.getBinding().textView.setTextAppearance(R.style.ChecklistItem_Checked);
+                holder.getBinding().textView.setBackgroundResource(R.drawable.strike_through);
             } else {
                 holder.getBinding().textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
@@ -259,7 +260,7 @@ public class ChecklistFragment extends Fragment {
             public ViewHolder(@NonNull ChecklistItemViewholderBinding binding) {
                 super(binding.getRoot());
                 mBinding = binding;
-                mBinding.textView.setOnClickListener(this);
+                mBinding.viewholderClickable.setOnClickListener(this);
                 mBinding.dragHandle.setOnTouchListener((view, motionEvent) -> onDragHandleTouch(this));
             }
 

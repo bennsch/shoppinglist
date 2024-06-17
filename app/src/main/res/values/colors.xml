@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <attr format="color" name="colorListItemTextUnchecked"/>
+    <attr format="color" name="colorListItemTextChecked"/>
+
+
     <color name="seed">#456813</color>
 
     <color name="md_theme_light_primary">#456812</color>
@@ -34,6 +38,11 @@
     <color name="md_theme_light_outlineVariant">#C5C8B9</color>
     <color name="md_theme_light_scrim">#000000</color>
 
+    <color name="light_listItem_text_unchecked">@color/md_theme_light_onBackground</color>
+    <color name="light_listItem_text_checked">#8C8C8C</color>
+
+
+
     <color name="md_theme_dark_primary">#AAD472</color>
     <color name="md_theme_dark_onPrimary">#203700</color>
     <color name="md_theme_dark_primaryContainer">#304F00</color>
@@ -64,4 +73,8 @@
     <color name="md_theme_dark_surfaceTint">#AAD472</color>
     <color name="md_theme_dark_outlineVariant">#44483D</color>
     <color name="md_theme_dark_scrim">#000000</color>
+
+    <color name="dark_listItem_unchecked_text">@color/md_theme_dark_onBackground</color>
+    <color name="dark_listItem_checked_text">#8C8C8C</color>
+
 </resources>

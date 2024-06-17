@@ -24,6 +24,7 @@ import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
 import java.util.Calendar;
 import java.util.List;
 
+// TODO: Test dark mode
 
 public class MainActivity extends AppCompatActivity {
 

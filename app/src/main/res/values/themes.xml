@@ -35,10 +35,12 @@
         <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
         <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
-
         <!--TODO: How to generate by Material Theme Builder? What's the correct color?-->
         <item name="colorSurfaceContainerLow">@color/md_theme_light_background</item>
         <item name="colorSurfaceContainer">@color/md_theme_light_surfaceVariant</item>
+
+        <item name="colorListItemTextUnchecked">@color/md_theme_light_onBackground</item>
+        <item name="colorListItemTextChecked">#8C8C8C</item>
     </style>
 
 
@@ -47,11 +49,11 @@
     </style>
 
     <style name="ChecklistItem.Unchecked">
-        <item name="android:textColor">@color/md_theme_light_onBackground</item>
+        <item name="android:textColor">?colorListItemTextUnchecked</item>
     </style>
 
     <style name="ChecklistItem.Checked">
-        <item name="android:textColor">#8C8C8C</item>
+        <item name="android:textColor">?colorListItemTextChecked</item>
     </style>
 
 </resources>

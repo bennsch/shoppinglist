@@ -6,13 +6,31 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/text_view"
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/viewholder_clickable"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:theme="@style/ChecklistItem.Unchecked"
-        tools:text="CheckList Item"/>
+        android:orientation="horizontal">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:theme="@style/ChecklistItem.Unchecked"
+            tools:text="CheckList Item"/>
+
+        <!-- TODO: Is there a better widget to be used as spacer? -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
 
 <!--    <com.google.android.material.textview.MaterialTextView-->
 <!--        android:id="@+id/text_view2"-->
