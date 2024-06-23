@@ -9,6 +9,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.pm.PackageManager;
@@ -33,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding mBinding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private AppViewModel viewModel;
+    // getValue() is null if no checklist selected yet
+    private LiveData<String> mSelectedChecklist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,17 +49,18 @@ public class MainActivity extends AppCompatActivity {
         this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
+        mSelectedChecklist = viewModel.getSelectedChecklist();
+        mSelectedChecklist.observe(this, this::onSelectedChecklistChanged);
+
         setSupportActionBar(mBinding.toolbar);
         setupNavDrawer();
         setupEdgeToEdgeInsets();
-        showChecklistPagerFragment("Short List"); // TODO: select respective NavDrawer item
     }
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         // avoid starting with arrow in toolbar
         this.actionBarDrawerToggle.syncState();
-
         super.onPostCreate(savedInstanceState);
     }
 
@@ -90,33 +94,64 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean onNavDrawerItemSelected(MenuItem item){
-        item.setCheckable(true);// TODO: don't do like this
         if (mBinding.navView.getCheckedItem() == item) {
-            // Item already selected. Do nothing.
+            // Item already selected.
         }
         else {
             if (item.getGroupId() == R.id.group_checklists) {
-                showChecklistPagerFragment(item.getTitle().toString());
+                viewModel.selectChecklist(item.getTitle().toString());
             } else if (item.getItemId() == R.id.nav_new_list) {
                 viewModel.insertChecklist("List " + Calendar.getInstance().get(Calendar.MILLISECOND));
-                return false;
             }
         }
         mBinding.drawerLayout.close();
-        // Return true, to display the item as the selected item.
-        return true;
+        // Return false to not display the item as checked
+        // (will be handled in onSelectedChecklistChanged())
+        return false;
+    }
+
+    private void onSelectedChecklistChanged(@Nullable String newSelectedChecklist) {
+        Log.d(TAG, "onSelectedChecklistChanged: " + newSelectedChecklist);
+        if (newSelectedChecklist == null) {
+            // No item selected yet.
+            Log.d(TAG, "onSelectedChecklistChanged: is null");
+        } else {
+            Menu menu = mBinding.navView.getMenu();
+            for (int i = 0; i < menu.size(); i++) {
+                if (menu.getItem(i).getTitle().equals(newSelectedChecklist)) {
+                    menu.getItem(i).setChecked(true);
+                    Log.d(TAG, "onSelectedChecklistChanged: setChecked " + newSelectedChecklist);
+                    break;
+                }
+            }
+            showChecklistPagerFragment(newSelectedChecklist);
+        }
     }
 
     private void onChecklistTitlesChanged(List<String> newChecklistTitles) {
-        Log.d(TAG, "onChecklistTitlesChanged: " + newChecklistTitles);
         mBinding.navView.getMenu().removeGroup(R.id.group_checklists);
         newChecklistTitles.forEach(title -> {
             Menu menu = mBinding.navView.getMenu();
-            menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
+            MenuItem newItem = menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
+            newItem.setCheckable(true);
+            if (mSelectedChecklist.isInitialized()) {
+                if (mSelectedChecklist.getValue() == null) {
+                    // No checklist selected yet
+                }
+                else if (mSelectedChecklist.getValue().equals(title)) {
+                    Log.d(TAG, "onChecklistTitlesChanged: setChecked " + title);
+                    newItem.setChecked(true);
+                }else{
+                    // Do nothing
+                }
+            } else {
+                // TODO: Remove, for debugging only
+                throw new RuntimeException("mSelectedChecklist not initialized yet");
+            }
         });
     }
 
-    private void showChecklistPagerFragment(String listTitle) {
+    private void showChecklistPagerFragment(@Nullable String listTitle) {
         getSupportFragmentManager().beginTransaction()
                 //.setCustomAnimations(R.anim.slide, R.anim.slide)
                 .replace(mBinding.fragmentContainerView.getId(),

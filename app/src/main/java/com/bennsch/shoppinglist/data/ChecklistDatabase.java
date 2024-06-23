@@ -36,6 +36,12 @@ public abstract class ChecklistDatabase extends RoomDatabase {
             update(itemsToUpdate);
         }
 
+        @Transaction
+        default void selectChecklist(String checklistName) {
+            clearSelected();
+            setSelected(checklistName);
+        }
+
         @Query("SELECT * FROM DbChecklist")
         LiveData<List<DbChecklist>> getAllChecklists();
 
@@ -50,6 +56,9 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
         @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklistTitle LIKE :listTitle")
         List<DbChecklistItem> getItemsFromList(@NonNull final String listTitle);
+
+        @Query("SELECT checklistTitle FROM DbChecklist WHERE selected == 1")
+        LiveData<String> getSelectedChecklist();
 
         @Insert
         void insert(DbChecklist checklist);
@@ -68,6 +77,12 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
         @Query("UPDATE dbchecklist SET checklistTitle = :newChecklistName WHERE checklistTitle LIKE :checklistName")
         void update(String checklistName, String newChecklistName);
+
+        @Query("UPDATE DbChecklist SET selected = 1 WHERE checklistTitle LIKE :checklistName")
+        void setSelected(String checklistName);
+
+        @Query("UPDATE DbChecklist SET selected = 0")
+        void clearSelected();
     }
 
     private static volatile ChecklistDatabase INSTANCE;
@@ -97,13 +112,13 @@ public abstract class ChecklistDatabase extends RoomDatabase {
                 INSTANCE.clearAllTables();
                 ItemDao dao = INSTANCE.itemDao();
 
-                DbChecklist shortList = new DbChecklist("Short List", false);
+                DbChecklist shortList = new DbChecklist("Short List", false, false);
                 dao.insert(shortList);
                 dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle()));
                 dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle()));
                 dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle()));
 
-                DbChecklist longList = new DbChecklist("Long", true);
+                DbChecklist longList = new DbChecklist("Long", true, true);
                 dao.insert(longList);
                 int sizeUnchecked = 20;
                 for (int i = 0; i < sizeUnchecked; i++) {

@@ -12,10 +12,12 @@ public class DbChecklist {
     @NonNull
     private String checklistTitle;
 
+    private boolean selected;
     private boolean allCaps;
 
-    public DbChecklist(@NonNull String checklistTitle, boolean allCaps) {
+    public DbChecklist(@NonNull String checklistTitle, boolean allCaps, boolean selected) {
         this.checklistTitle = checklistTitle;
+        this.selected = selected;
         this.allCaps = allCaps;
     }
 
@@ -26,5 +28,9 @@ public class DbChecklist {
 
     public boolean isAllCaps() {
         return allCaps;
+    }
+
+    public boolean isSelected() {
+        return selected;
     }
 }

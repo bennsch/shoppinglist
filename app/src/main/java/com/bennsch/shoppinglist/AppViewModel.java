@@ -31,7 +31,7 @@ public class AppViewModel extends AndroidViewModel {
     private static final ListeningExecutorService mLexec = MoreExecutors.listeningDecorator(mExecutor);
 
     private final ChecklistRepository mChecklistRepo;
-    private final LiveData<List<String>> mListTitles;
+    private final LiveData<List<String>> mChecklistTitles;
     private static Bundle mSettings;
     private static String SETTING_NEW_ITEM_END = "new_item";
 
@@ -42,7 +42,7 @@ public class AppViewModel extends AndroidViewModel {
 
         Log.d(TAG, "ChecklistViewModel: Ctor");
         mChecklistRepo = new ChecklistRepository(application);
-        mListTitles = mChecklistRepo.getAllChecklistTitles();
+        mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
 
         if (mSettings == null) {
             mSettings = new Bundle();
@@ -50,8 +50,18 @@ public class AppViewModel extends AndroidViewModel {
         }
     }
 
+    public void selectChecklist(String checklistTitle) {
+        mExecutor.execute(() -> {
+            mChecklistRepo.selectChecklist(checklistTitle);
+        });
+    }
+
+    public LiveData<String> getSelectedChecklist() {
+        return mChecklistRepo.getSelectedChecklist();
+    }
+
     public LiveData<List<String>> getAllChecklistTitles() {
-        return mListTitles;
+        return mChecklistTitles;
     }
 
     public boolean isNewItemInsertBottom() {
@@ -61,18 +71,33 @@ public class AppViewModel extends AndroidViewModel {
     public void insertChecklist(String listTitle) {
         mExecutor.execute(() -> {
             mChecklistRepo.insertChecklist(listTitle);
+            mChecklistRepo.selectChecklist(listTitle);
         });
     }
 
     public void deleteChecklist(String checklistTitle) {
         mExecutor.execute(() -> {
             mChecklistRepo.deleteChecklist(checklistTitle);
+            if (mChecklistTitles.isInitialized()) {
+                List<String> listTitles = mChecklistTitles.getValue();
+                // Select the first list that is not this one
+                // (Database may have not been updated yet, so
+                // the just deleted item might still be in there).
+                if (listTitles != null) {
+                    for (String listTitle : listTitles) {
+                        if (!listTitle.equals(checklistTitle)) {
+                            mChecklistRepo.selectChecklist(listTitle);
+                            break;
+                        }
+                    }
+                }
+            }
         });
     }
 
     public void updateChecklistName(String checklistTitle, String newTitle) {
-        assert mListTitles.getValue() != null;
-        if (mListTitles.getValue().contains(newTitle)) {
+        assert mChecklistTitles.getValue() != null;
+        if (mChecklistTitles.getValue().contains(newTitle)) {
             throw new IllegalArgumentException("Checklist title '" + newTitle + "' already present");
         } else {
             mExecutor.execute(() -> {
