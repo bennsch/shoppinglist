@@ -52,12 +52,12 @@ public class AppViewModel extends AndroidViewModel {
 
     public void selectChecklist(String checklistTitle) {
         mExecutor.execute(() -> {
-            mChecklistRepo.selectChecklist(checklistTitle);
+            mChecklistRepo.setActiveChecklist(checklistTitle);
         });
     }
 
     public LiveData<String> getSelectedChecklist() {
-        return mChecklistRepo.getSelectedChecklist();
+        return mChecklistRepo.getActiveChecklistTitle();
     }
 
     public LiveData<List<String>> getAllChecklistTitles() {
@@ -71,7 +71,7 @@ public class AppViewModel extends AndroidViewModel {
     public void insertChecklist(String listTitle) {
         mExecutor.execute(() -> {
             mChecklistRepo.insertChecklist(listTitle);
-            mChecklistRepo.selectChecklist(listTitle);
+            mChecklistRepo.setActiveChecklist(listTitle);
         });
     }
 
@@ -86,7 +86,7 @@ public class AppViewModel extends AndroidViewModel {
                 if (listTitles != null) {
                     for (String listTitle : listTitles) {
                         if (!listTitle.equals(checklistTitle)) {
-                            mChecklistRepo.selectChecklist(listTitle);
+                            mChecklistRepo.setActiveChecklist(listTitle);
                             break;
                         }
                     }

@@ -6,43 +6,62 @@ import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 
+// Using Foreign Key to enforce a relationship between DbChecklist and
+// the DbChecklistItems which belong to it.
+// ForeignKey.CASCADE will make sure that if a DbChecklist is deleted/updated,
+// so are its DbChecklistItems
 @Entity(foreignKeys = {
-        @ForeignKey(
-        entity = DbChecklist.class,
-        parentColumns = "checklistTitle",
-        childColumns = "belongsToChecklistTitle",
-        onDelete = ForeignKey.CASCADE,
-        onUpdate = ForeignKey.CASCADE
-        )
+            @ForeignKey(
+                entity = DbChecklist.class,
+                parentColumns = "checklistTitle",
+                childColumns = "belongsToChecklist",
+                onDelete = ForeignKey.CASCADE,
+                onUpdate = ForeignKey.CASCADE)
 })
 public class DbChecklistItem {
-    @PrimaryKey(autoGenerate = true) // autoGenerate: null is treated as "non-set"
+
+    // autoGenerate: null is treated as "non-set".
+    @PrimaryKey(autoGenerate = true)
     private Long itemId;
-
-    private String belongsToChecklistTitle;
-
-    @NonNull
-    private String name;
-
+    // Link this item to a checklist.
+    @NonNull private final String belongsToChecklist;
+    // Items can have duplicate names, since itemId is unique.
+    @NonNull private String name;
+    // Item is checked or not.
     private boolean isChecked;
-
+    // Position if only checked/unchecked items are considered.
     private long positionInSublist;
 
-    public DbChecklistItem(@NonNull String name, boolean isChecked, long positionInSublist, String belongsToChecklistTitle) {
-        // itemId not available as parameter because Database should be the only one which set this id.
-        // (null means generate new id)
+    public DbChecklistItem(@NonNull String name,
+                           boolean isChecked,
+                           long positionInSublist,
+                           @NonNull String belongsToChecklist) {
+        // Only the database should generate a unique "itemId".
+        // "null" means "generate new ID".
+        this.itemId = null;
         this.name = name;
         this.isChecked = isChecked;
         this.positionInSublist = positionInSublist;
-        this.belongsToChecklistTitle = belongsToChecklistTitle;
+        this.belongsToChecklist = belongsToChecklist;
     }
 
     public Long getItemId() {
         return itemId;
     }
 
-    public String getBelongsToChecklistTitle() {
-        return belongsToChecklistTitle;
+    public void setItemId(Long itemId) {
+        // Needs to be publicly available so that auto generated Room
+        // code can access it
+        this.itemId = itemId;
+    }
+
+    @NonNull
+    public String getBelongsToChecklist() {
+        return belongsToChecklist;
+    }
+
+    public void setPositionInSublist(long positionInSublist) {
+        this.positionInSublist = positionInSublist;
     }
 
     @NonNull
@@ -50,31 +69,19 @@ public class DbChecklistItem {
         return name;
     }
 
-    public boolean isChecked() {
-        return isChecked;
-    }
-
-    public long getPositionInSublist() {
-        return positionInSublist;
-    }
-
-    public void setItemId(Long itemId) {
-        this.itemId = itemId;
-    }
-
-    public void setBelongsToChecklistTitle(String belongsToChecklistTitle) {
-        this.belongsToChecklistTitle = belongsToChecklistTitle;
-    }
-
     public void setName(@NonNull String name) {
         this.name = name;
+    }
+
+    public boolean isChecked() {
+        return isChecked;
     }
 
     public void setChecked(boolean checked) {
         isChecked = checked;
     }
 
-    public void setPositionInSublist(long positionInSublist) {
-        this.positionInSublist = positionInSublist;
+    public long getPositionInSublist() {
+        return positionInSublist;
     }
 }

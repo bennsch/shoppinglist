@@ -9,16 +9,14 @@ import androidx.room.PrimaryKey;
 public class DbChecklist {
 
     @PrimaryKey
-    @NonNull
-    private String checklistTitle;
+    @NonNull private String checklistTitle;
+    // True if this Checklist is currently selected by the user, false otherwise.
+    // Only one Checklist should be active at all times.
+    private boolean active;
 
-    private boolean selected;
-    private boolean allCaps;
-
-    public DbChecklist(@NonNull String checklistTitle, boolean allCaps, boolean selected) {
+    public DbChecklist(@NonNull String checklistTitle, boolean active) {
         this.checklistTitle = checklistTitle;
-        this.selected = selected;
-        this.allCaps = allCaps;
+        this.active = active;
     }
 
     @NonNull
@@ -26,11 +24,7 @@ public class DbChecklist {
         return checklistTitle;
     }
 
-    public boolean isAllCaps() {
-        return allCaps;
-    }
-
-    public boolean isSelected() {
-        return selected;
+    public boolean isActive() {
+        return active;
     }
 }
