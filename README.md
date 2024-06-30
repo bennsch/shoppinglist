@@ -1,2 +1,2 @@
-# shoppinglist
-Elegant cross off list for Android
+# Shopping List
+Simple Android app to keep track of items in a list.
