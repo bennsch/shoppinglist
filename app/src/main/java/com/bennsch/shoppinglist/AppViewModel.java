@@ -1,7 +1,6 @@
 package com.bennsch.shoppinglist;
 
 import android.app.Application;
-import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,47 +24,35 @@ import java.util.stream.Collectors;
 
 public class AppViewModel extends AndroidViewModel {
 
-    private static final String TAG = "AppViewModel";
+    // All the app's business logic should be handled in the ViewModel.
+    // It's the interface between data and UI.
 
+    private static final String TAG = "AppViewModel";
     private static final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
-    private static final ListeningExecutorService mLexec = MoreExecutors.listeningDecorator(mExecutor);
+    private static final ListeningExecutorService mListeningExecutor = MoreExecutors.listeningDecorator(mExecutor);
 
     private final ChecklistRepository mChecklistRepo;
     private final LiveData<List<String>> mChecklistTitles;
-    private static Bundle mSettings;
-    private static String SETTING_NEW_ITEM_END = "new_item";
 
 
     public AppViewModel(@NonNull Application application) {
         super(application);
-
-
-        Log.d(TAG, "ChecklistViewModel: Ctor");
         mChecklistRepo = new ChecklistRepository(application);
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
-
-        if (mSettings == null) {
-            mSettings = new Bundle();
-            mSettings.putBoolean(SETTING_NEW_ITEM_END, true);
-        }
     }
 
-    public void selectChecklist(String checklistTitle) {
+    public void setActiveChecklist(String checklistTitle) {
         mExecutor.execute(() -> {
             mChecklistRepo.setActiveChecklist(checklistTitle);
         });
     }
 
-    public LiveData<String> getSelectedChecklist() {
+    public LiveData<String> getActiveChecklist() {
         return mChecklistRepo.getActiveChecklistTitle();
     }
 
     public LiveData<List<String>> getAllChecklistTitles() {
         return mChecklistTitles;
-    }
-
-    public boolean isNewItemInsertBottom() {
-        return mSettings.getBoolean(SETTING_NEW_ITEM_END);
     }
 
     public void insertChecklist(String listTitle) {
@@ -95,7 +82,7 @@ public class AppViewModel extends AndroidViewModel {
         });
     }
 
-    public void updateChecklistName(String checklistTitle, String newTitle) {
+    public void renameChecklist(String checklistTitle, String newTitle) {
         assert mChecklistTitles.getValue() != null;
         if (mChecklistTitles.getValue().contains(newTitle)) {
             throw new IllegalArgumentException("Checklist title '" + newTitle + "' already present");
@@ -113,7 +100,7 @@ public class AppViewModel extends AndroidViewModel {
     }
 
     public ListenableFuture<Void> insertItem(final @NonNull String listTitle, final @NonNull ChecklistItem item) {
-        return mLexec.submit(() -> {
+        return mListeningExecutor.submit(() -> {
             if (item.getName().isEmpty()) {
                 throw new Exception("Empty");
             }
@@ -124,7 +111,7 @@ public class AppViewModel extends AndroidViewModel {
             } else {
                 List<DbChecklistItem> dbItems = mChecklistRepo.getSublistSorted(listTitle, item.isChecked());
                 DbChecklistItem newDbItem = new DbChecklistItem(item.getName(), item.isChecked(), 0, listTitle);
-                if (mSettings.getBoolean(SETTING_NEW_ITEM_END)) {
+                if (isNewItemInsertBottom()) {
                     dbItems.add(newDbItem);
                 } else {
                     dbItems.add(0, newDbItem);
@@ -158,23 +145,21 @@ public class AppViewModel extends AndroidViewModel {
                 dbMirrorAddTo.add(repoItem);
             }
 
-            // Make sure that only a single repo function is called (only single database update)
             assignPositionByOrder(dbMirrorRemovedFrom);
             assignPositionByOrder(dbMirrorAddTo);
 
             List<DbChecklistItem> dbMirrorCombined = new ArrayList<>();
             dbMirrorCombined.addAll(dbMirrorRemovedFrom);
             dbMirrorCombined.addAll(dbMirrorAddTo);
+            // Make sure that only a single repo function is called (only single database update)
             mChecklistRepo.update(dbMirrorCombined);
         });
     }
 
-    // TODO: 3/17/2024 use a Map (or such) to map a position to each item
-    //  Because the items may not be from the same sublist(checked/unchecked)
     public void itemsHaveBeenMoved(String listTitle, final List<ChecklistItem> itemsSortedByPos) {
-
-        // TODO: 5/12/2024 update "importance" of item if it has been moved in "checked" list
-
+        // TODO: use a Map (or such) to map a position to each item
+        //  Because the items may not be from the same sublist(checked/unchecked)
+        // TODO: update "importance" of item if it has been moved in "checked" list
         mExecutor.execute(() -> {
             // TODO: Redo properly
             boolean isChecked = itemsSortedByPos.get(0).isChecked();
@@ -192,6 +177,11 @@ public class AppViewModel extends AndroidViewModel {
         });
     }
 
+    public boolean isNewItemInsertBottom() {
+        // Dummy method (retrieve from settings)
+        return true;
+    }
+
     private static List<ChecklistItem> toChecklistItems(List<DbChecklistItem> dbItems) {
         return dbItems.stream()
                 .map(dbChecklistItem -> new ChecklistItem(
@@ -204,11 +194,5 @@ public class AppViewModel extends AndroidViewModel {
         for (int i = 0; i < repoItems.size(); i++) {
             repoItems.get(i).setPositionInSublist(i);
         }
-    }
-
-    @Override
-    protected void onCleared() {
-        Log.d(TAG, "onCleared: ");
-        super.onCleared();
     }
 }

@@ -31,20 +31,18 @@ public class ChecklistFragment extends Fragment {
     private static final String ARG_LIST_TITLE = "list_title";
     private static final String ARG_DISPLAY_CHECKED = "display_checked";
 
-
     private FragmentChecklistBinding mBinding;
     private RecyclerViewAdapter mRecyclerViewAdapter;
     private boolean mDisplayChecked;
     private String mListTitle;
     private AppViewModel mViewModel;
 
+
     public ChecklistFragment() {
-        Log.d(TAG, "ChecklistFragment: Ctor");
         // Required empty public constructor
     }
 
     public static ChecklistFragment newInstance(String listTitle, boolean displayChecked) {
-        Log.d(TAG, "newInstance: ");
         ChecklistFragment fragment = new ChecklistFragment();
         Bundle args = new Bundle();
         args.putString(ARG_LIST_TITLE, listTitle);
@@ -97,9 +95,8 @@ public class ChecklistFragment extends Fragment {
         mRecyclerViewAdapter.updateItems(newItemsSorted);
     }
 
-
-    // TODO: 3/12/2024 Use ChecklistItem as parameter
     private void onItemClicked(int adapterPosition) {
+        // TODO: Use ChecklistItem as parameter
         Log.d(TAG, "onItemClicked: " + adapterPosition);
         ChecklistItem item = mRecyclerViewAdapter.getCachedItem(adapterPosition);
         mViewModel.flipItem(mListTitle, item);

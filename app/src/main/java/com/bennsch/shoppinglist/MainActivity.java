@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     private AppViewModel viewModel;
     // getValue() is null if no checklist selected yet
-    private LiveData<String> mSelectedChecklist;
+    private LiveData<String> mActiveChecklist;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
         this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
-        mSelectedChecklist = viewModel.getSelectedChecklist();
-        mSelectedChecklist.observe(this, this::onSelectedChecklistChanged);
+        mActiveChecklist = viewModel.getActiveChecklist();
+        mActiveChecklist.observe(this, this::onActiveChecklistChanged);
 
         setSupportActionBar(mBinding.toolbar);
         setupNavDrawer();
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             this.viewModel.deleteChecklist(currentList);
         } else if (item.getItemId() == R.id.clmenu_rename_list) {
             String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
-            this.viewModel.updateChecklistName(currentList, currentList + "-renamed*");
+            this.viewModel.renameChecklist(currentList, currentList + "-renamed*");
         }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);
@@ -99,32 +99,31 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             if (item.getGroupId() == R.id.group_checklists) {
-                viewModel.selectChecklist(item.getTitle().toString());
+                viewModel.setActiveChecklist(item.getTitle().toString());
             } else if (item.getItemId() == R.id.nav_new_list) {
                 viewModel.insertChecklist("List " + Calendar.getInstance().get(Calendar.MILLISECOND));
             }
         }
         mBinding.drawerLayout.close();
         // Return false to not display the item as checked
-        // (will be handled in onSelectedChecklistChanged())
+        // (will be handled in onActiveChecklistChanged())
         return false;
     }
 
-    private void onSelectedChecklistChanged(@Nullable String newSelectedChecklist) {
-        Log.d(TAG, "onSelectedChecklistChanged: " + newSelectedChecklist);
-        if (newSelectedChecklist == null) {
+    private void onActiveChecklistChanged(@Nullable String newActiveChecklist) {
+        if (newActiveChecklist == null) {
             // No item selected yet.
-            Log.d(TAG, "onSelectedChecklistChanged: is null");
+            Log.d(TAG, "onActiveChecklistChanged: is null");
         } else {
             Menu menu = mBinding.navView.getMenu();
             for (int i = 0; i < menu.size(); i++) {
-                if (menu.getItem(i).getTitle().equals(newSelectedChecklist)) {
+                if (menu.getItem(i).getTitle().equals(newActiveChecklist)) {
                     menu.getItem(i).setChecked(true);
-                    Log.d(TAG, "onSelectedChecklistChanged: setChecked " + newSelectedChecklist);
+                    Log.d(TAG, "onActiveChecklistChanged: setChecked " + newActiveChecklist);
                     break;
                 }
             }
-            showChecklistPagerFragment(newSelectedChecklist);
+            showChecklistPagerFragment(newActiveChecklist);
         }
     }
 
@@ -134,11 +133,11 @@ public class MainActivity extends AppCompatActivity {
             Menu menu = mBinding.navView.getMenu();
             MenuItem newItem = menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
             newItem.setCheckable(true);
-            if (mSelectedChecklist.isInitialized()) {
-                if (mSelectedChecklist.getValue() == null) {
+            if (mActiveChecklist.isInitialized()) {
+                if (mActiveChecklist.getValue() == null) {
                     // No checklist selected yet
                 }
-                else if (mSelectedChecklist.getValue().equals(title)) {
+                else if (mActiveChecklist.getValue().equals(title)) {
                     Log.d(TAG, "onChecklistTitlesChanged: setChecked " + title);
                     newItem.setChecked(true);
                 }else{
@@ -146,7 +145,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else {
                 // TODO: Remove, for debugging only
-                throw new RuntimeException("mSelectedChecklist not initialized yet");
+//                throw new RuntimeException("mActiveChecklist not initialized yet");
+                Log.e(TAG, "onChecklistTitlesChanged: mActiveChecklist not initialized yet!, " + newChecklistTitles);
             }
         });
     }

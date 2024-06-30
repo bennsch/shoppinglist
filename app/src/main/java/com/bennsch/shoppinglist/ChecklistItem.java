@@ -9,10 +9,6 @@ public class ChecklistItem {
         mIsChecked = isChecked;
     }
 
-    public void flipChecked() {
-        mIsChecked = !mIsChecked;
-    }
-
     public Boolean isChecked() {
         return mIsChecked;
     }

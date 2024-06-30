@@ -46,6 +46,8 @@ public class ChecklistRepository {
     }
 
     public void setActiveChecklist(String checklistTitle) {
+        // Make Checklist with title "checklistTitle" active, and all other
+        // Checklists inactive
         mItemDao.setActiveChecklist(checklistTitle);
     }
 
