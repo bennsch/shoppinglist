@@ -58,6 +58,9 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Query("SELECT * FROM DbChecklist")
         LiveData<List<DbChecklist>> getAllChecklists();
 
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked")
+        List<DbChecklistItem> getItems(String listTitle, Boolean isChecked);
+
         @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked ORDER BY position ASC")
         List<DbChecklistItem> getItemsSortedByPosition(String listTitle, Boolean isChecked);
 

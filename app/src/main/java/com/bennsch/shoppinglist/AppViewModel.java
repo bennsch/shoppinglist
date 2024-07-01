@@ -102,6 +102,7 @@ public class AppViewModel extends AndroidViewModel {
     public ListenableFuture<Void> insertItem(final @NonNull String listTitle,
                                              final boolean isChecked,
                                              final @NonNull ChecklistItem item) {
+        // TODO: strip white space from item name
         return mListeningExecutor.submit(() -> {
             if (item.getName().isEmpty()) {
                 throw new Exception("Empty");
@@ -118,7 +119,7 @@ public class AppViewModel extends AndroidViewModel {
                 } else {
                     dbItems.add(0, newDbItem);
                 }
-                assignPositionByOrder(dbItems);
+                updatePositionByOrder(dbItems);
                 Log.d(TAG, "item: " + newDbItem.getName() + ": " + newDbItem.getPosition());
                 mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
                 return null;
@@ -147,8 +148,8 @@ public class AppViewModel extends AndroidViewModel {
                 dbMirrorAddTo.add(repoItem);
             }
 
-            assignPositionByOrder(dbMirrorRemovedFrom);
-            assignPositionByOrder(dbMirrorAddTo);
+            updatePositionByOrder(dbMirrorRemovedFrom);
+            updatePositionByOrder(dbMirrorAddTo);
 
             List<DbChecklistItem> dbMirrorCombined = new ArrayList<>();
             dbMirrorCombined.addAll(dbMirrorRemovedFrom);
@@ -161,12 +162,10 @@ public class AppViewModel extends AndroidViewModel {
     public void itemsHaveBeenMoved(String listTitle,
                                    boolean isChecked,
                                    final List<ChecklistItem> itemsSortedByPos) {
-        // TODO: use a Map (or such) to map a position to each item
-        //  Because the items may not be from the same sublist(checked/unchecked)
         // TODO: update "importance" of item if it has been moved in "checked" list
         mExecutor.execute(() -> {
             // TODO: Redo properly
-            List<DbChecklistItem> dbMirror = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
+            List<DbChecklistItem> dbMirror = mChecklistRepo.getItems(listTitle, isChecked);
             AtomicLong pos = new AtomicLong(0);
             itemsSortedByPos.forEach(item -> {
                 DbChecklistItem found = dbMirror.stream()
@@ -191,7 +190,7 @@ public class AppViewModel extends AndroidViewModel {
                 .collect(Collectors.toList());
     }
 
-    private static void assignPositionByOrder(List<DbChecklistItem> repoItems) {
+    private static void updatePositionByOrder(List<DbChecklistItem> repoItems) {
         for (int i = 0; i < repoItems.size(); i++) {
             repoItems.get(i).setPosition(i);
         }

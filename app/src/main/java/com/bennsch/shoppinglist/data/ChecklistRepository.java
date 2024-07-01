@@ -77,6 +77,10 @@ public class ChecklistRepository {
         return mItemDao.getItemsFromChecklist(listTitle);
     }
 
+    public List<DbChecklistItem> getItems(@NonNull String listTitle, @NonNull Boolean isChecked) {
+        return mItemDao.getItems(listTitle, isChecked);
+    }
+
     public List<DbChecklistItem> getItemsSortedByPosition(@NonNull String listTitle, @NonNull Boolean isChecked) {
         return mItemDao.getItemsSortedByPosition(listTitle, isChecked);
     }
