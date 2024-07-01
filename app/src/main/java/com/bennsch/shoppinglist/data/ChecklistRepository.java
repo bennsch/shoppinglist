@@ -77,7 +77,6 @@ public class ChecklistRepository {
         return mItemDao.getItemsFromChecklist(listTitle);
     }
 
-    // TODO: don't sort by position, let user do that
     public List<DbChecklistItem> getItemsSortedByPosition(@NonNull String listTitle, @NonNull Boolean isChecked) {
         return mItemDao.getItemsSortedByPosition(listTitle, isChecked);
     }

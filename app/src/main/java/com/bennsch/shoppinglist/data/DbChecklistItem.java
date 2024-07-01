@@ -23,13 +23,13 @@ public class DbChecklistItem {
     // autoGenerate: null is treated as "non-set".
     @PrimaryKey(autoGenerate = true)
     private Long itemId;
-    // Link this item to a checklist.
-    @NonNull private final String belongsToChecklist;
     // Items can have duplicate names, since itemId is unique.
     @NonNull private String name;
+    // Link this item to a checklist.
+    @NonNull private final String belongsToChecklist;
     // Item is checked or not.
     private boolean isChecked;
-    // Position if only checked/unchecked items are considered.
+    // Position in relation to other items with same "isChecked".
     private long position;
 
     public DbChecklistItem(@NonNull String name,

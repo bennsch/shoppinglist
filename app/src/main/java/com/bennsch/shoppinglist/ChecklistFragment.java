@@ -78,6 +78,10 @@ public class ChecklistFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
+    public boolean isDisplayChecked() {
+        return mDisplayChecked;
+    }
+
     public void scrollTo(boolean bottom) {
         // TODO: Limit scrolling time (calculate scroll distance and then adjust scrolling speed
         //  so that it will always take the same amount of time.
@@ -99,7 +103,7 @@ public class ChecklistFragment extends Fragment {
         // TODO: Use ChecklistItem as parameter
         Log.d(TAG, "onItemClicked: " + adapterPosition);
         ChecklistItem item = mRecyclerViewAdapter.getCachedItem(adapterPosition);
-        mViewModel.flipItem(mListTitle, item);
+        mViewModel.flipItem(mListTitle, mDisplayChecked, item);
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
@@ -123,7 +127,7 @@ public class ChecklistFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             ChecklistItem item = mCachedItems.get(position);
             holder.getBinding().textView.setText(item.getName());
-            if (mCachedItems.get(position).isChecked()) {
+            if (mDisplayChecked) {
                 holder.getBinding().textView.setTextAppearance(R.style.ChecklistItem_Checked);
                 holder.getBinding().textView.setBackgroundResource(R.drawable.strike_through);
             } else {

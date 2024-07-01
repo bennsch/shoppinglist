@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
-import androidx.viewpager2.adapter.FragmentViewHolder;
 
 import android.os.Vibrator;
 import android.util.Log;
@@ -29,9 +28,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.List;
-import java.util.Map;
 
 
 public class ChecklistPagerFragment extends Fragment {
@@ -186,21 +182,16 @@ public class ChecklistPagerFragment extends Fragment {
 
     private void scrollCurrentChecklist() {
         // TODO: don't use viewmodel. retrieve from global settings directly?
-        ChecklistFragment currentFragment = mViewPagerAdapter.getFragment(mBinding.viewpager.getCurrentItem());
-        if (currentFragment != null) {
-            currentFragment.scrollTo(mViewModel.isNewItemInsertBottom());
-        } else {
-            Log.w(TAG, "scrollCurrentChecklist: currentFragment==null");
-        }
-
+        getCurrentFragment().scrollTo(mViewModel.isNewItemInsertBottom());
     }
 
     private void insertNewItem() {
-        boolean currentChecked = mViewPagerAdapter.isPageCheckedList(mBinding.viewpager.getCurrentItem());
+        boolean currentChecked = getCurrentFragment().isDisplayChecked();
         String itemName = mBinding.itemNameBox.getText().toString();
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
-                new ChecklistItem(itemName, currentChecked));
+                currentChecked,
+                new ChecklistItem(itemName));
         Futures.addCallback(result, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -215,6 +206,10 @@ public class ChecklistPagerFragment extends Fragment {
         }, ContextCompat.getMainExecutor(requireContext()));
     }
 
+    private ChecklistFragment getCurrentFragment() {
+        return mViewPagerAdapter.getFragment(mBinding.viewpager.getCurrentItem());
+    }
+
     private void vibrate() {
         Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
         vibrator.vibrate(125);
@@ -223,13 +218,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private class ViewPagerAdapter extends FragmentStateAdapter {
 
-        private static final String TAG = "PagerAdapter";
-
         private final ChecklistFragment[] mCachedFragments = new ChecklistFragment[2];
-        private final Map<Integer, Boolean> PAGE_MAP = Map.of(
-                0, false,
-                1, true
-        );
 
         // Use this constructor if ViewPager2 lives directly in a Fragment.
         // Otherwise the child fragments of ViewPager2 will not be destroyed
@@ -238,13 +227,13 @@ public class ChecklistPagerFragment extends Fragment {
             super(fragment);
         }
 
-
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            Log.d(TAG, "createFragment " + position);
-            mCachedFragments[position] = ChecklistFragment.newInstance(mListTitle, PAGE_MAP.get(position));
-            return mCachedFragments[position];
+            boolean displayChecked = position != 0;
+            ChecklistFragment fragment = ChecklistFragment.newInstance(mListTitle, displayChecked);
+            mCachedFragments[position] = fragment;
+            return fragment;
         }
 
         @Override
@@ -252,19 +241,8 @@ public class ChecklistPagerFragment extends Fragment {
             return mCachedFragments.length;
         }
 
-        public boolean isPageCheckedList(int position) {
-            return PAGE_MAP.get(position);
-        }
-
-        @Nullable
         public ChecklistFragment getFragment(int position) {
             return mCachedFragments[position];
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull FragmentViewHolder holder, int position, @NonNull List<Object> payloads) {
-            Log.d(TAG, "onBindViewHolder: " + position);
-            super.onBindViewHolder(holder, position, payloads);
         }
     }
 }
