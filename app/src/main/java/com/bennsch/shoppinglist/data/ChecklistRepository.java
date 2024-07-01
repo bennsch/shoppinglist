@@ -17,7 +17,8 @@ public class ChecklistRepository {
 
     private static final String TAG = "ChecklistRepository";
 
-    private ChecklistDatabase.ItemDao mItemDao;
+    private final ChecklistDatabase.ItemDao mItemDao;
+
 
     public ChecklistRepository(@NonNull Application application) {
         ChecklistDatabase db = ChecklistDatabase.getInstance(application);
@@ -72,18 +73,16 @@ public class ChecklistRepository {
         mItemDao.insertAndUpdate(itemToInsert, itemsToUpdate);
     }
 
-    public List<DbChecklistItem> getItemsFromList(@NonNull final String listTitle) {
-        return mItemDao.getItemsFromList(listTitle);
+    public List<DbChecklistItem> getAllItems(@NonNull final String listTitle) {
+        return mItemDao.getItemsFromChecklist(listTitle);
     }
 
-    public List<DbChecklistItem> getSublistSorted(@NonNull String listTitle, @NonNull Boolean isChecked) {
-        return mItemDao.getSubsetSortedByPosition(listTitle, isChecked);
+    // TODO: don't sort by position, let user do that
+    public List<DbChecklistItem> getItemsSortedByPosition(@NonNull String listTitle, @NonNull Boolean isChecked) {
+        return mItemDao.getItemsSortedByPosition(listTitle, isChecked);
     }
 
-    // TODO: Check if distinctUntilChanged() is necessary for other
-    //  LiveData functions as well
-
-    public LiveData<List<DbChecklistItem>> getItemsSortedByPosition(@NonNull String listTitle, @NonNull Boolean isChecked) {
-        return mItemDao.getSubsetSortedByPositionAsLiveData(listTitle, isChecked);
+    public LiveData<List<DbChecklistItem>> getItemsSortedByPositionLiveData(@NonNull String listTitle, @NonNull Boolean isChecked) {
+        return mItemDao.getItemsSortedByPositionLiveData(listTitle, isChecked);
     }
 }

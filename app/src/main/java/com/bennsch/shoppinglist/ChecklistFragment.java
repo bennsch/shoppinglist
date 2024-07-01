@@ -103,7 +103,7 @@ public class ChecklistFragment extends Fragment {
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
-        mViewModel.itemsHaveBeenMoved(mListTitle, itemsSortedByPosition);
+        mViewModel.itemsHaveBeenMoved(mListTitle, mDisplayChecked, itemsSortedByPosition);
     }
 
     // TODO: move to separate file?

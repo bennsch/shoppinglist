@@ -30,18 +30,18 @@ public class DbChecklistItem {
     // Item is checked or not.
     private boolean isChecked;
     // Position if only checked/unchecked items are considered.
-    private long positionInSublist;
+    private long position;
 
     public DbChecklistItem(@NonNull String name,
                            boolean isChecked,
-                           long positionInSublist,
+                           long position,
                            @NonNull String belongsToChecklist) {
         // Only the database should generate a unique "itemId".
         // "null" means "generate new ID".
         this.itemId = null;
         this.name = name;
         this.isChecked = isChecked;
-        this.positionInSublist = positionInSublist;
+        this.position = position;
         this.belongsToChecklist = belongsToChecklist;
     }
 
@@ -60,8 +60,8 @@ public class DbChecklistItem {
         return belongsToChecklist;
     }
 
-    public void setPositionInSublist(long positionInSublist) {
-        this.positionInSublist = positionInSublist;
+    public void setPosition(long position) {
+        this.position = position;
     }
 
     @NonNull
@@ -81,7 +81,7 @@ public class DbChecklistItem {
         isChecked = checked;
     }
 
-    public long getPositionInSublist() {
-        return positionInSublist;
+    public long getPosition() {
+        return position;
     }
 }

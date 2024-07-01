@@ -58,14 +58,14 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Query("SELECT * FROM DbChecklist")
         LiveData<List<DbChecklist>> getAllChecklists();
 
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
-        LiveData<List<DbChecklistItem>> getSubsetSortedByPositionAsLiveData(String listTitle, Boolean isChecked);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked ORDER BY position ASC")
+        List<DbChecklistItem> getItemsSortedByPosition(String listTitle, Boolean isChecked);
 
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked ORDER BY positionInSublist ASC")
-        List<DbChecklistItem> getSubsetSortedByPosition(String listTitle, Boolean isChecked);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked ORDER BY position ASC")
+        LiveData<List<DbChecklistItem>> getItemsSortedByPositionLiveData(String listTitle, Boolean isChecked);
 
         @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
-        List<DbChecklistItem> getItemsFromList(@NonNull final String listTitle);
+        List<DbChecklistItem> getItemsFromChecklist(@NonNull final String listTitle);
 
         @Query("SELECT * FROM DbChecklist WHERE active == 1")
         LiveData<DbChecklist> getActiveChecklist();

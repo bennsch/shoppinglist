@@ -12,6 +12,7 @@ public class DbChecklist {
     @NonNull private String checklistTitle;
     // True if this Checklist is currently selected by the user, false otherwise.
     // Only one Checklist should be active at all times.
+    // TODO: consider using separate table (1 column) for "active checklist"
     private boolean active;
 
     public DbChecklist(@NonNull String checklistTitle, boolean active) {
