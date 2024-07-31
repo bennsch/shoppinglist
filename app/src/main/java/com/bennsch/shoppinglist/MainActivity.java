@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
 
@@ -101,7 +102,24 @@ public class MainActivity extends AppCompatActivity {
             if (item.getGroupId() == R.id.group_checklists) {
                 viewModel.setActiveChecklist(item.getTitle().toString());
             } else if (item.getItemId() == R.id.nav_new_list) {
-                viewModel.insertChecklist("List " + Calendar.getInstance().get(Calendar.MILLISECOND));
+                NewListDialog dialog =  new NewListDialog();
+                dialog.setCurrentLists(viewModel.getAllChecklistTitles().getValue());
+                dialog.setDialogListener(new NewListDialog.DialogListener() {
+                    @Override
+                    public void onCreateListClicked(String title) {
+                        try {
+                            viewModel.insertChecklist(title);
+                        } catch (IllegalArgumentException e) {
+                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelClicked() {
+                        // Do nothing.
+                    }
+                });
+                dialog.show(getSupportFragmentManager(), "NewListDialog");
             }
         }
         mBinding.drawerLayout.close();

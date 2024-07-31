@@ -56,6 +56,11 @@ public class AppViewModel extends AndroidViewModel {
     }
 
     public void insertChecklist(String listTitle) {
+        assert mChecklistTitles.getValue() != null;
+        if (mChecklistTitles.getValue().contains(listTitle)) {
+            // TODO: replace with appropriate exception
+            throw new IllegalArgumentException("List with title \"" + listTitle +  "\" already exists");
+        }
         mExecutor.execute(() -> {
             mChecklistRepo.insertChecklist(listTitle);
             mChecklistRepo.setActiveChecklist(listTitle);
@@ -85,6 +90,7 @@ public class AppViewModel extends AndroidViewModel {
     public void renameChecklist(String checklistTitle, String newTitle) {
         assert mChecklistTitles.getValue() != null;
         if (mChecklistTitles.getValue().contains(newTitle)) {
+            // TODO: replace with appropriate exception
             throw new IllegalArgumentException("Checklist title '" + newTitle + "' already present");
         } else {
             mExecutor.execute(() -> {
