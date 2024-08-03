@@ -50,10 +50,12 @@
 
     <style name="ChecklistItem.Unchecked">
         <item name="android:textColor">?colorListItemTextUnchecked</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ChecklistItem.Checked">
         <item name="android:textColor">?colorListItemTextChecked</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
 </resources>
