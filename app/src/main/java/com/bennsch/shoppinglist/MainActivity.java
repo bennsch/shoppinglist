@@ -27,6 +27,8 @@ import java.util.Calendar;
 import java.util.List;
 
 // TODO: Test dark mode
+// TODO: Show suggestions when typing new item
+// TODO: List is moving down slightly if IME is opened (if there are only few items)
 
 public class MainActivity extends AppCompatActivity {
 
