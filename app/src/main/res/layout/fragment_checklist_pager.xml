@@ -32,7 +32,6 @@
             android:background="@color/md_theme_light_secondaryContainer"
             android:hint="New Item..."
             android:imeOptions="flagNoFullscreen"
-            android:inputType="text"
             android:maxLines="1"
             android:textColor="@color/design_default_color_on_secondary"
             android:theme="@style/ChecklistItem"

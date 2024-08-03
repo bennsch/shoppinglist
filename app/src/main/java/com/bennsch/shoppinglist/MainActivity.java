@@ -29,6 +29,8 @@ import java.util.List;
 // TODO: Test dark mode
 // TODO: Show suggestions when typing new item
 // TODO: List is moving down slightly if IME is opened (if there are only few items)
+// TODO: Don't show divider beneath last item if IME is open (or instead of using divider add
+//  a line drawable on top of each item
 
 public class MainActivity extends AppCompatActivity {
 

@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import android.os.Vibrator;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -129,6 +130,10 @@ public class ChecklistPagerFragment extends Fragment {
                 return false;
             }
         });
+
+        mBinding.itemNameBox.setInputType(
+                InputType.TYPE_CLASS_TEXT |
+                InputType.TYPE_TEXT_FLAG_CAP_WORDS);
     }
 
     private void toggleItemNameBox(boolean show) {
