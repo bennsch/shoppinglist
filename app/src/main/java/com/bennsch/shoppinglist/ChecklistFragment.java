@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListUpdateCallback;
@@ -65,9 +66,13 @@ public class ChecklistFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mBinding = FragmentChecklistBinding.inflate(inflater, container, false);
+
+        DividerItemDecoration decor = new DividerItemDecoration(
+                requireContext(), DividerItemDecoration.VERTICAL);
+        mBinding.recyclerView.addItemDecoration(decor);
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        Log.d(TAG, "onCreateView: " + getViewLifecycleOwner());
+
         mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked)
                 .observe(getViewLifecycleOwner(), this::onLiveDataChanged);
         return mBinding.getRoot();

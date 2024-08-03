@@ -4,8 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
+    android:orientation="horizontal"
+    android:background="@drawable/viewholder_background"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+<!-- Using background drawable to avoid "transparent" item while moving -->
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/viewholder_clickable"
@@ -29,18 +34,6 @@
             android:layout_weight="1" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
-
-
-
-<!--    <com.google.android.material.textview.MaterialTextView-->
-<!--        android:id="@+id/text_view2"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_weight="0"-->
-<!--        android:textSize="25sp"-->
-<!--        android:textAlignment="textEnd"-->
-<!--        android:paddingEnd="10dp"-->
-<!--        tools:text="20(19)"/>-->
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/drag_handle"
