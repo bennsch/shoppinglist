@@ -1,5 +1,6 @@
 package com.bennsch.shoppinglist;
 
+import android.graphics.Paint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.bennsch.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.bennsch.shoppinglist.databinding.FragmentChecklistBinding;
@@ -131,12 +133,13 @@ public class ChecklistFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             ChecklistItem item = mCachedItems.get(position);
-            holder.getBinding().textView.setText(item.getName());
+            TextView textView = holder.getBinding().textView;
+            textView.setText(item.getName());
             if (mDisplayChecked) {
-                holder.getBinding().textView.setTextAppearance(R.style.ChecklistItem_Checked);
-                holder.getBinding().textView.setBackgroundResource(R.drawable.strike_through);
+                textView.setTextAppearance(R.style.ChecklistItem_Checked);
+                textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             } else {
-                holder.getBinding().textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
+                textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
         }
 
