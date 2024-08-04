@@ -27,7 +27,9 @@ import java.util.Calendar;
 import java.util.List;
 
 // TODO: Test dark mode
+
 // TODO: Show suggestions when typing new item
+// TODO: Rounded corners for ItemNameBox
 // TODO: List is moving down slightly if IME is opened (if there are only few items)
 // TODO: Make ItemNameBox smaller so that it doesn't align with last divider
 //       (maybe use LinearLayout instead of ConstraintLayout)

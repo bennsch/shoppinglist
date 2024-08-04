@@ -8,6 +8,8 @@ import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
@@ -140,10 +142,10 @@ public class ChecklistPagerFragment extends Fragment {
         if (show) {
             mOnBackPressedCallback.setEnabled(true);
             mBinding.itemNameBox.setVisibility(View.VISIBLE);
-            // Set layout_height to 0, so that the constraint will be used (to top of itemNameBox)
-            ViewGroup.LayoutParams params = mBinding.viewpager.getLayoutParams();
-            params.height = 0;
-            mBinding.viewpager.setLayoutParams(params);
+            updateConstraint(
+                    mBinding.checklistPagerRoot,
+                    R.id.viewpager, ConstraintSet.BOTTOM, R.id.item_name_box, ConstraintSet.TOP);
+            updateBottomMargin(mBinding.viewpager, getResources().getDimension(R.dimen.fab_margin));
             mBinding.itemNameBox.requestFocus();
             mIMEHelper.showIME(mBinding.itemNameBox, true);
         } else {
@@ -151,11 +153,10 @@ public class ChecklistPagerFragment extends Fragment {
             mBinding.itemNameBox.clearFocus();
             mBinding.itemNameBox.setText("");
             mBinding.itemNameBox.setVisibility(View.GONE);
-            ViewGroup.LayoutParams params = mBinding.viewpager.getLayoutParams();
-            // Set layout_height to a value, so that the constraint (to top of itemNameBox)
-            // will be ignored and viewpager expands to bottom of screen
-            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
-            mBinding.viewpager.setLayoutParams(params);
+            updateConstraint(
+                    mBinding.checklistPagerRoot,
+                    R.id.viewpager, ConstraintSet.BOTTOM, R.id.checklist_pager_root, ConstraintSet.BOTTOM);
+            updateBottomMargin(mBinding.viewpager, 0);
         }
     }
 
@@ -220,6 +221,21 @@ public class ChecklistPagerFragment extends Fragment {
         vibrator.vibrate(125);
     }
 
+    private static void updateConstraint(ConstraintLayout parent, int startID, int startSide, int endID, int endSide) {
+        ConstraintSet constraintSet = new ConstraintSet();
+        constraintSet.clone(parent);
+        constraintSet.connect(startID, startSide, endID, endSide);
+        constraintSet.applyTo(parent);
+    }
+
+    private void updateBottomMargin(View view, float margin_px) {
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) view.getLayoutParams();
+        params.setMargins(
+                params.leftMargin,
+                params.topMargin,
+                params.rightMargin,
+                (int)margin_px);
+    }
 
     private class ViewPagerAdapter extends FragmentStateAdapter {
 
