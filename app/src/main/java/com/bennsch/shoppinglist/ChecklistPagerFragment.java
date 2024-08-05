@@ -142,10 +142,14 @@ public class ChecklistPagerFragment extends Fragment {
         if (show) {
             mOnBackPressedCallback.setEnabled(true);
             mBinding.itemNameBox.setVisibility(View.VISIBLE);
+            mBinding.itemNameBoxMargin.setVisibility(View.VISIBLE);
+            // To hide the last item divider, only if the list has enough items to touch the item_name_box,
+            // we are using a View in background color and a negative margin to make the ViewPager overlap it.
+            // Using margin on item_name_box would mess up the alignment with the FAB.
             updateConstraint(
                     mBinding.checklistPagerRoot,
-                    R.id.viewpager, ConstraintSet.BOTTOM, R.id.item_name_box, ConstraintSet.TOP);
-            updateBottomMargin(mBinding.viewpager, getResources().getDimension(R.dimen.fab_margin));
+                    R.id.viewpager, ConstraintSet.BOTTOM, R.id.item_name_box_margin, ConstraintSet.TOP);
+            updateBottomMargin(mBinding.viewpager, -(getResources().getDimension(R.dimen.item_name_box_margin))); // negative margin to overlap last divider
             mBinding.itemNameBox.requestFocus();
             mIMEHelper.showIME(mBinding.itemNameBox, true);
         } else {
@@ -153,6 +157,7 @@ public class ChecklistPagerFragment extends Fragment {
             mBinding.itemNameBox.clearFocus();
             mBinding.itemNameBox.setText("");
             mBinding.itemNameBox.setVisibility(View.GONE);
+            mBinding.itemNameBoxMargin.setVisibility(View.GONE);
             updateConstraint(
                     mBinding.checklistPagerRoot,
                     R.id.viewpager, ConstraintSet.BOTTOM, R.id.checklist_pager_root, ConstraintSet.BOTTOM);
