@@ -135,7 +135,7 @@ public class ChecklistPagerFragment extends Fragment {
 
         mBinding.itemNameBox.setInputType(
                 InputType.TYPE_CLASS_TEXT |
-                InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+                InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
     }
 
     private void toggleItemNameBox(boolean show) {
