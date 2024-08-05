@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.bennsch.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.bennsch.shoppinglist.databinding.FragmentChecklistBinding;
+import com.google.android.material.divider.MaterialDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,8 +70,9 @@ public class ChecklistFragment extends Fragment {
                              Bundle savedInstanceState) {
         mBinding = FragmentChecklistBinding.inflate(inflater, container, false);
 
-        DividerItemDecoration decor = new DividerItemDecoration(
-                requireContext(), DividerItemDecoration.VERTICAL);
+        MaterialDividerItemDecoration decor = new MaterialDividerItemDecoration(
+                requireContext(), MaterialDividerItemDecoration.VERTICAL);
+//        decor.setLastItemDecorated(false);
         mBinding.recyclerView.addItemDecoration(decor);
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
