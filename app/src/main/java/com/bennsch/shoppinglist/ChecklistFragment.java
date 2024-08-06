@@ -136,7 +136,10 @@ public class ChecklistFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             ChecklistItem item = mCachedItems.get(position);
             TextView textView = holder.getBinding().textView;
-            textView.setText(item.getIncidence() + "--" + item.getName());
+            textView.setText(item.getName());
+            if (GlobalConfig.DBG_SHOW_INCIDENCE) {
+                textView.setText(item.getIncidence() + "--" + item.getName());
+            }
             if (mDisplayChecked) {
                 textView.setTextAppearance(R.style.ChecklistItem_Checked);
                 textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -211,6 +214,10 @@ public class ChecklistFragment extends Fragment {
                     notifyItemRangeChanged(position, count, payload);
                 }
             });
+            if (GlobalConfig.DBG_SHOW_INCIDENCE) {
+                Log.w(TAG, "notifyDataSetChanged()");
+                notifyDataSetChanged();
+            }
         }
 
         public boolean onItemMove(@NonNull RecyclerView.ViewHolder itemFrom,
