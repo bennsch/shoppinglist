@@ -5,15 +5,24 @@
     android:layout_height="wrap_content"
 
     android:gravity="bottom"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingTop="56dp"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingBottom="8dp">
+    android:paddingBottom="16dp">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:srcCompat="@drawable/ic_app_icon"
+        android:tint="?colorOnBackground" />
+<!-- TODO: why is the color not as black as the text?   -->
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginStart="8sp"
+        android:gravity="center_vertical"
         android:text="Shopping List"
         android:textAllCaps="true"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
