@@ -136,7 +136,7 @@ public class ChecklistFragment extends Fragment {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             ChecklistItem item = mCachedItems.get(position);
             TextView textView = holder.getBinding().textView;
-            textView.setText(item.getName());
+            textView.setText(item.getIncidence() + "--" + item.getName());
             if (mDisplayChecked) {
                 textView.setTextAppearance(R.style.ChecklistItem_Checked);
                 textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);

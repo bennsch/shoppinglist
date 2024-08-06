@@ -31,17 +31,24 @@ public class DbChecklistItem {
     private boolean isChecked;
     // Position in relation to other items with same "isChecked".
     private long position;
+    // How often the user used this item. Incremented whenever the user
+    // ?ed this item.
+    private long incidence;
+
+    // private date_created (e.g. UUID)
 
     public DbChecklistItem(@NonNull String name,
                            boolean isChecked,
                            long position,
-                           @NonNull String belongsToChecklist) {
+                           @NonNull String belongsToChecklist,
+                           long incidence) {
         // Only the database should generate a unique "itemId".
         // "null" means "generate new ID".
         this.itemId = null;
         this.name = name;
         this.isChecked = isChecked;
         this.position = position;
+        this.incidence = incidence;
         this.belongsToChecklist = belongsToChecklist;
     }
 
@@ -62,6 +69,14 @@ public class DbChecklistItem {
 
     public void setPosition(long position) {
         this.position = position;
+    }
+
+    public long getIncidence() {
+        return incidence;
+    }
+
+    public void setIncidence(long incidence) {
+        this.incidence = incidence;
     }
 
     @NonNull

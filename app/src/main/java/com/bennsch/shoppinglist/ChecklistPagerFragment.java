@@ -187,8 +187,8 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void scrollCurrentChecklist() {
-        // TODO: don't use viewmodel. retrieve from global settings directly?
-        getCurrentFragment().scrollTo(mViewModel.isNewItemInsertBottom());
+        // retrieve from global settings?
+        getCurrentFragment().scrollTo(true);
     }
 
     private void insertNewItem() {
@@ -197,7 +197,7 @@ public class ChecklistPagerFragment extends Fragment {
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
                 currentChecked,
-                new ChecklistItem(itemName));
+                new ChecklistItem(itemName, 0));
         Futures.addCallback(result, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {

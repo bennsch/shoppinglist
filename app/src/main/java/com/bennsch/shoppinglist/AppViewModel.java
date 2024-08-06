@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -119,12 +120,14 @@ public class AppViewModel extends AndroidViewModel {
                 throw new Exception("\"" + item.getName() + "\" already present");
             } else {
                 List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
-                DbChecklistItem newDbItem = new DbChecklistItem(item.getName(), isChecked, 0, listTitle);
-                if (isNewItemInsertBottom()) {
-                    dbItems.add(newDbItem);
-                } else {
-                    dbItems.add(0, newDbItem);
+                // TODO: maybe don't use integral type for 'position', so that undefined position is allowed
+                DbChecklistItem newDbItem = new DbChecklistItem(item.getName(), isChecked, 0, listTitle, 0);
+                dbItems.add(newDbItem);
+
+                if (isChecked) {
+                    sortByIncidenceDescending(dbItems);
                 }
+
                 updatePositionByOrder(dbItems);
                 Log.d(TAG, "item: " + newDbItem.getName() + ": " + newDbItem.getPosition());
                 mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
@@ -148,10 +151,11 @@ public class AppViewModel extends AndroidViewModel {
 
             List<DbChecklistItem> dbMirrorAddTo = mChecklistRepo.getItemsSortedByPosition(listTitle, !isChecked);
             repoItem.setChecked(!repoItem.isChecked());
+
+            repoItem.setIncidence(repoItem.getIncidence() + 1);
+            dbMirrorAddTo.add(repoItem);
             if (repoItem.isChecked()) {
-                dbMirrorAddTo.add(0, repoItem);
-            } else {
-                dbMirrorAddTo.add(repoItem);
+                sortByIncidenceDescending(dbMirrorAddTo);
             }
 
             updatePositionByOrder(dbMirrorRemovedFrom);
@@ -168,7 +172,7 @@ public class AppViewModel extends AndroidViewModel {
     public void itemsHaveBeenMoved(String listTitle,
                                    boolean isChecked,
                                    final List<ChecklistItem> itemsSortedByPos) {
-        // TODO: update "importance" of item if it has been moved in "checked" list
+        // TODO: update "incidence" of item if it has been moved in "checked" list
         mExecutor.execute(() -> {
             // TODO: Redo properly
             List<DbChecklistItem> dbMirror = mChecklistRepo.getItems(listTitle, isChecked);
@@ -184,15 +188,11 @@ public class AppViewModel extends AndroidViewModel {
         });
     }
 
-    public boolean isNewItemInsertBottom() {
-        // Dummy method (retrieve from settings)
-        return true;
-    }
-
     private static List<ChecklistItem> toChecklistItems(List<DbChecklistItem> dbItems) {
         return dbItems.stream()
                 .map(dbChecklistItem -> new ChecklistItem(
-                        dbChecklistItem.getName()))
+                        dbChecklistItem.getName(),
+                        dbChecklistItem.getIncidence()))
                 .collect(Collectors.toList());
     }
 
@@ -200,5 +200,9 @@ public class AppViewModel extends AndroidViewModel {
         for (int i = 0; i < repoItems.size(); i++) {
             repoItems.get(i).setPosition(i);
         }
+    }
+
+    private static void sortByIncidenceDescending(List<DbChecklistItem> repoItems) {
+        repoItems.sort(Comparator.comparingLong(DbChecklistItem::getIncidence).reversed());
     }
 }

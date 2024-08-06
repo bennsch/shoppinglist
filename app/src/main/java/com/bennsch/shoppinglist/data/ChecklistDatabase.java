@@ -105,18 +105,18 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
                 DbChecklist shortList = new DbChecklist("Short List", false);
                 dao.insert(shortList);
-                dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle()));
-                dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle()));
-                dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle()));
+                dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle(), 0));
+                dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle(), 0));
+                dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle(), 0));
 
                 DbChecklist longList = new DbChecklist("Long", true);
                 dao.insert(longList);
                 int sizeUnchecked = 20;
                 for (int i = 0; i < sizeUnchecked; i++) {
-                    dao.insert(new DbChecklistItem("Item " + i, false, i, longList.getChecklistTitle()));
+                    dao.insert(new DbChecklistItem("Item " + i, false, i, longList.getChecklistTitle(), 0));
                 }
                 for (int i = 0; i < 10; i++) {
-                    dao.insert(new DbChecklistItem("Item " + (i + sizeUnchecked), true, i, longList.getChecklistTitle()));
+                    dao.insert(new DbChecklistItem("Item " + (i + sizeUnchecked), true, i, longList.getChecklistTitle(), 0));
                 }
             });
         }
