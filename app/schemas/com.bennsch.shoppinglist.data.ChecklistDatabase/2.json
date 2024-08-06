@@ -1,0 +1,103 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "5c558cdec1d1b1bd44742a56efe86a61",
+    "entities": [
+      {
+        "tableName": "DbChecklist",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`checklistTitle` TEXT NOT NULL, `active` INTEGER NOT NULL, PRIMARY KEY(`checklistTitle`))",
+        "fields": [
+          {
+            "fieldPath": "checklistTitle",
+            "columnName": "checklistTitle",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "checklistTitle"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "DbChecklistItem",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `belongsToChecklist` TEXT NOT NULL, `isChecked` INTEGER NOT NULL, `position` INTEGER NOT NULL, `incidence` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`belongsToChecklist`) REFERENCES `DbChecklist`(`checklistTitle`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "itemId",
+            "columnName": "itemId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "belongsToChecklist",
+            "columnName": "belongsToChecklist",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isChecked",
+            "columnName": "isChecked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "incidence",
+            "columnName": "incidence",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "itemId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": [
+          {
+            "table": "DbChecklist",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "belongsToChecklist"
+            ],
+            "referencedColumns": [
+              "checklistTitle"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5c558cdec1d1b1bd44742a56efe86a61')"
+    ]
+  }
+}

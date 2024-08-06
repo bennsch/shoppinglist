@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist.data;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
@@ -31,8 +32,11 @@ public class DbChecklistItem {
     private boolean isChecked;
     // Position in relation to other items with same "isChecked".
     private long position;
+
+    // TODO: remove default value for actual release?
     // How often the user used this item. Incremented whenever the user
     // ?ed this item.
+    @ColumnInfo(defaultValue = "0") // Default value required for automatic database migration.
     private long incidence;
 
     // private date_created (e.g. UUID)

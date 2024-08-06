@@ -4,6 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.room.AutoMigration;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Insert;
@@ -19,9 +20,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-@Database(entities = {DbChecklist.class,
-                      DbChecklistItem.class},
-          version = 1
+@Database(
+        entities = {DbChecklist.class, DbChecklistItem.class},
+        version = 2,
+        autoMigrations = {@AutoMigration(from = 1, to = 2)}
          /*exportSchema = false*/)
 public abstract class ChecklistDatabase extends RoomDatabase {
 
