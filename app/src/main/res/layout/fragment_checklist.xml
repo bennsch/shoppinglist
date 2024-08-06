@@ -8,6 +8,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/item_name_box_spacing"/>
+<!--    "clipToPadding" allows the RecyclerView to draw over
+        the padding area. So we can achieve visible gap between item_name_box
+        and the RecyclerView, but if we scroll it will disappear -->
 </FrameLayout>

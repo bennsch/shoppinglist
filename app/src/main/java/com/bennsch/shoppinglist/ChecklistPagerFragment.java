@@ -142,14 +142,10 @@ public class ChecklistPagerFragment extends Fragment {
         if (show) {
             mOnBackPressedCallback.setEnabled(true);
             mBinding.itemNameBox.setVisibility(View.VISIBLE);
-            mBinding.itemNameBoxMargin.setVisibility(View.VISIBLE);
-            // To hide the last item divider, only if the list has enough items to touch the item_name_box,
-            // we are using a View in background color and a negative margin to make the ViewPager overlap it.
-            // Using margin on item_name_box would mess up the alignment with the FAB.
+            // Set constraint to expand to top of item_name_box.
             updateConstraint(
                     mBinding.checklistPagerRoot,
-                    R.id.viewpager, ConstraintSet.BOTTOM, R.id.item_name_box_margin, ConstraintSet.TOP);
-            updateBottomMargin(mBinding.viewpager, -(getResources().getDimension(R.dimen.item_name_box_margin))); // negative margin to overlap last divider
+                    R.id.viewpager, ConstraintSet.BOTTOM, R.id.item_name_box, ConstraintSet.TOP);
             mBinding.itemNameBox.requestFocus();
             mIMEHelper.showIME(mBinding.itemNameBox, true);
         } else {
@@ -157,11 +153,10 @@ public class ChecklistPagerFragment extends Fragment {
             mBinding.itemNameBox.clearFocus();
             mBinding.itemNameBox.setText("");
             mBinding.itemNameBox.setVisibility(View.GONE);
-            mBinding.itemNameBoxMargin.setVisibility(View.GONE);
+            // Set constraint to expand to bottom of parent.
             updateConstraint(
                     mBinding.checklistPagerRoot,
                     R.id.viewpager, ConstraintSet.BOTTOM, R.id.checklist_pager_root, ConstraintSet.BOTTOM);
-            updateBottomMargin(mBinding.viewpager, 0);
         }
     }
 
@@ -233,14 +228,6 @@ public class ChecklistPagerFragment extends Fragment {
         constraintSet.applyTo(parent);
     }
 
-    private void updateBottomMargin(View view, float margin_px) {
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) view.getLayoutParams();
-        params.setMargins(
-                params.leftMargin,
-                params.topMargin,
-                params.rightMargin,
-                (int)margin_px);
-    }
 
     private class ViewPagerAdapter extends FragmentStateAdapter {
 
