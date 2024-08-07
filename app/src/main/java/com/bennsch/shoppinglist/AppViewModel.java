@@ -172,18 +172,31 @@ public class AppViewModel extends AndroidViewModel {
     public void itemsHaveBeenMoved(String listTitle,
                                    boolean isChecked,
                                    final List<ChecklistItem> itemsSortedByPos) {
-        // TODO: update "incidence" of item if it has been moved in "checked" list
         mExecutor.execute(() -> {
             // TODO: Redo properly
+            // Update the database items (position) to match the current visual order
+            // in RecyclerView and modify the incidence accordingly.
+            // This is performed only when "checked" items have been moved.
             List<DbChecklistItem> dbMirror = mChecklistRepo.getItems(listTitle, isChecked);
-            AtomicLong pos = new AtomicLong(0);
-            itemsSortedByPos.forEach(item -> {
+            long prev_incidence = 0;
+            for (int i = 0; i < itemsSortedByPos.size(); i++) {
+                // Find the corresponding database item.
+                String name = itemsSortedByPos.get(i).getName();
                 DbChecklistItem found = dbMirror.stream()
-                        .filter(item1 -> item1.getName().equals(item.getName()))
+                        .filter(item1 -> item1.getName().equals(name))
                         .findFirst().orElse(null);
                 assert found != null;
-                found.setPosition(pos.getAndIncrement());
-            });
+                // Update incidence so that it less than the previous incidence.
+                long current_incidence = itemsSortedByPos.get(i).getIncidence();
+                if (isChecked && (i > 0)){ // Update incidence only for checked items.
+                    if (current_incidence >= prev_incidence) {
+                        found.setIncidence(prev_incidence - 1);
+                    }
+                }
+                prev_incidence = found.getIncidence();
+                // Update position of database item.
+                found.setPosition(i);
+            }
             mChecklistRepo.update(dbMirror);
         });
     }

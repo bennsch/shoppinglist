@@ -33,6 +33,7 @@ import java.util.List;
 // TODO: List is moving down slightly if IME is opened (if there are only few items)
 // TODO: Make ItemNameBox smaller so that it doesn't align with last divider
 //       (maybe use LinearLayout instead of ConstraintLayout)
+// TODO: 'About' info (git repo, name etc)
 
 public class MainActivity extends AppCompatActivity {
 
