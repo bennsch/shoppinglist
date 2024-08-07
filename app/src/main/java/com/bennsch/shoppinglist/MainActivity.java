@@ -22,11 +22,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
+import com.google.android.material.color.DynamicColors;
+import com.google.android.material.color.DynamicColorsOptions;
 
 import java.util.Calendar;
 import java.util.List;
 
 // TODO: Test dark mode
+// TODO: Test on oldest supported Android version (no dynamic color pre v12)
 
 // TODO: Show suggestions when typing new item
 // TODO: Rounded corners for ItemNameBox
@@ -49,6 +52,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
+
+        // Apply colors derived from a seed.
+        // (If dynamic colors are not supported on the device, the colors
+        // defined in "AppTheme" will be applied).
+        DynamicColors.applyToActivityIfAvailable(
+                this,
+                new DynamicColorsOptions.Builder()
+                        .setContentBasedSource(0xf5e4ba)
+                        .build());
+
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 

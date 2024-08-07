@@ -41,6 +41,6 @@
         android:layout_height="match_parent"
         android:layout_weight="0"
         app:srcCompat="@drawable/ic_drag_handle"
-        android:tint="?colorListItemTextChecked"/>
+        android:tint="?colorOutline"/>
 
 </androidx.appcompat.widget.LinearLayoutCompat>
