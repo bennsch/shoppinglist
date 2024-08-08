@@ -91,6 +91,11 @@ public class AppViewModel extends AndroidViewModel {
     }
 
     public void deleteChecklist(String checklistTitle) {
+        assert mChecklistTitles.getValue() != null;
+        if (!mChecklistTitles.getValue().contains(checklistTitle)) {
+            // TODO: replace with appropriate exception
+            throw new IllegalArgumentException("List with title \"" + checklistTitle +  "\" does not exists");
+        }
         mExecutor.execute(() -> {
             mChecklistRepo.deleteChecklist(checklistTitle);
             if (mChecklistTitles.isInitialized()) {

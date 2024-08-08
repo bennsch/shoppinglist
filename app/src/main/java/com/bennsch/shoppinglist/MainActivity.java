@@ -10,11 +10,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -128,14 +128,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void deleteListDialog() {
-        String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-        builder.setTitle("Delete List")
-                .setMessage("Are you sure to delete \"" + currentList + "\"?")
-                .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteChecklist(currentList))
-                .setNegativeButton("Cancel", (dialog, which) -> {/* Nothing to do */});
-        Dialog dialog = builder.create();
-        dialog.show();
+        MenuItem menuItem = mBinding.navView.getCheckedItem();
+        if (menuItem == null) {
+            // Do nothing
+        } else {
+            String currentList = menuItem.getTitle().toString();
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+            builder.setTitle("Delete List")
+                    .setMessage("Are you sure to delete \"" + currentList + "\"?")
+                    .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteChecklist(currentList))
+                    .setNegativeButton("Cancel", (dialog, which) -> {/* Nothing to do */});
+            Dialog dialog = builder.create();
+            dialog.show();
+        }
     }
 
     private String getVersionName() {
@@ -183,8 +188,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void onActiveChecklistChanged(@Nullable String newActiveChecklist) {
         if (newActiveChecklist == null) {
-            // No item selected yet.
-            Log.d(TAG, "onActiveChecklistChanged: is null");
+            // No item selected yet or no lists present.
+            showChecklist(null);
         } else {
             Menu menu = mBinding.navView.getMenu();
             for (int i = 0; i < menu.size(); i++) {
@@ -194,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
             }
-            showChecklistPagerFragment(newActiveChecklist);
+            showChecklist(newActiveChecklist);
         }
     }
 
@@ -222,14 +227,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showChecklistPagerFragment(@Nullable String listTitle) {
-        getSupportFragmentManager().beginTransaction()
-                //.setCustomAnimations(R.anim.slide, R.anim.slide)
-                .replace(mBinding.fragmentContainerView.getId(),
-                        ChecklistPagerFragment.class,
-                        ChecklistPagerFragment.makeArgs(listTitle))
-                .commit();
-        mBinding.toolbar.setTitle(listTitle);
+    private void showChecklist(@Nullable String listTitle) {
+        if (listTitle == null) {
+            // Don't show any checklist
+            mBinding.toolbar.setTitle("");
+            // TODO: don't show menu at all
+            mBinding.toolbar.getMenu().setGroupEnabled(0, false);
+            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            }
+        } else {
+            getSupportFragmentManager().beginTransaction()
+                    //.setCustomAnimations(R.anim.slide, R.anim.slide)
+                    .replace(mBinding.fragmentContainerView.getId(),
+                            ChecklistPagerFragment.class,
+                            ChecklistPagerFragment.makeArgs(listTitle))
+                    .commit();
+            mBinding.toolbar.setTitle(listTitle);
+            mBinding.toolbar.getMenu().setGroupEnabled(0, true);
+        }
+
     }
 
     private void setupNavDrawer() {

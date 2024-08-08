@@ -39,12 +39,18 @@ public class ChecklistRepository {
     }
 
     public LiveData<String> getActiveChecklistTitle() {
-        // The Room database will notify the  observers of LiveData
+        // The Room database would notify the  observers of LiveData
         // if any of the data in the Checklist table changes, not just
         // the "active" attribute, so distinctUntilChanged() is required.
         return Transformations.distinctUntilChanged(
                 Transformations.map(
-                        mItemDao.getActiveChecklist(), DbChecklist::getChecklistTitle));
+                        mItemDao.getActiveChecklist(), dbChecklist -> {
+                            if (dbChecklist != null) {
+                                return dbChecklist.getChecklistTitle();
+                            } else {
+                                return null;
+                            }
+                        }));
     }
 
     public void setActiveChecklist(String checklistTitle) {
