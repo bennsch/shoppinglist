@@ -13,12 +13,7 @@
         android:title="Delete List" />
 
     <item
-        android:id="@+id/clmenu_rename_list"
-        android:title="Rename List"
-        android:enabled="false"/>
-
-    <item
         android:id="@+id/clmenu_config"
-        android:title="Configuration"
+        android:title="List Settings"
         android:enabled="false"/>
 </menu>

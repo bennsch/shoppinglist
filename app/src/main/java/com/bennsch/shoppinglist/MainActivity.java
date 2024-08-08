@@ -107,9 +107,6 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.clmenu_delete_list) {
             String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
             this.viewModel.deleteChecklist(currentList);
-        } else if (item.getItemId() == R.id.clmenu_rename_list) {
-            String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
-            this.viewModel.renameChecklist(currentList, currentList + "-renamed*");
         } else if (item.getItemId() == R.id.clmenu_delete_items) {
             this.viewModel.toggleDeleteIconsVisibility();
         }
