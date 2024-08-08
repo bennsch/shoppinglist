@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -25,7 +26,6 @@ import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
 
-import java.util.Calendar;
 import java.util.List;
 
 // TODO: Test dark mode
@@ -68,6 +68,13 @@ public class MainActivity extends AppCompatActivity {
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                onBackButtonPressed();
+            }
+        });
+
         mBinding.versionLabel.setText("v" + getVersionName());
 
         this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
@@ -108,6 +115,17 @@ public class MainActivity extends AppCompatActivity {
         }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);
+    }
+
+    public void onBackButtonPressed() {
+        Log.d(TAG, "handleOnBackPressed: ");
+        if (mBinding.drawerLayout.isOpen()) {
+            mBinding.drawerLayout.close();
+        } else if (viewModel.isDeleteIconVisible()) {
+            viewModel.toggleDeleteIconsVisibility();
+        } else {
+            finish();
+        }
     }
 
     private String getVersionName() {

@@ -58,6 +58,12 @@ public class AppViewModel extends AndroidViewModel {
         return mDeleteIconsVisible;
     }
 
+    public boolean isDeleteIconVisible() {
+        Boolean visible = mDeleteIconsVisible.getValue();
+        assert visible != null;
+        return visible;
+    }
+
     public void setActiveChecklist(String checklistTitle) {
         mExecutor.execute(() -> {
             mChecklistRepo.setActiveChecklist(checklistTitle);

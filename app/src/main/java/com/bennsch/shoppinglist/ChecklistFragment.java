@@ -40,7 +40,6 @@ public class ChecklistFragment extends Fragment {
     private boolean mDisplayChecked;
     private String mListTitle;
     private AppViewModel mViewModel;
-    private LiveData<Boolean> mDeleteIconsVisible;
 
 
     public ChecklistFragment() {
@@ -64,7 +63,6 @@ public class ChecklistFragment extends Fragment {
         mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
         mRecyclerViewAdapter = new RecyclerViewAdapter();
         mViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
-        mDeleteIconsVisible = mViewModel.getDeleteIconsVisible();
     }
 
     @Override
@@ -82,7 +80,9 @@ public class ChecklistFragment extends Fragment {
         mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked)
                 .observe(getViewLifecycleOwner(), this::onItemsChanged);
 
-        mDeleteIconsVisible.observe(getViewLifecycleOwner(), this::onDeleteIconsVisibilityChanged);
+        mViewModel.getDeleteIconsVisible().observe(
+                getViewLifecycleOwner(),
+                this::onDeleteIconsVisibilityChanged);
 
         return mBinding.getRoot();
     }
@@ -164,12 +164,10 @@ public class ChecklistFragment extends Fragment {
             } else {
                 textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
-            Boolean deleteIconsVisible = mDeleteIconsVisible.getValue();
-            assert deleteIconsVisible != null;
             holder.getBinding().deleteIcon.setVisibility(
-                    deleteIconsVisible ? View.VISIBLE : View.GONE);
+                    mViewModel.isDeleteIconVisible() ? View.VISIBLE : View.GONE);
             holder.getBinding().dragHandle.setVisibility(
-                    !deleteIconsVisible ? View.VISIBLE : View.GONE);
+                    !mViewModel.isDeleteIconVisible() ? View.VISIBLE : View.GONE);
         }
 
         @Override
