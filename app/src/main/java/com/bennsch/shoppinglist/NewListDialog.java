@@ -22,6 +22,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.bennsch.shoppinglist.databinding.NewListDialogBinding;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class NewListDialog extends DialogFragment {
         // TODO: don't scroll ChecklistItems if IME is displayed
 
         NewListDialogBinding binding = NewListDialogBinding.inflate(requireActivity().getLayoutInflater());
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
         builder.setView(binding.getRoot())
                 .setTitle("Create a new list")
                 .setMessage("Please enter the name of your list")

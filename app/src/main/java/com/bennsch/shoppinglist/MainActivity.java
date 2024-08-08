@@ -13,6 +13,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +27,7 @@ import android.widget.Toast;
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
 
@@ -105,8 +108,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.clmenu_delete_list) {
-            String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
-            this.viewModel.deleteChecklist(currentList);
+            deleteListDialog();
         } else if (item.getItemId() == R.id.clmenu_delete_items) {
             this.viewModel.toggleDeleteIconsVisibility();
         }
@@ -123,6 +125,17 @@ public class MainActivity extends AppCompatActivity {
         } else {
             finish();
         }
+    }
+
+    private void deleteListDialog() {
+        String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+        builder.setTitle("Delete List")
+                .setMessage("Are you sure to delete \"" + currentList + "\"?")
+                .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteChecklist(currentList))
+                .setNegativeButton("Cancel", (dialog, which) -> {/* Nothing to do */});
+        Dialog dialog = builder.create();
+        dialog.show();
     }
 
     private String getVersionName() {
