@@ -4,11 +4,15 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bennsch.shoppinglist.data.ChecklistRepository;
+import com.bennsch.shoppinglist.data.DbChecklist;
 import com.bennsch.shoppinglist.data.DbChecklistItem;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -19,7 +23,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 
@@ -34,12 +37,25 @@ public class AppViewModel extends AndroidViewModel {
 
     private final ChecklistRepository mChecklistRepo;
     private final LiveData<List<String>> mChecklistTitles;
+    private final MutableLiveData<Boolean> mDeleteIconsVisible;
 
 
     public AppViewModel(@NonNull Application application) {
         super(application);
+        Log.d(TAG, "AppViewModel: CTOR");
         mChecklistRepo = new ChecklistRepository(application);
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
+        mDeleteIconsVisible = new MutableLiveData<>(false);
+    }
+
+    public void toggleDeleteIconsVisibility() {
+        Boolean visible = mDeleteIconsVisible.getValue();
+        assert visible != null;
+        mDeleteIconsVisible.postValue(!visible);
+    }
+
+    public LiveData<Boolean> getDeleteIconsVisible() {
+        return mDeleteIconsVisible;
     }
 
     public void setActiveChecklist(String checklistTitle) {
@@ -169,6 +185,14 @@ public class AppViewModel extends AndroidViewModel {
         });
     }
 
+    public void deleteItem(@NonNull String listTitle, @NonNull ChecklistItem clItem) {
+        mExecutor.execute(() -> {
+            DbChecklistItem dbItem = findDbItem(listTitle, clItem);
+            assert dbItem != null;
+            mChecklistRepo.deleteItem(dbItem);
+        });
+    }
+
     public void itemsHaveBeenMoved(String listTitle,
                                    boolean isChecked,
                                    final List<ChecklistItem> itemsSortedByPos) {
@@ -182,6 +206,7 @@ public class AppViewModel extends AndroidViewModel {
             for (int i = 0; i < itemsSortedByPos.size(); i++) {
                 // Find the corresponding database item.
                 String name = itemsSortedByPos.get(i).getName();
+                // TODO: does it matter if we search dbMirror or use findDbItem()?
                 DbChecklistItem found = dbMirror.stream()
                         .filter(item1 -> item1.getName().equals(name))
                         .findFirst().orElse(null);
@@ -199,6 +224,16 @@ public class AppViewModel extends AndroidViewModel {
             }
             mChecklistRepo.update(dbMirror);
         });
+    }
+
+    @Nullable
+    private DbChecklistItem findDbItem(String listTitle, ChecklistItem clItem) {
+        // An item can be unambiguously identified by its list title and name
+        // (no duplicate items allowed in a list).
+        return mChecklistRepo.getAllItems(listTitle)
+                .stream()
+                .filter(item -> item.getName().equals(clItem.getName()))
+                .findFirst().orElse(null);
     }
 
     private static List<ChecklistItem> toChecklistItems(List<DbChecklistItem> dbItems) {

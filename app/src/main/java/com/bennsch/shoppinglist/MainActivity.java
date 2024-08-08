@@ -30,7 +30,10 @@ import java.util.List;
 
 // TODO: Test dark mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
+// TODO: test device rotation
 
+// TODO: highlight action icon while delete mode is active?
+// TODO: strip white space from item when user add a new one
 // TODO: Show suggestions when typing new item
 // TODO: Rounded corners for ItemNameBox
 // TODO: List is moving down slightly if IME is opened (if there are only few items)
@@ -100,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (item.getItemId() == R.id.clmenu_rename_list) {
             String currentList = mBinding.navView.getCheckedItem().getTitle().toString();
             this.viewModel.renameChecklist(currentList, currentList + "-renamed*");
+        } else if (item.getItemId() == R.id.clmenu_delete_items) {
+            this.viewModel.toggleDeleteIconsVisibility();
         }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);

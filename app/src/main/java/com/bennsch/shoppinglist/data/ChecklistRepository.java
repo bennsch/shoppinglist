@@ -74,6 +74,10 @@ public class ChecklistRepository {
         mItemDao.insertAndUpdate(itemToInsert, itemsToUpdate);
     }
 
+    public void deleteItem(@NonNull DbChecklistItem item) {
+        mItemDao.delete(item);
+    }
+
     public List<DbChecklistItem> getAllItems(@NonNull final String listTitle) {
         return mItemDao.getItemsFromChecklist(listTitle);
     }
@@ -87,6 +91,9 @@ public class ChecklistRepository {
     }
 
     public LiveData<List<DbChecklistItem>> getItemsSortedByPositionLiveData(@NonNull String listTitle, @NonNull Boolean isChecked) {
+        // TODO: Why are still both observers (checked and unchecked fragment) being called?
+//        return Transformations.distinctUntilChanged(
+//                mItemDao.getItemsSortedByPositionLiveData(listTitle, isChecked));
         return mItemDao.getItemsSortedByPositionLiveData(listTitle, isChecked);
     }
 }

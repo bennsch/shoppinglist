@@ -6,9 +6,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListUpdateCallback;
@@ -40,6 +40,7 @@ public class ChecklistFragment extends Fragment {
     private boolean mDisplayChecked;
     private String mListTitle;
     private AppViewModel mViewModel;
+    private LiveData<Boolean> mDeleteIconsVisible;
 
 
     public ChecklistFragment() {
@@ -62,7 +63,8 @@ public class ChecklistFragment extends Fragment {
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
         mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
         mRecyclerViewAdapter = new RecyclerViewAdapter();
-        mViewModel = new ViewModelProvider(this).get(AppViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
+        mDeleteIconsVisible = mViewModel.getDeleteIconsVisible();
     }
 
     @Override
@@ -78,7 +80,10 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked)
-                .observe(getViewLifecycleOwner(), this::onLiveDataChanged);
+                .observe(getViewLifecycleOwner(), this::onItemsChanged);
+
+        mDeleteIconsVisible.observe(getViewLifecycleOwner(), this::onDeleteIconsVisibilityChanged);
+
         return mBinding.getRoot();
     }
 
@@ -103,19 +108,32 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.smoothScrollToPosition(pos);
     }
 
-    protected void onLiveDataChanged(List<ChecklistItem> newItemsSorted) {
-        Log.d(TAG, "onLiveDataChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
+    private void onDeleteIconsVisibilityChanged(boolean visible) {
+        Log.d(TAG, "onDeleteIconsVisibilityChanged: " + (mDisplayChecked ? "Checked," : "Unchecked,") + visible);
+        mRecyclerViewAdapter.notifyDataSetChanged();
+    }
+
+    private void onDeleteIconClicked(ChecklistItem item, int position) {
+        mViewModel.deleteItem(mListTitle, item);
+    }
+
+    protected void onItemsChanged(List<ChecklistItem> newItemsSorted) {
+        Log.d(TAG, "onItemsChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
         mRecyclerViewAdapter.updateItems(newItemsSorted);
     }
 
-    private void onItemClicked(int adapterPosition) {
+    private void onItemClicked(ChecklistItem item, int position) {
         // TODO: Use ChecklistItem as parameter
-        Log.d(TAG, "onItemClicked: " + adapterPosition);
-        ChecklistItem item = mRecyclerViewAdapter.getCachedItem(adapterPosition);
         mViewModel.flipItem(mListTitle, mDisplayChecked, item);
     }
 
+    private void onItemLongClicked(ChecklistItem item, int position) {
+        // TODO: Use ChecklistItem as parameter
+        mViewModel.toggleDeleteIconsVisibility();
+    }
+
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
+        Log.d(TAG, "onItemsMoved: " + (mDisplayChecked ? "Checked," : "Unchecked,"));
         mViewModel.itemsHaveBeenMoved(mListTitle, mDisplayChecked, itemsSortedByPosition);
     }
 
@@ -146,6 +164,12 @@ public class ChecklistFragment extends Fragment {
             } else {
                 textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
+            Boolean deleteIconsVisible = mDeleteIconsVisible.getValue();
+            assert deleteIconsVisible != null;
+            holder.getBinding().deleteIcon.setVisibility(
+                    deleteIconsVisible ? View.VISIBLE : View.GONE);
+            holder.getBinding().dragHandle.setVisibility(
+                    !deleteIconsVisible ? View.VISIBLE : View.GONE);
         }
 
         @Override
@@ -172,7 +196,7 @@ public class ChecklistFragment extends Fragment {
                     return false;
                 }
 
-                        @Override
+                @Override
                 public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {}
             });
             mItemTouchHelper.attachToRecyclerView(recyclerView);
@@ -271,7 +295,7 @@ public class ChecklistFragment extends Fragment {
         }
 
 
-        class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
             private final ChecklistItemViewholderBinding mBinding;
 
@@ -279,16 +303,39 @@ public class ChecklistFragment extends Fragment {
                 super(binding.getRoot());
                 mBinding = binding;
                 mBinding.viewholderClickable.setOnClickListener(this);
+                mBinding.viewholderClickable.setOnLongClickListener(this);
+                mBinding.deleteIcon.setOnClickListener(this::onDeleteIconClick);
                 mBinding.dragHandle.setOnTouchListener((view, motionEvent) -> onDragHandleTouch(this));
             }
 
             @Override
             public void onClick(View view) {
-                int adapterPos = getAdapterPosition();
-                if (adapterPos == RecyclerView.NO_POSITION) {
+                int pos = getAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) {
                     Log.w(TAG, "Clicked item doesn't exist anymore in adapter. Click ignored");
                 } else {
-                    onItemClicked(adapterPos);
+                    onItemClicked(getCachedItem(pos), pos);
+                }
+            }
+
+            @Override
+            public boolean onLongClick(View v) {
+                int pos = getAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) {
+                    Log.w(TAG, "Clicked item doesn't exist anymore in adapter. Long click ignored");
+                    return false;
+                } else {
+                    onItemLongClicked(getCachedItem(pos), pos);
+                    return true;
+                }
+            }
+
+            public void onDeleteIconClick(View view) {
+                int pos = getAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) {
+                    Log.w(TAG, "Clicked item doesn't exist anymore in adapter. Click ignored");
+                } else {
+                    onDeleteIconClicked(getCachedItem(pos), pos);
                 }
             }
 

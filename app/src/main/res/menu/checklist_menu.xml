@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/clmenu_delete_items"
+        android:icon="@drawable/ic_delete"
+        android:title="Delete Items"
+        app:showAsAction="ifRoom"/>
+
     <item
         android:id="@+id/clmenu_delete_list"
-        android:icon="@android:drawable/ic_menu_delete"
         android:title="Delete List" />
 
     <item
         android:id="@+id/clmenu_rename_list"
-        android:icon="@android:drawable/ic_menu_delete"
         android:title="Rename List"
         android:enabled="false"/>
 
     <item
         android:id="@+id/clmenu_config"
-        android:icon="@android:drawable/ic_menu_delete"
         android:title="Configuration"
-        android:enabled="false"/>
-
-    <item
-        android:id="@+id/clmenu_delete_item"
-        android:icon="@android:drawable/ic_menu_delete"
-        android:title="Delete Item"
         android:enabled="false"/>
 </menu>

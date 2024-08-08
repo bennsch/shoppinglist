@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.AutoMigration;
 import androidx.room.Dao;
 import androidx.room.Database;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Room;
@@ -41,6 +42,9 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
         @Insert
         void insert(DbChecklistItem item);
+
+        @Delete
+        void delete(DbChecklistItem item);
 
         @Update
         void update(List<DbChecklistItem> items);
