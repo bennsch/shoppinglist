@@ -10,7 +10,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.clmenu_delete_list) {
-            deleteListDialog();
+            showDeleteListDialog();
         } else if (item.getItemId() == R.id.clmenu_delete_items) {
             this.viewModel.toggleDeleteIconsVisibility();
         }
@@ -127,7 +126,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void deleteListDialog() {
+    private void showNewListDialog() {
+        NewListDialog dialog =  new NewListDialog();
+        dialog.setCurrentLists(viewModel.getAllChecklistTitles().getValue());
+        dialog.setDialogListener(new NewListDialog.DialogListener() {
+            @Override
+            public void onCreateListClicked(String title) {
+                try {
+                    viewModel.insertChecklist(title);
+                } catch (IllegalArgumentException e) {
+                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelClicked() {
+                // Do nothing.
+            }
+        });
+        dialog.show(getSupportFragmentManager(), "NewListDialog");
+    }
+    
+    private void showDeleteListDialog() {
         MenuItem menuItem = mBinding.navView.getCheckedItem();
         if (menuItem == null) {
             // Do nothing
@@ -160,24 +180,7 @@ public class MainActivity extends AppCompatActivity {
             if (item.getGroupId() == R.id.group_checklists) {
                 viewModel.setActiveChecklist(item.getTitle().toString());
             } else if (item.getItemId() == R.id.nav_new_list) {
-                NewListDialog dialog =  new NewListDialog();
-                dialog.setCurrentLists(viewModel.getAllChecklistTitles().getValue());
-                dialog.setDialogListener(new NewListDialog.DialogListener() {
-                    @Override
-                    public void onCreateListClicked(String title) {
-                        try {
-                            viewModel.insertChecklist(title);
-                        } catch (IllegalArgumentException e) {
-                            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelClicked() {
-                        // Do nothing.
-                    }
-                });
-                dialog.show(getSupportFragmentManager(), "NewListDialog");
+                showNewListDialog();
             }
         }
         mBinding.drawerLayout.close();
@@ -229,17 +232,27 @@ public class MainActivity extends AppCompatActivity {
 
     private void showChecklist(@Nullable String listTitle) {
         if (listTitle == null) {
-            // Don't show any checklist
+            // No lists present
+            getSupportFragmentManager()
+                    .setFragmentResultListener(
+                    NoListsFragment.REQ_KEY_NEW_LIST_BUTTON_CLICKED,
+                    this,
+                    (requestKey, result) -> showNewListDialog());
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    //.setCustomAnimations(R.anim.slide, R.anim.slide)
+                    .replace(
+                            mBinding.fragmentContainerView.getId(),
+                            new NoListsFragment())
+                    .commit();
             mBinding.toolbar.setTitle("");
             // TODO: don't show menu at all
             mBinding.toolbar.getMenu().setGroupEnabled(0, false);
-            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-            }
         } else {
             getSupportFragmentManager().beginTransaction()
                     //.setCustomAnimations(R.anim.slide, R.anim.slide)
-                    .replace(mBinding.fragmentContainerView.getId(),
+                    .replace(
+                            mBinding.fragmentContainerView.getId(),
                             ChecklistPagerFragment.class,
                             ChecklistPagerFragment.makeArgs(listTitle))
                     .commit();
