@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist;
 
 import android.content.Context;
+import android.graphics.Outline;
 import android.os.Bundle;
 
 
@@ -19,9 +20,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import android.os.Vibrator;
 import android.text.InputType;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
@@ -136,6 +139,24 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.itemNameBox.setInputType(
                 InputType.TYPE_CLASS_TEXT |
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
+        // The outline provider determines where to draw the shadow (elevation).
+        // A custom outline is required to allow rounded corners.
+        mBinding.itemNameBox.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                // Since the item_name_box has no margin to the left of the screen
+                // we need to define the start of the outline "outside" of the screen
+                // (negative value) so that the shadow of rounded corners on the left
+                // is not visible.
+                outline.setRoundRect(
+                        -getResources().getDimensionPixelSize(R.dimen.fab_radius),
+                        0,
+                        view.getWidth(),
+                        view.getHeight(),
+                        getResources().getDimensionPixelSize(R.dimen.fab_radius));
+            }
+        });
     }
 
     private void toggleItemNameBox(boolean show) {
@@ -232,7 +253,6 @@ public class ChecklistPagerFragment extends Fragment {
         constraintSet.connect(startID, startSide, endID, endSide);
         constraintSet.applyTo(parent);
     }
-
 
     private class ViewPagerAdapter extends FragmentStateAdapter {
 
