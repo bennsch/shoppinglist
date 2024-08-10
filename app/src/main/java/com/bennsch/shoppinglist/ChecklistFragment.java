@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -123,18 +125,25 @@ public class ChecklistFragment extends Fragment {
     }
 
     private void onItemClicked(ChecklistItem item, int position) {
-        // TODO: Use ChecklistItem as parameter
-        mViewModel.flipItem(mListTitle, mDisplayChecked, item);
+        if (mViewModel.isDeleteIconVisible()) {
+            vibrate();
+        } else {
+            mViewModel.flipItem(mListTitle, mDisplayChecked, item);
+        }
     }
 
     private void onItemLongClicked(ChecklistItem item, int position) {
-        // TODO: Use ChecklistItem as parameter
         mViewModel.toggleDeleteIconsVisibility();
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
         Log.d(TAG, "onItemsMoved: " + (mDisplayChecked ? "Checked," : "Unchecked,"));
         mViewModel.itemsHaveBeenMoved(mListTitle, mDisplayChecked, itemsSortedByPosition);
+    }
+
+    private void vibrate() {
+        Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
+        vibrator.vibrate(125);
     }
 
     // TODO: move to separate file?
