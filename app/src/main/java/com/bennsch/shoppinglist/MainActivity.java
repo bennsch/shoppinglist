@@ -34,6 +34,7 @@ import java.util.List;
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
 
+// TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
 // TODO: strip white space from item when user add a new one
 // TODO: Show suggestions when typing new item
@@ -61,12 +62,14 @@ public class MainActivity extends AppCompatActivity {
         // Apply colors derived from a seed.
         // (If dynamic colors are not supported on the device, the colors
         // defined in "AppTheme" will be applied).
-        DynamicColors.applyToActivityIfAvailable(
-                this,
-                new DynamicColorsOptions.Builder()
-                        .setContentBasedSource(0xf5e4ba)
-//                        .setThemeOverlay(R.style.ThemeOverlay_AppTheme_HighContrast) // TODO: why is it not working?
-                        .build());
+        if (GlobalConfig.DBG_DYNAMIC_COLOR_ENABLED) {
+            DynamicColors.applyToActivityIfAvailable(
+                    this,
+                    new DynamicColorsOptions.Builder()
+                            .setContentBasedSource(GlobalConfig.DBG_DYNAMIC_COLOR_SEED)
+                            //.setThemeOverlay(R.style.ThemeOverlay_AppTheme_HighContrast) // TODO: why is it not working?
+                            .build());
+        }
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
