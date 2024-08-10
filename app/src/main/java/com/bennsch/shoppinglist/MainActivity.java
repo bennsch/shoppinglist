@@ -231,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showChecklist(@Nullable String listTitle) {
+        // TODO: add animation for fragment transaction?
         if (listTitle == null) {
             // No lists present
             getSupportFragmentManager()
@@ -246,8 +247,8 @@ public class MainActivity extends AppCompatActivity {
                             new NoListsFragment())
                     .commit();
             mBinding.toolbar.setTitle("");
-            // TODO: don't show menu at all
-            mBinding.toolbar.getMenu().setGroupEnabled(0, false);
+            // TODO: what if there's more than one group?
+            mBinding.toolbar.getMenu().setGroupVisible(0, false);
         } else {
             getSupportFragmentManager().beginTransaction()
                     //.setCustomAnimations(R.anim.slide, R.anim.slide)
@@ -257,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
                             ChecklistPagerFragment.makeArgs(listTitle))
                     .commit();
             mBinding.toolbar.setTitle(listTitle);
-            mBinding.toolbar.getMenu().setGroupEnabled(0, true);
+            mBinding.toolbar.getMenu().setGroupVisible(0, true);
         }
 
     }
