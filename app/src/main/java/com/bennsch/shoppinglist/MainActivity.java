@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 new DynamicColorsOptions.Builder()
                         .setContentBasedSource(0xf5e4ba)
+//                        .setThemeOverlay(R.style.ThemeOverlay_AppTheme_HighContrast) // TODO: why is it not working?
                         .build());
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
