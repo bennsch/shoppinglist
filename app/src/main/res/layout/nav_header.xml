@@ -7,9 +7,9 @@
     android:gravity="bottom"
     android:orientation="horizontal"
     android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingTop="56dp"
+    android:paddingTop="72dp"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingBottom="16dp">
+    android:paddingBottom="24dp">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="48dp"
