@@ -188,7 +188,12 @@ public class ChecklistPagerFragment extends Fragment {
 
     private void scrollCurrentChecklist() {
         // retrieve from global settings?
-        getCurrentFragment().scrollTo(true);
+        ChecklistFragment fragment = getCurrentFragment();
+        if (fragment != null) {
+            fragment.scrollTo(true);
+        } else {
+            Log.e(TAG, "scrollCurrentChecklist: current fragment == null");
+        }
     }
 
     private void insertNewItem() {
