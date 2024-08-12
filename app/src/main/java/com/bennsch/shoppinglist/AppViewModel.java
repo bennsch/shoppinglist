@@ -144,9 +144,7 @@ public class AppViewModel extends AndroidViewModel {
             if (strippedName.isEmpty()) {
                 throw new Exception("Empty");
             }
-            else if (mChecklistRepo.getAllItems(listTitle)
-                    .stream()
-                    .anyMatch(dbItem -> dbItem.getName().equals(strippedName))) {
+            else if (findDbItem(mChecklistRepo.getAllItems(listTitle), strippedName) != null) {
                 throw new Exception("\"" + strippedName + "\" already present");
             } else {
                 List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
@@ -169,11 +167,10 @@ public class AppViewModel extends AndroidViewModel {
     public void flipItem(String listTitle, boolean isChecked, ChecklistItem clItem) {
         mExecutor.execute(() -> {
             // TODO: 3/26/2024 Redo the whole thing
+            //  (we don't need to worry about white spaces, since this function
+            //   is only for "moving" items, not changing their names)
             List<DbChecklistItem> dbMirrorRemovedFrom = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
-            DbChecklistItem repoItem = dbMirrorRemovedFrom.stream()
-                    .filter(item -> item.getName().equals(clItem.getName()))
-                    .findFirst()
-                    .orElse(null);
+            DbChecklistItem repoItem = findDbItem(dbMirrorRemovedFrom, clItem.getName());
             assert repoItem != null;
 
             boolean removed = dbMirrorRemovedFrom.remove(repoItem);
@@ -201,7 +198,7 @@ public class AppViewModel extends AndroidViewModel {
 
     public void deleteItem(@NonNull String listTitle, @NonNull ChecklistItem clItem) {
         mExecutor.execute(() -> {
-            DbChecklistItem dbItem = findDbItem(listTitle, clItem);
+            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), clItem.getName());
             assert dbItem != null;
             mChecklistRepo.deleteItem(dbItem);
         });
@@ -221,9 +218,9 @@ public class AppViewModel extends AndroidViewModel {
                 // Find the corresponding database item.
                 String name = itemsSortedByPos.get(i).getName();
                 // TODO: does it matter if we search dbMirror or use findDbItem()?
-                DbChecklistItem found = dbMirror.stream()
-                        .filter(item1 -> item1.getName().equals(name))
-                        .findFirst().orElse(null);
+                //  (we don't need to worry about white spaces, since this function
+                //   is only for "moving" items, not changing their names)
+                DbChecklistItem found = findDbItem(dbMirror, name);
                 assert found != null;
                 // Update incidence so that it less than the previous incidence.
                 long current_incidence = itemsSortedByPos.get(i).getIncidence();
@@ -241,12 +238,14 @@ public class AppViewModel extends AndroidViewModel {
     }
 
     @Nullable
-    private DbChecklistItem findDbItem(String listTitle, ChecklistItem clItem) {
+    private DbChecklistItem findDbItem(List<DbChecklistItem> dbItems, @NonNull String name) {
+        // This function should always be used if an item needs to be found
+        // in the database from its name.
         // An item can be unambiguously identified by its list title and name
         // (no duplicate items allowed in a list).
-        return mChecklistRepo.getAllItems(listTitle)
+        return dbItems
                 .stream()
-                .filter(item -> item.getName().equals(clItem.getName()))
+                .filter(item -> item.getName().equalsIgnoreCase(name))
                 .findFirst().orElse(null);
     }
 

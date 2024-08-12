@@ -34,6 +34,8 @@ import java.util.List;
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
 
+// TODO: If user wants to add a new item, which name already exists and which is currently
+//  in the other list, then flip that item. if that item is in the same list, show a toast.
 // TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
 // TODO: strip white space from item when user add a new one
