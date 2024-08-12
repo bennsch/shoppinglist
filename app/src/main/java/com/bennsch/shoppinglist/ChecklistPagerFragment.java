@@ -223,7 +223,7 @@ public class ChecklistPagerFragment extends Fragment {
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
                 currentChecked,
-                new ChecklistItem(itemName, 0));
+                itemName);
         Futures.addCallback(result, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {

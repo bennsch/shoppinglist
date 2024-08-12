@@ -135,20 +135,23 @@ public class AppViewModel extends AndroidViewModel {
 
     public ListenableFuture<Void> insertItem(final @NonNull String listTitle,
                                              final boolean isChecked,
-                                             final @NonNull ChecklistItem item) {
-        // TODO: strip white space from item name
+                                             final @NonNull String name) {
         return mListeningExecutor.submit(() -> {
-            if (item.getName().isEmpty()) {
+            // Remove leading and trailing spaces, and replace all multi-spaces with single
+            // spaces.
+            String strippedName = name.strip().replaceAll(" +", " ");
+
+            if (strippedName.isEmpty()) {
                 throw new Exception("Empty");
             }
             else if (mChecklistRepo.getAllItems(listTitle)
                     .stream()
-                    .anyMatch(dbItem -> dbItem.getName().equals(item.getName()))) {
-                throw new Exception("\"" + item.getName() + "\" already present");
+                    .anyMatch(dbItem -> dbItem.getName().equals(strippedName))) {
+                throw new Exception("\"" + strippedName + "\" already present");
             } else {
                 List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
                 // TODO: maybe don't use integral type for 'position', so that undefined position is allowed
-                DbChecklistItem newDbItem = new DbChecklistItem(item.getName(), isChecked, 0, listTitle, 0);
+                DbChecklistItem newDbItem = new DbChecklistItem(strippedName, isChecked, 0, listTitle, 0);
                 dbItems.add(newDbItem);
 
                 if (isChecked) {
@@ -156,7 +159,7 @@ public class AppViewModel extends AndroidViewModel {
                 }
 
                 updatePositionByOrder(dbItems);
-                Log.d(TAG, "item: " + newDbItem.getName() + ": " + newDbItem.getPosition());
+                Log.d(TAG, "insertItem: \"" + newDbItem.getName() + "\"");
                 mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
                 return null;
             }
