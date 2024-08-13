@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
@@ -26,6 +27,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.bennsch.shoppinglist.databinding.FragmentChecklistPagerBinding;
@@ -34,6 +37,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.List;
 
 
 public class ChecklistPagerFragment extends Fragment {
@@ -109,6 +114,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     // TODO: Put all ItemNameBox related stuff into separate class.
     //  Or extend custom EditText class
+
     private void setupItemNameBox(@NonNull ComponentActivity activity,
                                   @NonNull Context context,
                                   @NonNull LifecycleOwner lifecycleOwner) {
@@ -157,6 +163,28 @@ public class ChecklistPagerFragment extends Fragment {
                         getResources().getDimensionPixelSize(R.dimen.fab_radius));
             }
         });
+
+        ArrayAdapter<String> autoComplAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line);
+
+        mViewModel.getAutoCompleteItems(mListTitle)
+                .observe(
+                        getViewLifecycleOwner(),
+                        strings -> {
+                            autoComplAdapter.clear();
+                            autoComplAdapter.addAll(strings);
+                        });
+
+        mBinding.itemNameBox.setOnItemClickListener((parent, view, position, id) -> {
+            mViewModel.onAutoCompleteItemClicked(
+                    mListTitle,
+                    (String) parent.getItemAtPosition(position),
+                    getCurrentFragment().isDisplayChecked());
+            mBinding.itemNameBox.setText("");
+        });
+        mBinding.itemNameBox.setAdapter(autoComplAdapter);
+        mBinding.itemNameBox.setThreshold(AppViewModel.AUTOCOMPLETE_THRESHOLD);
     }
 
     private void toggleItemNameBox(boolean show) {

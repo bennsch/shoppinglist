@@ -28,8 +28,13 @@ import java.util.stream.Collectors;
 
 public class AppViewModel extends AndroidViewModel {
 
+    // TODO: Remove all logic from GUI. The ViewModel should contain all logic.
+    //  (e.g. onAddButtonClicked()...also, config values should be defined here(e.g. autocompl threshold).
+
     // All the app's business logic should be handled in the ViewModel.
     // It's the interface between data and UI.
+
+    public static final int AUTOCOMPLETE_THRESHOLD = 0;
 
     private static final String TAG = "AppViewModel";
     private static final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
@@ -76,6 +81,31 @@ public class AppViewModel extends AndroidViewModel {
 
     public LiveData<List<String>> getAllChecklistTitles() {
         return mChecklistTitles;
+    }
+
+    public LiveData<List<String>> getAutoCompleteItems(@NonNull String listTitle) {
+        return Transformations.map(
+                mChecklistRepo.getAllItemsLiveData(listTitle),
+                dbChecklistItems ->
+                        dbChecklistItems
+                                .stream()
+                                .map(DbChecklistItem::getName)
+                                .collect(Collectors.toList()));
+    }
+
+    public void onAutoCompleteItemClicked(
+            @NonNull String listTitle,
+            @NonNull String name,
+            boolean currentlyCheckedVisible) {
+        mExecutor.execute(() -> {
+            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), name);
+            assert dbItem != null;
+            if (dbItem.isChecked() == currentlyCheckedVisible) {
+               //// TODO: Move item to bottom, or raise error and vibrate
+            } else {
+                flipItem(listTitle, dbItem.isChecked(), new ChecklistItem(dbItem.getName(), dbItem.getIncidence()));
+            }
+        });
     }
 
     public void insertChecklist(String listTitle) {
@@ -169,6 +199,8 @@ public class AppViewModel extends AndroidViewModel {
             // TODO: 3/26/2024 Redo the whole thing
             //  (we don't need to worry about white spaces, since this function
             //   is only for "moving" items, not changing their names)
+            // TODO: don't use "isChecked" as argument. Get that info from dbItem (findDbItem)
+            // TODO: use String name instead of CHeckListItem argument
             List<DbChecklistItem> dbMirrorRemovedFrom = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
             DbChecklistItem repoItem = findDbItem(dbMirrorRemovedFrom, clItem.getName());
             assert repoItem != null;

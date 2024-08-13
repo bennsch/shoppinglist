@@ -22,7 +22,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             tools:layout_constraintBottom_toTopOf="@+id/item_name_box"/>
 
-        <com.google.android.material.textfield.TextInputEditText
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/item_name_box"
             android:layout_width="0dp"
             android:layout_height="0dp"

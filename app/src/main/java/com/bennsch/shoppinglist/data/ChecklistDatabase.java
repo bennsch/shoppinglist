@@ -76,6 +76,9 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
         List<DbChecklistItem> getItemsFromChecklist(@NonNull final String listTitle);
 
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
+        LiveData<List<DbChecklistItem>> getItemsFromChecklistLiveData(@NonNull final String listTitle);
+
         @Query("SELECT * FROM DbChecklist WHERE active == 1")
         LiveData<DbChecklist> getActiveChecklist();
 

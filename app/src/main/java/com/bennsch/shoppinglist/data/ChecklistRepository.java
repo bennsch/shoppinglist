@@ -88,6 +88,10 @@ public class ChecklistRepository {
         return mItemDao.getItemsFromChecklist(listTitle);
     }
 
+    public LiveData<List<DbChecklistItem>> getAllItemsLiveData(@NonNull final String listTitle) {
+        return mItemDao.getItemsFromChecklistLiveData(listTitle);
+    }
+
     public List<DbChecklistItem> getItems(@NonNull String listTitle, @NonNull Boolean isChecked) {
         return mItemDao.getItems(listTitle, isChecked);
     }
