@@ -83,20 +83,30 @@ public class AppViewModel extends AndroidViewModel {
         return mChecklistTitles;
     }
 
-    public LiveData<List<String>> getAutoCompleteItems(@NonNull String listTitle) {
-        return Transformations.map(
-                mChecklistRepo.getAllItemsLiveData(listTitle),
-                dbChecklistItems ->
-                        dbChecklistItems
-                                .stream()
-                                .map(DbChecklistItem::getName)
-                                .collect(Collectors.toList()));
+    public LiveData<List<String>> getAutoCompleteItems(@NonNull String listTitle, @Nullable Boolean isChecked) {
+        if (isChecked == null || isChecked) {
+            // If the user is currently looking at "checked" items, then
+            // we don't show any auto complete suggestions.
+            return new MutableLiveData<>(new ArrayList<>(0));
+        } else {
+            // TODO: map runs on UI-thread!
+            // Show all items (both checked and unchecked) as auto complete suggestions
+            return Transformations.map(
+                    mChecklistRepo.getAllItemsLiveData(listTitle),
+                    dbChecklistItems
+                            -> dbChecklistItems
+                            .stream()
+                            .map(DbChecklistItem::getName)
+                            .collect(Collectors.toList()));
+
+        }
     }
 
     public void onAutoCompleteItemClicked(
             @NonNull String listTitle,
             @NonNull String name,
             boolean currentlyCheckedVisible) {
+        Log.d(TAG, "onAutoCompleteItemClicked: " );
         mExecutor.execute(() -> {
             DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), name);
             assert dbItem != null;

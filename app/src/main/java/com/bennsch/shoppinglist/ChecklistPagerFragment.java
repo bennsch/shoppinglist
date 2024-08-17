@@ -14,9 +14,13 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Vibrator;
 import android.text.InputType;
@@ -168,13 +172,32 @@ public class ChecklistPagerFragment extends Fragment {
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line);
 
-        mViewModel.getAutoCompleteItems(mListTitle)
-                .observe(
-                        getViewLifecycleOwner(),
-                        strings -> {
-                            autoComplAdapter.clear();
-                            autoComplAdapter.addAll(strings);
-                        });
+        // The content of the auto complete popup depends on which
+        // page is currently visible (checked or unchecked).
+        // Whenever isCurrentPageChecked changes its value, Transformations.switchMap()
+        // will replace autoCompleteItems so that the observer is be triggered with
+        // the correct data.
+        MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>(null);
+        LiveData<List<String>> autoCompleteItems = Transformations.switchMap(
+                isCurrentPageChecked,
+                currPageChecked ->
+                        mViewModel.getAutoCompleteItems(mListTitle, currPageChecked));
+        autoCompleteItems.observe(
+                getViewLifecycleOwner(),
+                strings -> {
+                    autoComplAdapter.clear();
+                    autoComplAdapter.addAll(strings);
+                });
+        // Update isCurrentPageChecked whenever the user changes the page.
+        mBinding.viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                mBinding.itemNameBox.dismissDropDown();
+                isCurrentPageChecked.setValue(
+                        getCurrentFragment().isDisplayChecked()); // TODO: or postValue()?
+            }
+        });
 
         mBinding.itemNameBox.setOnItemClickListener((parent, view, position, id) -> {
             mViewModel.onAutoCompleteItemClicked(
