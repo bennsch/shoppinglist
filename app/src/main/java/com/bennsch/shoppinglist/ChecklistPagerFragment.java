@@ -205,6 +205,9 @@ public class ChecklistPagerFragment extends Fragment {
                     (String) parent.getItemAtPosition(position),
                     getCurrentFragment().isDisplayChecked());
             mBinding.itemNameBox.setText("");
+            // TODO: Race condition (will sometimes not scroll to last item).
+            //  The scroll should be triggered after the list has been updated
+            scrollCurrentChecklist();
         });
         mBinding.itemNameBox.setAdapter(autoComplAdapter);
         mBinding.itemNameBox.setThreshold(AppViewModel.AUTOCOMPLETE_THRESHOLD);

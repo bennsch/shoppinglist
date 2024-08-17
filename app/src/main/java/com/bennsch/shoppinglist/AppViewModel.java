@@ -106,12 +106,15 @@ public class AppViewModel extends AndroidViewModel {
             @NonNull String listTitle,
             @NonNull String name,
             boolean currentlyCheckedVisible) {
-        Log.d(TAG, "onAutoCompleteItemClicked: " );
         mExecutor.execute(() -> {
             DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), name);
             assert dbItem != null;
             if (dbItem.isChecked() == currentlyCheckedVisible) {
-               //// TODO: Move item to bottom, or raise error and vibrate
+                List<DbChecklistItem> items = mChecklistRepo.getItemsSortedByPosition(listTitle, dbItem.isChecked());
+                items.remove((int)dbItem.getPosition());
+                items.add(dbItem);
+                updatePositionByOrder(items);
+                mChecklistRepo.update(items);
             } else {
                 flipItem(listTitle, dbItem.isChecked(), new ChecklistItem(dbItem.getName(), dbItem.getIncidence()));
             }
