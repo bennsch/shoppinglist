@@ -16,7 +16,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -25,13 +24,11 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.os.Vibrator;
 import android.text.InputType;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -194,16 +191,17 @@ public class ChecklistPagerFragment extends Fragment {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 mBinding.itemNameBox.dismissDropDown();
-                isCurrentPageChecked.setValue(
-                        getCurrentFragment().isDisplayChecked()); // TODO: or postValue()?
+                isCurrentPageChecked.setValue(isCheckedDisplayedCurrently()); // TODO: or postValue()?
             }
         });
 
         mBinding.itemNameBox.setOnItemClickListener((parent, view, position, id) -> {
+            Boolean isChecked = isCheckedDisplayedCurrently();
+            assert isChecked != null;
             mViewModel.onAutoCompleteItemClicked(
                     mListTitle,
                     (String) parent.getItemAtPosition(position),
-                    getCurrentFragment().isDisplayChecked());
+                    isChecked);
             mBinding.itemNameBox.setText("");
             // TODO: Race condition (will sometimes not scroll to last item).
             //  The scroll should be triggered after the list has been updated
@@ -272,7 +270,8 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void insertNewItem() {
-        boolean currentChecked = getCurrentFragment().isDisplayChecked();
+        Boolean currentChecked = isCheckedDisplayedCurrently();
+        assert currentChecked != null;
         String itemName = mBinding.itemNameBox.getText().toString();
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
@@ -292,6 +291,17 @@ public class ChecklistPagerFragment extends Fragment {
         }, ContextCompat.getMainExecutor(requireContext()));
     }
 
+    @Nullable
+    private Boolean isCheckedDisplayedCurrently() {
+        ChecklistFragment fragment = getCurrentFragment();
+        if (fragment == null) {
+            return null;
+        } else {
+            return fragment.isDisplayChecked();
+        }
+    }
+
+    @Nullable
     private ChecklistFragment getCurrentFragment() {
         return mViewPagerAdapter.getFragment(mBinding.viewpager.getCurrentItem());
     }
