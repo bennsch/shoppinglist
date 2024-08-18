@@ -122,14 +122,15 @@ public class AppViewModel extends AndroidViewModel {
     }
 
     public void insertChecklist(String listTitle) {
+        String listTitleStripped = stripWhitespace(listTitle);
         assert mChecklistTitles.getValue() != null;
-        if (mChecklistTitles.getValue().contains(listTitle)) {
+        if (mChecklistTitles.getValue().contains(listTitleStripped)) {
             // TODO: replace with appropriate exception
-            throw new IllegalArgumentException("List with title \"" + listTitle +  "\" already exists");
+            throw new IllegalArgumentException("List with title \"" + listTitleStripped +  "\" already exists");
         }
         mExecutor.execute(() -> {
-            mChecklistRepo.insertChecklist(listTitle);
-            mChecklistRepo.setActiveChecklist(listTitle);
+            mChecklistRepo.insertChecklist(listTitleStripped);
+            mChecklistRepo.setActiveChecklist(listTitleStripped);
         });
     }
 
@@ -158,14 +159,15 @@ public class AppViewModel extends AndroidViewModel {
         });
     }
 
-    public void renameChecklist(String checklistTitle, String newTitle) {
+    public void renameChecklist(@NonNull final String checklistTitle, @NonNull final String newTitle) {
+        String newTitleStripped = stripWhitespace(newTitle);
         assert mChecklistTitles.getValue() != null;
-        if (mChecklistTitles.getValue().contains(newTitle)) {
+        if (mChecklistTitles.getValue().contains(newTitleStripped)) {
             // TODO: replace with appropriate exception
-            throw new IllegalArgumentException("Checklist title '" + newTitle + "' already present");
+            throw new IllegalArgumentException("Checklist title '" + newTitleStripped + "' already present");
         } else {
             mExecutor.execute(() -> {
-                mChecklistRepo.updateChecklistName(checklistTitle, newTitle);
+                mChecklistRepo.updateChecklistName(checklistTitle, newTitleStripped);
             });
         }
     }
@@ -182,7 +184,7 @@ public class AppViewModel extends AndroidViewModel {
         return mListeningExecutor.submit(() -> {
             // Remove leading and trailing spaces, and replace all multi-spaces with single
             // spaces.
-            String strippedName = name.strip().replaceAll(" +", " ");
+            String strippedName = stripWhitespace(name);
 
             if (strippedName.isEmpty()) {
                 throw new Exception("Empty");
@@ -280,6 +282,10 @@ public class AppViewModel extends AndroidViewModel {
             }
             mChecklistRepo.update(dbMirror);
         });
+    }
+
+    private String stripWhitespace(@NonNull final String s) {
+        return s.strip().replaceAll(" +", " ");
     }
 
     @Nullable

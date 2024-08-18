@@ -34,17 +34,10 @@ import java.util.List;
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
 
+// TODO: Use old icon (shopping cart)
 // TODO: Hide IME if NavDrawer is opened
-// TODO: If user wants to add a new item, which name already exists and which is currently
-//  in the other list, then flip that item. if that item is in the same list, show a toast.
 // TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
-// TODO: strip white space from item when user add a new one
-// TODO: Show suggestions when typing new item
-// TODO: Rounded corners for ItemNameBox
-// TODO: List is moving down slightly if IME is opened (if there are only few items)
-// TODO: Make ItemNameBox smaller so that it doesn't align with last divider
-//       (maybe use LinearLayout instead of ConstraintLayout)
 // TODO: 'About' info (git repo, name etc)
 
 public class MainActivity extends AppCompatActivity {
