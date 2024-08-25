@@ -1,5 +1,7 @@
 package com.bennsch.shoppinglist;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.graphics.Paint;
 import android.os.Bundle;
 
@@ -148,11 +150,29 @@ public class ChecklistFragment extends Fragment {
     }
 
     private void showEmptyListPlaceholder(boolean show) {
-        // TODO: animate transition
         View placeholder = mDisplayChecked ?
                 mBinding.emptyListPlaceholderChecked :
                 mBinding.emptyListPlaceholderUnchecked;
-        placeholder.setVisibility(show ? View.VISIBLE : View.GONE);
+        int animDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        if (show) {
+            placeholder.setVisibility(View.VISIBLE);
+            placeholder.setAlpha(0f);
+            placeholder.animate()
+                    .alpha(1f)
+                    .setDuration(animDuration)
+                    .setListener(null); // Clear any animation listener
+        } else {
+            placeholder.animate()
+                    .alpha(0f)
+                    .setDuration(animDuration)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            placeholder.setVisibility(View.GONE);
+                        }
+                    });
+        }
     }
 
     // TODO: move to separate file?
