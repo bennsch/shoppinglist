@@ -196,13 +196,7 @@ public class ChecklistPagerFragment extends Fragment {
         });
 
         mBinding.itemNameBox.setOnItemClickListener((parent, view, position, id) -> {
-            Boolean isChecked = isCheckedDisplayedCurrently();
-            assert isChecked != null;
-            mViewModel.onAutoCompleteItemClicked(
-                    mListTitle,
-                    (String) parent.getItemAtPosition(position),
-                    isChecked);
-            mBinding.itemNameBox.setText("");
+            insertNewItem((String) parent.getItemAtPosition(position));
             // TODO: Race condition (will sometimes not scroll to last item).
             //  The scroll should be triggered after the list has been updated
             scrollCurrentChecklist();
@@ -250,10 +244,9 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void onFabClicked() {
-        // TODO: Make "Return" button on IME behave like FAB
         // TODO: fix landscape layout for FAB and EditText
         if (isItemNameBoxVisible()) {
-            insertNewItem();
+            insertNewItem(mBinding.itemNameBox.getText().toString());
         } else {
             toggleItemNameBox(true);
         }
@@ -269,14 +262,13 @@ public class ChecklistPagerFragment extends Fragment {
         }
     }
 
-    private void insertNewItem() {
+    private void insertNewItem(@NonNull String name) {
         Boolean currentChecked = isCheckedDisplayedCurrently();
         assert currentChecked != null;
-        String itemName = mBinding.itemNameBox.getText().toString();
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
                 currentChecked,
-                itemName);
+                name);
         Futures.addCallback(result, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
@@ -285,7 +277,7 @@ public class ChecklistPagerFragment extends Fragment {
 
             @Override
             public void onFailure(@NonNull Throwable t) {
-                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
                 vibrate();
             }
         }, ContextCompat.getMainExecutor(requireContext()));

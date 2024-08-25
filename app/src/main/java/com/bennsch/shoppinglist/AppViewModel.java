@@ -102,25 +102,6 @@ public class AppViewModel extends AndroidViewModel {
         }
     }
 
-    public void onAutoCompleteItemClicked(
-            @NonNull String listTitle,
-            @NonNull String name,
-            boolean currentlyCheckedVisible) {
-        mExecutor.execute(() -> {
-            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), name);
-            assert dbItem != null;
-            if (dbItem.isChecked() == currentlyCheckedVisible) {
-                List<DbChecklistItem> items = mChecklistRepo.getItemsSortedByPosition(listTitle, dbItem.isChecked());
-                items.remove((int)dbItem.getPosition());
-                items.add(dbItem);
-                updatePositionByOrder(items);
-                mChecklistRepo.update(items);
-            } else {
-                flipItem(listTitle, dbItem.isChecked(), new ChecklistItem(dbItem.getName(), dbItem.getIncidence()));
-            }
-        });
-    }
-
     public void insertChecklist(String listTitle) {
         String listTitleStripped = stripWhitespace(listTitle);
         assert mChecklistTitles.getValue() != null;
@@ -188,22 +169,35 @@ public class AppViewModel extends AndroidViewModel {
 
             if (strippedName.isEmpty()) {
                 throw new Exception("Empty");
-            }
-            else if (findDbItem(mChecklistRepo.getAllItems(listTitle), strippedName) != null) {
-                throw new Exception("\"" + strippedName + "\" already present");
             } else {
-                List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
-                // TODO: maybe don't use integral type for 'position', so that undefined position is allowed
-                DbChecklistItem newDbItem = new DbChecklistItem(strippedName, isChecked, 0, listTitle, 0);
-                dbItems.add(newDbItem);
-
-                if (isChecked) {
-                    sortByIncidenceDescending(dbItems);
+                DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), strippedName);
+                if (dbItem == null){
+                    // Item does not exist in database. Insert a new item.
+                    List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
+                    // TODO: maybe don't use integral type for 'position', so that undefined position is allowed
+                    DbChecklistItem newDbItem = new DbChecklistItem(strippedName, isChecked, 0, listTitle, 0);
+                    dbItems.add(newDbItem);
+                    if (isChecked) {
+                        sortByIncidenceDescending(dbItems);
+                    }
+                    updatePositionByOrder(dbItems);
+                    Log.d(TAG, "insertItem: \"" + newDbItem.getName() + "\"");
+                    mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
+                } else {
+                    // Item already exists in database.
+                    if (dbItem.isChecked() == isChecked) {
+                        // The existing item is of the same category as the user tries to add to,
+                        // so just move it to the bottom.
+                        List<DbChecklistItem> items = mChecklistRepo.getItemsSortedByPosition(listTitle, dbItem.isChecked());
+                        items.remove((int)dbItem.getPosition());
+                        items.add(dbItem);
+                        updatePositionByOrder(items);
+                        mChecklistRepo.update(items);
+                    } else {
+                        // The item is of the other category, so flip it.
+                        flipItem(listTitle, dbItem.isChecked(), new ChecklistItem(dbItem.getName(), dbItem.getIncidence()));
+                    }
                 }
-
-                updatePositionByOrder(dbItems);
-                Log.d(TAG, "insertItem: \"" + newDbItem.getName() + "\"");
-                mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
                 return null;
             }
         });
