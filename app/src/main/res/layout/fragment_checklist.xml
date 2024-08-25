@@ -14,4 +14,25 @@
 <!--    "clipToPadding" allows the RecyclerView to draw over
         the padding area. So we can achieve visible gap between item_name_box
         and the RecyclerView, but if we scroll it will disappear -->
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/empty_list_placeholder_unchecked"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="You're all done!"
+        android:theme="@style/ChecklistItem.Unchecked"
+        android:textStyle="normal"
+        android:gravity="center"
+        android:background="?android:colorBackground"
+        android:visibility="gone"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/empty_list_placeholder_checked"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="No items"
+        android:theme="@style/ChecklistItem.Checked"
+        android:gravity="center"
+        android:background="?android:colorBackground"
+        android:visibility="gone"/>
 </FrameLayout>

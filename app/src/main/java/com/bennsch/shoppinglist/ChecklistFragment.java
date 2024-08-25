@@ -122,6 +122,7 @@ public class ChecklistFragment extends Fragment {
     protected void onItemsChanged(List<ChecklistItem> newItemsSorted) {
         Log.d(TAG, "onItemsChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
         mRecyclerViewAdapter.updateItems(newItemsSorted);
+        showEmptyListPlaceholder(newItemsSorted.isEmpty());
     }
 
     private void onItemClicked(ChecklistItem item, int position) {
@@ -144,6 +145,14 @@ public class ChecklistFragment extends Fragment {
     private void vibrate() {
         Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
         vibrator.vibrate(125);
+    }
+
+    private void showEmptyListPlaceholder(boolean show) {
+        // TODO: animate transition
+        View placeholder = mDisplayChecked ?
+                mBinding.emptyListPlaceholderChecked :
+                mBinding.emptyListPlaceholderUnchecked;
+        placeholder.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     // TODO: move to separate file?
