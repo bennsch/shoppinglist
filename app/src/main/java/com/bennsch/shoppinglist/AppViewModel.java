@@ -53,10 +53,12 @@ public class AppViewModel extends AndroidViewModel {
         mDeleteIconsVisible = new MutableLiveData<>(false);
     }
 
-    public void toggleDeleteIconsVisibility() {
+    public boolean toggleDeleteIconsVisibility() {
         Boolean visible = mDeleteIconsVisible.getValue();
         assert visible != null;
-        mDeleteIconsVisible.postValue(!visible);
+        visible = !visible;
+        mDeleteIconsVisible.postValue(visible);
+        return visible;
     }
 
     public LiveData<Boolean> getDeleteIconsVisible() {

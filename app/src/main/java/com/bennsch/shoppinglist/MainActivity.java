@@ -112,7 +112,12 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.clmenu_delete_list) {
             showDeleteListDialog();
         } else if (item.getItemId() == R.id.clmenu_delete_items) {
-            this.viewModel.toggleDeleteIconsVisibility();
+            boolean isVisible = this.viewModel.toggleDeleteIconsVisibility();
+            if (isVisible) {
+                item.setIcon(R.drawable.ic_not_delete);
+            } else {
+                item.setIcon(R.drawable.ic_delete);
+            }
         }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);
