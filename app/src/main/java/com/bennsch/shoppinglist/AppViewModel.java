@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist;
 
 import android.app.Application;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -52,6 +53,27 @@ public class AppViewModel extends AndroidViewModel {
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
         mDeleteIconsVisible = new MutableLiveData<>(false);
     }
+
+    @NonNull
+    public String getVersionName() {
+        try {
+            return getApplication()
+                    .getPackageManager()
+                    .getPackageInfo(getApplication().getPackageName(), 0)
+                    .versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "getVersionName: ", e);
+            return "?.?";
+        }
+    }
+
+//    @NonNull
+//    public String getAppName() {
+//        return getApplication()
+//                .getApplicationInfo()
+//                .loadLabel(getApplication().getPackageManager())
+//                .toString();
+//    }
 
     public boolean toggleDeleteIconsVisibility() {
         Boolean visible = mDeleteIconsVisible.getValue();

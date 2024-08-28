@@ -38,7 +38,6 @@ import java.util.List;
 // TODO: Use old icon (shopping cart)
 // TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
-// TODO: 'About' info (git repo, name etc)
 
 public class MainActivity extends AppCompatActivity {
 
@@ -80,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mBinding.versionLabel.setText("v" + getVersionName());
-
         this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
+
+        mBinding.versionLabel.setText("v" + viewModel.getVersionName());
 
         mActiveChecklist = viewModel.getActiveChecklist();
         mActiveChecklist.observe(this, this::onActiveChecklistChanged);
@@ -154,6 +153,10 @@ public class MainActivity extends AppCompatActivity {
         });
         dialog.show(getSupportFragmentManager(), "NewListDialog");
     }
+
+    private void showAboutDialog() {
+        new AboutDialog().show(getSupportFragmentManager(), "AboutDialog");
+    }
     
     private void showDeleteListDialog() {
         MenuItem menuItem = mBinding.navView.getCheckedItem();
@@ -171,15 +174,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String getVersionName() {
-        try {
-            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "onCreate: ", e);
-            return "?.?";
-        }
-    }
-
     private boolean onNavDrawerItemSelected(MenuItem item){
         if (mBinding.navView.getCheckedItem() == item) {
             // Item already selected.
@@ -189,6 +183,8 @@ public class MainActivity extends AppCompatActivity {
                 viewModel.setActiveChecklist(item.getTitle().toString());
             } else if (item.getItemId() == R.id.nav_new_list) {
                 showNewListDialog();
+            } else if (item.getItemId() == R.id.nav_about) {
+                showAboutDialog();
             }
         }
         mBinding.drawerLayout.close();
