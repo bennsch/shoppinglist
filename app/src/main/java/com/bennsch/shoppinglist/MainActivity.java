@@ -10,6 +10,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -35,7 +36,6 @@ import java.util.List;
 // TODO: test device rotation
 
 // TODO: Use old icon (shopping cart)
-// TODO: Hide IME if NavDrawer is opened
 // TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
 // TODO: 'About' info (git repo, name etc)
@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private AppViewModel viewModel;
     // getValue() is null if no checklist selected yet
     private LiveData<String> mActiveChecklist;
+    private IMEHelper mIMEHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
                             //.setThemeOverlay(R.style.ThemeOverlay_AppTheme_HighContrast) // TODO: why is it not working?
                             .build());
         }
+
+        mIMEHelper = new IMEHelper(this);
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
@@ -271,7 +274,17 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 mBinding.drawerLayout,
                 R.string.navdrawer_open,
-                R.string.navdrawer_close);
+                R.string.navdrawer_close){
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                // Hide IME if NavDrawer is opened.
+                // ActionBarDrawerToggle.onDrawerOpened() will be called with a
+                // small delay, so using ActionBarDrawerToggle.onDrawerStateChanged() instead
+                if (newState == DrawerLayout.STATE_SETTLING && !mBinding.drawerLayout.isOpen()){
+                    mIMEHelper.showIME(mBinding.getRoot(), false);
+                }
+            }
+        };
         // pass the Open and Close toggle for the drawer layout listener
         // to toggle the button
         mBinding.drawerLayout.addDrawerListener(this.actionBarDrawerToggle);
