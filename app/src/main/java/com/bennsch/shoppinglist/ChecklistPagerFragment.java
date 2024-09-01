@@ -248,15 +248,19 @@ public class ChecklistPagerFragment extends Fragment {
     private void onChecklistEmptyChanged(boolean empty) {
         if (empty) {
             mBinding.emptyListPlaceholderBoth.setVisibility(View.VISIBLE);
+            // Need to hide the ViewPager, because it's possible to change
+            // the current page by swiping, even if the placeholder is visible.
+            mBinding.viewpager.setVisibility(View.GONE);
             // Change ViewPager page so that the first item will be added to "Unchecked".
             mBinding.viewpager.setCurrentItem(ViewPagerAdapter.POS_UNCHECKED);
             Log.d(TAG, "onChecklistEmptyChanged: " + isCurrentPageChecked());
-            // TODO: Should be done in ViewModel itself (observe forever)
+            // TODO: Should be done in ViewModel itself? (observe forever)
             if (mViewModel.isDeleteIconVisible()) {
                 mViewModel.toggleDeleteIconsVisibility();
             }
         } else {
             mBinding.emptyListPlaceholderBoth.setVisibility(View.GONE);
+            mBinding.viewpager.setVisibility(View.VISIBLE);
         }
     }
 

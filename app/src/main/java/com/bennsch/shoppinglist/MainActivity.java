@@ -39,7 +39,7 @@ import java.util.List;
 // TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
 // TODO: Make "Delete" button in Dialogs red
-// TODO: Prevent swiping the ViewPager if the empty_list_placeholder_both is visible
+// TODO: Allow Checklists to be deleted from within NavDrawer
 
 public class MainActivity extends AppCompatActivity {
 
