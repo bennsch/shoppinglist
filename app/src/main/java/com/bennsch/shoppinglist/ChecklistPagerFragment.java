@@ -30,10 +30,8 @@ import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import com.bennsch.shoppinglist.databinding.FragmentChecklistPagerBinding;
-import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -79,6 +77,8 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
 //        mBinding.viewpager.setPageTransformer(new FanTransformer());
         mBinding.fab.setOnClickListener(view -> this.onFabClicked());
+        mViewModel.isChecklistEmpty(mListTitle)
+                .observe(getViewLifecycleOwner(), this::onChecklistEmptyChanged);
         return mBinding.getRoot();
     }
 
@@ -86,20 +86,12 @@ public class ChecklistPagerFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated: ");
         super.onViewCreated(view, savedInstanceState);
-        new TabLayoutMediator(mBinding.tablayout, mBinding.viewpager,
-                (tab, position) -> tab.setText("OBJECT " + (position + 1))
-        ).attach();
-
-        new TabLayoutMediator(mBinding.tablayout, mBinding.viewpager,
-                new TabLayoutMediator.TabConfigurationStrategy() {
-                    @Override
-                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-//                        tab.setIcon(R.drawable.ic_launcher_foreground);
-                    }
-                }
-        ).attach();
+        new TabLayoutMediator(
+                mBinding.tablayout,
+                mBinding.viewpager,
+                (tab, position) -> {})
+                .attach();
         setupItemNameBox(requireActivity(), requireContext(), this);
-
     }
 
     @Override
@@ -189,9 +181,10 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
+                Log.d(TAG, "onPageSelected: " + position);
                 super.onPageSelected(position);
                 mBinding.itemNameBox.dismissDropDown();
-                isCurrentPageChecked.setValue(isCheckedDisplayedCurrently()); // TODO: or postValue()?
+                isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: or postValue()?
             }
         });
 
@@ -252,9 +245,25 @@ public class ChecklistPagerFragment extends Fragment {
         }
     }
 
+    private void onChecklistEmptyChanged(boolean empty) {
+        if (empty) {
+            mBinding.emptyListPlaceholderBoth.setVisibility(View.VISIBLE);
+            // Change ViewPager page so that the first item will be added to "Unchecked".
+            mBinding.viewpager.setCurrentItem(ViewPagerAdapter.POS_UNCHECKED);
+            Log.d(TAG, "onChecklistEmptyChanged: " + isCurrentPageChecked());
+            // TODO: Should be done in ViewModel itself (observe forever)
+            if (mViewModel.isDeleteIconVisible()) {
+                mViewModel.toggleDeleteIconsVisibility();
+            }
+        } else {
+            mBinding.emptyListPlaceholderBoth.setVisibility(View.GONE);
+        }
+    }
+
     private void scrollCurrentChecklist() {
         // retrieve from global settings?
-        ChecklistFragment fragment = getCurrentFragment();
+        ChecklistFragment fragment = mViewPagerAdapter.getFragment(
+                mBinding.viewpager.getCurrentItem());
         if (fragment != null) {
             fragment.scrollTo(true);
         } else {
@@ -263,7 +272,7 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void insertNewItem(@NonNull String name) {
-        Boolean currentChecked = isCheckedDisplayedCurrently();
+        Boolean currentChecked = isCurrentPageChecked();
         assert currentChecked != null;
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
@@ -283,19 +292,9 @@ public class ChecklistPagerFragment extends Fragment {
         }, ContextCompat.getMainExecutor(requireContext()));
     }
 
-    @Nullable
-    private Boolean isCheckedDisplayedCurrently() {
-        ChecklistFragment fragment = getCurrentFragment();
-        if (fragment == null) {
-            return null;
-        } else {
-            return fragment.isDisplayChecked();
-        }
-    }
-
-    @Nullable
-    private ChecklistFragment getCurrentFragment() {
-        return mViewPagerAdapter.getFragment(mBinding.viewpager.getCurrentItem());
+    @Nullable Boolean isCurrentPageChecked() {
+        return mViewPagerAdapter.isPageChecked(
+                mBinding.viewpager.getCurrentItem());
     }
 
     private void vibrate() {
@@ -310,7 +309,14 @@ public class ChecklistPagerFragment extends Fragment {
         constraintSet.applyTo(parent);
     }
 
+
     private class ViewPagerAdapter extends FragmentStateAdapter {
+
+        // TODO: Combine ViewPagerAdapter and Viewpager (since they depend on each other)?
+        //  (and TabLayoutMediator as well)
+
+        public static final int POS_UNCHECKED = 0;
+        public static final int POS_CHECKED = 1;
 
         private final ChecklistFragment[] mCachedFragments = new ChecklistFragment[2];
 
@@ -324,8 +330,10 @@ public class ChecklistPagerFragment extends Fragment {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            boolean displayChecked = position != 0;
-            ChecklistFragment fragment = ChecklistFragment.newInstance(mListTitle, displayChecked);
+            assert (position == POS_CHECKED) || (position == POS_UNCHECKED);
+            ChecklistFragment fragment = ChecklistFragment.newInstance(
+                    mListTitle,
+                    position == POS_CHECKED);
             mCachedFragments[position] = fragment;
             return fragment;
         }
@@ -335,8 +343,22 @@ public class ChecklistPagerFragment extends Fragment {
             return mCachedFragments.length;
         }
 
+        @Nullable
         public ChecklistFragment getFragment(int position) {
-            return mCachedFragments[position];
+            try {
+                return mCachedFragments[position];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                return null;
+            }
+        }
+
+        @Nullable
+        public Boolean isPageChecked(int position) {
+            if (getFragment(position) == null) {
+                return null;
+            } else {
+                return position == POS_CHECKED;
+            }
         }
     }
 }

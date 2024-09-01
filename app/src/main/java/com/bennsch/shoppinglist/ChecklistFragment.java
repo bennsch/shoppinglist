@@ -163,15 +163,19 @@ public class ChecklistFragment extends Fragment {
                     .setDuration(animDuration)
                     .setListener(null); // Clear any animation listener
         } else {
-            placeholder.animate()
-                    .alpha(0f)
-                    .setDuration(animDuration)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            placeholder.setVisibility(View.GONE);
-                        }
-                    });
+            // Don't animate the disappearance, because it this page
+            // is shown briefly before first item is added to checklist
+            // and looks weird when empty_list_placeholder_both is being hidden
+            placeholder.setVisibility(View.GONE);
+//            placeholder.animate()
+//                    .alpha(0f)
+//                    .setDuration(animDuration)
+//                    .setListener(new AnimatorListenerAdapter() {
+//                        @Override
+//                        public void onAnimationEnd(Animator animation) {
+//                            placeholder.setVisibility(View.GONE);
+//                        }
+//                    });
         }
     }
 

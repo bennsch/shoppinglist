@@ -38,6 +38,8 @@ import java.util.List;
 // TODO: Use old icon (shopping cart)
 // TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
+// TODO: Make "Delete" button in Dialogs red
+// TODO: Prevent swiping the ViewPager if the empty_list_placeholder_both is visible
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     // getValue() is null if no checklist selected yet
     private LiveData<String> mActiveChecklist;
     private IMEHelper mIMEHelper;
+    private Menu mOptionsMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +85,19 @@ public class MainActivity extends AppCompatActivity {
         this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
+        this.viewModel.getDeleteIconsVisible().observe(this, isVisible -> {
+            if (mOptionsMenu != null) {
+                MenuItem menuItem = mOptionsMenu.findItem(R.id.clmenu_delete_items);
+                if (menuItem != null) {
+                    if (isVisible) {
+                        menuItem.setIcon(R.drawable.ic_not_delete);
+                    } else {
+                        menuItem.setIcon(R.drawable.ic_delete);
+                    }
+                }
+            }
+        });
+
         mBinding.versionLabel.setText("v" + viewModel.getVersionName());
 
         mActiveChecklist = viewModel.getActiveChecklist();
@@ -101,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        mOptionsMenu = menu;
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.checklist_menu, menu);
         return true;
@@ -111,12 +128,7 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.clmenu_delete_list) {
             showDeleteListDialog();
         } else if (item.getItemId() == R.id.clmenu_delete_items) {
-            boolean isVisible = this.viewModel.toggleDeleteIconsVisibility();
-            if (isVisible) {
-                item.setIcon(R.drawable.ic_not_delete);
-            } else {
-                item.setIcon(R.drawable.ic_delete);
-            }
+            this.viewModel.toggleDeleteIconsVisibility();
         }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);

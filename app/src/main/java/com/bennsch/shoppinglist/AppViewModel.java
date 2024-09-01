@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModelProvider;
@@ -75,12 +76,11 @@ public class AppViewModel extends AndroidViewModel {
 //                .toString();
 //    }
 
-    public boolean toggleDeleteIconsVisibility() {
+    public void toggleDeleteIconsVisibility() {
         Boolean visible = mDeleteIconsVisible.getValue();
         assert visible != null;
         visible = !visible;
         mDeleteIconsVisible.postValue(visible);
-        return visible;
     }
 
     public LiveData<Boolean> getDeleteIconsVisible() {
@@ -97,6 +97,15 @@ public class AppViewModel extends AndroidViewModel {
         mExecutor.execute(() -> {
             mChecklistRepo.setActiveChecklist(checklistTitle);
         });
+    }
+
+    public LiveData<Boolean> isChecklistEmpty(String listTitle) {
+        MediatorLiveData<Boolean> mediator = new MediatorLiveData<>();
+        mediator.addSource(
+                    mChecklistRepo.getAllItemsLiveData(listTitle),
+                    dbChecklistItems
+                        -> mediator.setValue(dbChecklistItems.isEmpty()));
+        return Transformations.distinctUntilChanged(mediator);
     }
 
     public LiveData<String> getActiveChecklist() {
