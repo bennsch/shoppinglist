@@ -5,7 +5,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -15,9 +17,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,7 +42,6 @@ import java.util.List;
 // TODO: Use old icon (shopping cart)
 // TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
-// TODO: Make "Delete" button in Dialogs red
 // TODO: Allow Checklists to be deleted from within NavDrawer
 
 public class MainActivity extends AppCompatActivity {
@@ -181,7 +184,15 @@ public class MainActivity extends AppCompatActivity {
                     .setMessage("Are you sure to delete \"" + currentList + "\"?")
                     .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteChecklist(currentList))
                     .setNegativeButton("Cancel", (dialog, which) -> {/* Nothing to do */});
-            Dialog dialog = builder.create();
+            AlertDialog dialog = builder.create();
+            dialog.setOnShowListener(dialogInterface -> {
+                TypedValue typedValue = new TypedValue();
+                getTheme().resolveAttribute(com.google.android.material.R.attr.colorError, typedValue, true);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setTextColor(
+                                ContextCompat.getColor(
+                                        MainActivity.this, typedValue.resourceId));
+            });
             dialog.show();
         }
     }
