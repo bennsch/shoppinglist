@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -172,6 +173,11 @@ public class MainActivity extends AppCompatActivity {
     private void showAboutDialog() {
         new AboutDialog().show(getSupportFragmentManager(), "AboutDialog");
     }
+
+    private void showSettingsActivity() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
     
     private void showDeleteListDialog() {
         MenuItem menuItem = mBinding.navView.getCheckedItem();
@@ -208,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
                 showNewListDialog();
             } else if (item.getItemId() == R.id.nav_about) {
                 showAboutDialog();
+            } else if (item.getItemId() == R.id.nav_settings) {
+                showSettingsActivity();
             }
         }
         mBinding.drawerLayout.close();
