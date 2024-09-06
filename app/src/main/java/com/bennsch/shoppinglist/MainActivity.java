@@ -62,17 +62,7 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
-        // Apply colors derived from a seed.
-        // (If dynamic colors are not supported on the device, the colors
-        // defined in "AppTheme" will be applied).
-        if (GlobalConfig.DBG_DYNAMIC_COLOR_ENABLED) {
-            DynamicColors.applyToActivityIfAvailable(
-                    this,
-                    new DynamicColorsOptions.Builder()
-                            .setContentBasedSource(GlobalConfig.DBG_DYNAMIC_COLOR_SEED)
-                            //.setThemeOverlay(R.style.ThemeOverlay_AppTheme_HighContrast) // TODO: why is it not working?
-                            .build());
-        }
+        ThemeHelper.applyDynamicColors(this);
 
         mIMEHelper = new IMEHelper(this);
 
