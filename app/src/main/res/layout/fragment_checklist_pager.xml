@@ -54,6 +54,7 @@
             android:paddingEnd="8dp"
             android:background="@drawable/text_input_box_background"
             android:backgroundTint="?colorPrimaryContainer"
+            android:textCursorDrawable="@null"
             android:elevation="@dimen/fab_elevation"
             android:hint="New Item..."
             android:imeOptions="flagNoFullscreen"
