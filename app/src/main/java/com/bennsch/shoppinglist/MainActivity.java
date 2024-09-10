@@ -44,6 +44,7 @@ import java.util.List;
 // TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
 // TODO: Allow Checklists to be deleted from within NavDrawer
+// TODO: Limit number of characters for every text input
 
 public class MainActivity extends AppCompatActivity {
 

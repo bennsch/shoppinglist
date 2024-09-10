@@ -1,20 +1,15 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="Category1">
+    <EditTextPreference
+        app:key="@string/message_list_completed"
+        app:title="List Completed Message"
+        app:defaultValue="Yo're all done!"
+        app:useSimpleSummaryProvider="true" />
 
-        <EditTextPreference
-            app:key="dummy1"
-            app:title="EditText"
-            app:useSimpleSummaryProvider="true" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="Category 2">
-
-        <SwitchPreferenceCompat
-            app:key="dummy2"
-            app:title="Switch" />
-
-    </PreferenceCategory>
+    <SwitchPreferenceCompat
+        app:key="@string/use_dynamic_colors"
+        android:title="Use Dynamic Colors"
+        app:defaultValue="true"/>
 
 </PreferenceScreen>

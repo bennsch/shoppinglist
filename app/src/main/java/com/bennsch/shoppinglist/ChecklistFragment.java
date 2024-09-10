@@ -84,6 +84,11 @@ public class ChecklistFragment extends Fragment {
         mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked)
                 .observe(getViewLifecycleOwner(), this::onItemsChanged);
 
+        mViewModel.getPrefMessageListDeleted().observe(getViewLifecycleOwner(), s -> {
+            Log.d(TAG, "set text" + s);
+            mBinding.emptyListPlaceholderUnchecked.setText(s);
+        });
+
         mViewModel.getDeleteIconsVisible().observe(
                 getViewLifecycleOwner(),
                 this::onDeleteIconsVisibilityChanged);
@@ -153,6 +158,7 @@ public class ChecklistFragment extends Fragment {
         View placeholder = mDisplayChecked ?
                 mBinding.emptyListPlaceholderChecked :
                 mBinding.emptyListPlaceholderUnchecked;
+
         int animDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
         if (show) {

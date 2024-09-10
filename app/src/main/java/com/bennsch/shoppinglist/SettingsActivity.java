@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -14,14 +15,17 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.bennsch.shoppinglist.data.PreferencesRepository;
 import com.bennsch.shoppinglist.databinding.SettingsActivityBinding;
 
 public class SettingsActivity extends AppCompatActivity {
 
+    public static final String TAG = "SettingsActivity";
+
     public static class SettingsFragment extends PreferenceFragmentCompat {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.preferences, rootKey);
+            setPreferencesFromResource(PreferencesRepository.PREF_RES, rootKey);
         }
     }
 
@@ -31,6 +35,11 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        PreferencesRepository preferencesRepository = new PreferencesRepository(this);
+        preferencesRepository.getPrefUseDynamicColors().observe(this, aBoolean -> {
+            Log.d(TAG, "dynaColor (Settings) changed " + aBoolean);
+        });
 
         ThemeHelper.applyDynamicColors(this);
 

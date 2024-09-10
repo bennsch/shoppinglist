@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bennsch.shoppinglist.data.ChecklistRepository;
 import com.bennsch.shoppinglist.data.DbChecklist;
 import com.bennsch.shoppinglist.data.DbChecklistItem;
+import com.bennsch.shoppinglist.data.PreferencesRepository;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -43,6 +44,7 @@ public class AppViewModel extends AndroidViewModel {
     private static final ListeningExecutorService mListeningExecutor = MoreExecutors.listeningDecorator(mExecutor);
 
     private final ChecklistRepository mChecklistRepo;
+    private final PreferencesRepository mPreferencesRepo;
     private final LiveData<List<String>> mChecklistTitles;
     private final MutableLiveData<Boolean> mDeleteIconsVisible;
 
@@ -51,6 +53,7 @@ public class AppViewModel extends AndroidViewModel {
         super(application);
         Log.d(TAG, "AppViewModel: CTOR");
         mChecklistRepo = new ChecklistRepository(application);
+        mPreferencesRepo = new PreferencesRepository(application);
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
         mDeleteIconsVisible = new MutableLiveData<>(false);
     }
@@ -66,6 +69,14 @@ public class AppViewModel extends AndroidViewModel {
             Log.e(TAG, "getVersionName: ", e);
             return "?.?";
         }
+    }
+
+    public LiveData<String> getPrefMessageListDeleted() {
+        return mPreferencesRepo.getPrefMessageListDeleted();
+    }
+
+    public LiveData<Boolean> getPrefUseDynamicColors() {
+        return mPreferencesRepo.getPrefUseDynamicColors();
     }
 
 //    @NonNull
