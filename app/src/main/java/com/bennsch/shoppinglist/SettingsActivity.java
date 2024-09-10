@@ -36,7 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        PreferencesRepository preferencesRepository = new PreferencesRepository(this);
+        PreferencesRepository preferencesRepository = PreferencesRepository.getInstance(getApplication());
         preferencesRepository.getPrefUseDynamicColors().observe(this, aBoolean -> {
             Log.d(TAG, "dynaColor (Settings) changed " + aBoolean);
         });

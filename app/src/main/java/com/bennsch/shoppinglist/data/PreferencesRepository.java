@@ -1,9 +1,11 @@
 package com.bennsch.shoppinglist.data;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.preference.PreferenceManager;
@@ -15,6 +17,7 @@ public class PreferencesRepository {
 
     public static final int PREF_RES = R.xml.preferences;
 
+    private static PreferencesRepository INSTANCE;
     private static final String TAG = "PreferencesRepository";
 
     private final SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
@@ -22,8 +25,22 @@ public class PreferencesRepository {
     private final MutableLiveData<Boolean> mPrefUseDynamicColors = new MutableLiveData<>();
 
 
+    public static synchronized PreferencesRepository getInstance(@NonNull Application application) {
+        if (INSTANCE == null) {
+            INSTANCE = new PreferencesRepository(application);
+        }
+        return INSTANCE;
+    }
 
-    public PreferencesRepository(Context context) {
+    public LiveData<String> getPrefMessageListDeleted() {
+        return mPrefMessageListCompleted;
+    }
+
+    public LiveData<Boolean> getPrefUseDynamicColors() {
+        return mPrefUseDynamicColors;
+    }
+
+    private PreferencesRepository(@NonNull Context context) {
         Log.d(TAG, "PreferencesRepository: Ctor " + context);
 
         String keyMessageListDeleted = context.getResources().getString(R.string.message_list_completed);
@@ -43,8 +60,9 @@ public class PreferencesRepository {
         mPrefUseDynamicColors.setValue(preferences.getBoolean(keyUseDynamicColors, false));
 
         // Register a change listener.
-        // Cannot use anonymous inner class, because SharedPreferences keeps
-        // the listener as WeakHashMap and so it would be garbage collected.
+        // Cannot use anonymous inner class, because the PreferenceManager
+        // does not store a strong reference to the listener and it
+        // would be garbage collected.
         preferenceChangeListener = (sharedPreferences, key) -> {
             // TODO: use postValue()?
             Log.d(TAG, "PreferencesRepository: onChangeListener" + key);
@@ -57,13 +75,5 @@ public class PreferencesRepository {
             }
         };
         preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
-    }
-
-    public LiveData<String> getPrefMessageListDeleted() {
-        return mPrefMessageListCompleted;
-    }
-
-    public LiveData<Boolean> getPrefUseDynamicColors() {
-        return mPrefUseDynamicColors;
     }
 }

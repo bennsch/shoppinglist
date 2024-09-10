@@ -53,7 +53,7 @@ public class AppViewModel extends AndroidViewModel {
         super(application);
         Log.d(TAG, "AppViewModel: CTOR");
         mChecklistRepo = new ChecklistRepository(application);
-        mPreferencesRepo = new PreferencesRepository(application);
+        mPreferencesRepo = PreferencesRepository.getInstance(application);
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
         mDeleteIconsVisible = new MutableLiveData<>(false);
     }

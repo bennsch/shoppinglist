@@ -41,10 +41,16 @@ import java.util.List;
 // TODO: test device rotation
 
 // TODO: Use old icon (shopping cart)
-// TODO: let user select dynamic color seed
 // TODO: highlight action icon while delete mode is active?
 // TODO: Allow Checklists to be deleted from within NavDrawer
 // TODO: Limit number of characters for every text input
+// TODO: General settings:
+//          -Dynamic color seed
+// TODO: Per Checklist settings:
+//          -Sort by incidence
+//          -List name
+//          -Show suggestions
+//          -Delete list
 
 public class MainActivity extends AppCompatActivity {
 

@@ -131,6 +131,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         }
     };
 
+    // TODO: Singleton cannot have argument!!
     static ChecklistDatabase getInstance(final Context context) {
         if (INSTANCE == null) {
             synchronized (ChecklistDatabase.class) {
