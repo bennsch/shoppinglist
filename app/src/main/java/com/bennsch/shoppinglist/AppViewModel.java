@@ -75,10 +75,6 @@ public class AppViewModel extends AndroidViewModel {
         return mPreferencesRepo.getPrefMessageListDeleted();
     }
 
-    public LiveData<Boolean> getPrefUseDynamicColors() {
-        return mPreferencesRepo.getPrefUseDynamicColors();
-    }
-
 //    @NonNull
 //    public String getAppName() {
 //        return getApplication()

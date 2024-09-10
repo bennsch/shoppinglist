@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bennsch.shoppinglist.data.PreferencesRepository;
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
 import com.google.android.material.color.DynamicColors;
 import com.google.android.material.color.DynamicColorsOptions;
@@ -69,7 +70,11 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
-        ThemeHelper.applyDynamicColors(this);
+        PreferencesRepository preferencesRepository = PreferencesRepository.getInstance(getApplication());
+        if (preferencesRepository.getPrefUseDynamicColors().isInitialized() && preferencesRepository.getPrefUseDynamicColors().getValue()) {
+            Log.d(TAG, "onCreate: Dynamic colors applied");
+            ThemeHelper.applyDynamicColors(this);
+        }
 
         mIMEHelper = new IMEHelper(this);
 
