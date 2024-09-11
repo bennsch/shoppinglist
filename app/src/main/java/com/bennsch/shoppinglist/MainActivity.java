@@ -41,6 +41,7 @@ import java.util.List;
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
 
+// TODO: Fix: [Build output]: "warning: belongsToChecklist column references a foreign key but it is not part of an index"
 // TODO: Use old icon (shopping cart)
 // TODO: highlight action icon while delete mode is active?
 // TODO: Allow Checklists to be deleted from within NavDrawer
