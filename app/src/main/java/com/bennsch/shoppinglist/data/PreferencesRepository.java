@@ -43,8 +43,8 @@ public class PreferencesRepository {
     private PreferencesRepository(@NonNull Context context) {
         Log.d(TAG, "PreferencesRepository: Ctor " + context);
 
-        String keyMessageListDeleted = context.getResources().getString(R.string.message_list_completed);
-        String keyUseDynamicColors = context.getResources().getString(R.string.use_dynamic_colors);
+        String keyMessageListDeleted = context.getResources().getString(R.string.key_complete_msg);
+        String keyUseDynamicColors = context.getResources().getString(R.string.key_use_dynamic_colors);
 
         // Apply the default values from the xml, because the SharedPreferences
         // won't be initialized until the SettingsActivity is started.

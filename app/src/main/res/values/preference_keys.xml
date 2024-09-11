@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="message_list_completed">message_list_completed</string>
-    <string name="use_dynamic_colors">use_dynamic_colors</string>
+    <string name="key_complete_msg">message_list_completed</string>
+    <string name="key_use_dynamic_colors">use_dynamic_colors</string>
 </resources>
