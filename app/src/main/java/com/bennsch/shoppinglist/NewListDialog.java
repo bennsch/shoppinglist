@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bennsch.shoppinglist.databinding.NewListDialogBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -62,33 +63,28 @@ public class NewListDialog extends DialogFragment {
                 .setNegativeButton("Cancel", (dialog, id) -> listener.onCancelClicked());
         AlertDialog dialog = builder.create();
 
+        MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
+
         binding.listTitle.addTextChangedListener(new TextWatcher() {
-
-            private Color textColor;
-
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                Log.d(TAG, "beforeTextChanged: " );
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d(TAG, "onTextChanged: ");
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (textColor == null){
-                    textColor = Color.valueOf(binding.listTitle.getTextColors().getDefaultColor());
-                }
-
-                if (currentLists.contains(s.toString())) {
-                    binding.listTitle.setTextColor(Color.RED);
-                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-
-                } else {
-                    binding.listTitle.setTextColor(textColor.toArgb());
+                try {
+                    String titleValidated = viewModel.validateNewChecklistName(s.toString());
+                    // TODO: This would recursively call afterTextChanged()
+                    // binding.listTitle.setText(titleValidated);
+                    binding.listTitle.setError(null);
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                } catch (IllegalArgumentException e) {
+                    binding.listTitle.setError(e.getMessage());
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                 }
             }
         });

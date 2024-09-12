@@ -45,6 +45,7 @@
         android:layout_height="match_parent"
         app:menu="@menu/nav_drawer"
         app:headerLayout="@layout/nav_header"
+        app:itemMaxLines="3"
         android:layout_gravity="start">
 
         <com.google.android.material.textview.MaterialTextView

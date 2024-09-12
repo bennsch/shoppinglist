@@ -42,6 +42,7 @@ import java.util.List;
 // TODO: highlight action icon while delete mode is active?
 // TODO: Allow Checklists to be deleted from within NavDrawer
 // TODO: Limit number of characters for every text input
+// TODO: Make all TextFields use textColor as highlight color
 // TODO: General settings:
 //          -Dynamic color seed
 // TODO: Per Checklist settings:

@@ -36,6 +36,7 @@ public class MainViewModel extends AndroidViewModel {
     // It's the interface between data and UI.
 
     public static final int AUTOCOMPLETE_THRESHOLD = 0;
+    public static final int LIST_TITLE_MAX_LENGTH = 50;
 
     private static final String TAG = "AppViewModel";
     private static final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
@@ -140,16 +141,25 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public void insertChecklist(String listTitle) {
-        String listTitleStripped = stripWhitespace(listTitle);
-        assert mChecklistTitles.getValue() != null;
-        if (mChecklistTitles.getValue().contains(listTitleStripped)) {
-            // TODO: replace with appropriate exception
-            throw new IllegalArgumentException("List with title \"" + listTitleStripped +  "\" already exists");
+    public String validateNewChecklistName(String newTitle) {
+        String newTitleStripped = stripWhitespace(newTitle);
+        List<String> currentTitles = getAllChecklistTitles().getValue();
+        assert currentTitles != null;
+        // TODO: replace with appropriate exception
+        if (currentTitles.contains(newTitleStripped)) {
+            throw new IllegalArgumentException("Name already in use");
+        } else if (newTitleStripped.length() > LIST_TITLE_MAX_LENGTH) {
+            throw new IllegalArgumentException("Name is too long");
+        } else {
+            return newTitleStripped;
         }
+    }
+
+    public void insertChecklist(String listTitle) {
+        String listTitleValidated = validateNewChecklistName(listTitle);
         mExecutor.execute(() -> {
-            mChecklistRepo.insertChecklist(listTitleStripped);
-            mChecklistRepo.setActiveChecklist(listTitleStripped);
+            mChecklistRepo.insertChecklist(listTitleValidated);
+            mChecklistRepo.setActiveChecklist(listTitleValidated);
         });
     }
 
