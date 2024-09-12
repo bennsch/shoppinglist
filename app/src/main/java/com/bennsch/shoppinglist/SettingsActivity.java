@@ -36,18 +36,6 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        PreferencesRepository preferencesRepository = PreferencesRepository.getInstance(getApplication());
-
-        if (preferencesRepository.getPrefUseDynamicColors().isInitialized() && preferencesRepository.getPrefUseDynamicColors().getValue()) {
-            Log.d(TAG, "onCreate: Dynamic colors applied");
-            ThemeHelper.applyDynamicColors(this);
-        }
-
-        preferencesRepository.getPrefUseDynamicColors().observe(this, aBoolean -> {
-            Log.d(TAG, "dynaColor (Settings) changed " + aBoolean);
-        });
-
-
         mBinding = SettingsActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 

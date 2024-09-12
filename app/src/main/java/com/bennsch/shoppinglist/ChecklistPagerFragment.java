@@ -48,7 +48,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private FragmentChecklistPagerBinding mBinding;
     private ViewPagerAdapter mViewPagerAdapter;
-    private AppViewModel mViewModel;
+    private MainViewModel mViewModel;
     private String mListTitle;
     private OnBackPressedCallback mOnBackPressedCallback;
     private IMEHelper mIMEHelper;
@@ -64,7 +64,7 @@ public class ChecklistPagerFragment extends Fragment {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
-        mViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         mViewPagerAdapter = new ViewPagerAdapter(this);
     }
 
@@ -195,7 +195,7 @@ public class ChecklistPagerFragment extends Fragment {
             scrollCurrentChecklist();
         });
         mBinding.itemNameBox.setAdapter(autoComplAdapter);
-        mBinding.itemNameBox.setThreshold(AppViewModel.AUTOCOMPLETE_THRESHOLD);
+        mBinding.itemNameBox.setThreshold(MainViewModel.AUTOCOMPLETE_THRESHOLD);
     }
 
     private void toggleItemNameBox(boolean show) {

@@ -1,14 +1,11 @@
 package com.bennsch.shoppinglist;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.graphics.Paint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -16,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,7 +39,7 @@ public class ChecklistFragment extends Fragment {
     private RecyclerViewAdapter mRecyclerViewAdapter;
     private boolean mDisplayChecked;
     private String mListTitle;
-    private AppViewModel mViewModel;
+    private MainViewModel mViewModel;
 
 
     public ChecklistFragment() {
@@ -66,7 +62,7 @@ public class ChecklistFragment extends Fragment {
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
         mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
         mRecyclerViewAdapter = new RecyclerViewAdapter();
-        mViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
+        mViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
     }
 
     @Override

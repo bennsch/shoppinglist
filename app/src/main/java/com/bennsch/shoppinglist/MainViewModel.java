@@ -11,10 +11,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.bennsch.shoppinglist.data.ChecklistRepository;
-import com.bennsch.shoppinglist.data.DbChecklist;
 import com.bennsch.shoppinglist.data.DbChecklistItem;
 import com.bennsch.shoppinglist.data.PreferencesRepository;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -29,7 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 
-public class AppViewModel extends AndroidViewModel {
+public class MainViewModel extends AndroidViewModel {
 
     // TODO: Remove all logic from GUI. The ViewModel should contain all logic.
     //  (e.g. onAddButtonClicked()...also, config values should be defined here(e.g. autocompl threshold).
@@ -49,7 +47,7 @@ public class AppViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> mDeleteIconsVisible;
 
 
-    public AppViewModel(@NonNull Application application) {
+    public MainViewModel(@NonNull Application application) {
         super(application);
         Log.d(TAG, "AppViewModel: CTOR");
         mChecklistRepo = new ChecklistRepository(application);
@@ -196,7 +194,7 @@ public class AppViewModel extends AndroidViewModel {
     public LiveData<List<ChecklistItem>> getItemsSortedByPosition(String listTitle, boolean isChecked) {
         return Transformations.map(
                 mChecklistRepo.getItemsSortedByPositionLiveData(listTitle, isChecked),
-                AppViewModel::toChecklistItems);
+                MainViewModel::toChecklistItems);
     }
 
     public ListenableFuture<Void> insertItem(final @NonNull String listTitle,

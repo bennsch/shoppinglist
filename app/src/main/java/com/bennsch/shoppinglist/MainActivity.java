@@ -16,10 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -29,10 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bennsch.shoppinglist.data.PreferencesRepository;
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
-import com.google.android.material.color.DynamicColors;
-import com.google.android.material.color.DynamicColorsOptions;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
@@ -42,6 +36,8 @@ import java.util.List;
 // TODO: test device rotation
 
 // TODO: Fix: [Build output]: "warning: belongsToChecklist column references a foreign key but it is not part of an index"
+// TODO: Update gradle packages
+// TODO: Update target API
 // TODO: Use old icon (shopping cart)
 // TODO: highlight action icon while delete mode is active?
 // TODO: Allow Checklists to be deleted from within NavDrawer
@@ -60,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding mBinding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private AppViewModel viewModel;
+    private MainViewModel viewModel;
     // getValue() is null if no checklist selected yet
     private LiveData<String> mActiveChecklist;
     private IMEHelper mIMEHelper;
@@ -70,12 +66,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
-
-        PreferencesRepository preferencesRepository = PreferencesRepository.getInstance(getApplication());
-        if (preferencesRepository.getPrefUseDynamicColors().isInitialized() && preferencesRepository.getPrefUseDynamicColors().getValue()) {
-            Log.d(TAG, "onCreate: Dynamic colors applied");
-            ThemeHelper.applyDynamicColors(this);
-        }
 
         mIMEHelper = new IMEHelper(this);
 
@@ -89,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        this.viewModel = new ViewModelProvider(this).get(AppViewModel.class);
+        this.viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
         this.viewModel.getDeleteIconsVisible().observe(this, isVisible -> {
