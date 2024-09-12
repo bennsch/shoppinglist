@@ -150,6 +150,8 @@ public class MainViewModel extends AndroidViewModel {
             throw new IllegalArgumentException("Name already in use");
         } else if (newTitleStripped.length() > LIST_TITLE_MAX_LENGTH) {
             throw new IllegalArgumentException("Name is too long");
+        } else if (newTitleStripped.isEmpty()) {
+            throw new IllegalArgumentException("Name is empty");
         } else {
             return newTitleStripped;
         }
@@ -326,7 +328,7 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    private String stripWhitespace(@NonNull final String s) {
+    private static String stripWhitespace(@NonNull final String s) {
         return s.strip().replaceAll(" +", " ");
     }
 

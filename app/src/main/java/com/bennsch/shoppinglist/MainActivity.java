@@ -43,6 +43,7 @@ import java.util.List;
 // TODO: Allow Checklists to be deleted from within NavDrawer
 // TODO: Limit number of characters for every text input
 // TODO: Make all TextFields use textColor as highlight color
+// TODO: Put all hardcoded strings to strings.xml
 // TODO: General settings:
 //          -Dynamic color seed
 // TODO: Per Checklist settings:
@@ -145,7 +146,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void showNewListDialog() {
         NewListDialog dialog =  new NewListDialog();
-        dialog.setCurrentLists(viewModel.getAllChecklistTitles().getValue());
         dialog.setDialogListener(new NewListDialog.DialogListener() {
             @Override
             public void onCreateListClicked(String title) {
