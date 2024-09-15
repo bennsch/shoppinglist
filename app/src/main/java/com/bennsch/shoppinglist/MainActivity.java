@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -24,12 +25,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 // TODO: Test dark mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
@@ -40,7 +44,6 @@ import java.util.List;
 // TODO: Update target API
 // TODO: Use old icon (shopping cart)
 // TODO: highlight action icon while delete mode is active?
-// TODO: Allow Checklists to be deleted from within NavDrawer
 // TODO: Limit number of characters for every text input
 // TODO: Make all TextFields use textColor as highlight color
 // TODO: Put all hardcoded strings to strings.xml
@@ -225,10 +228,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Menu menu = mBinding.navView.getMenu();
             for (int i = 0; i < menu.size(); i++) {
-                if (menu.getItem(i).getTitle().equals(newActiveChecklist)) {
-                    menu.getItem(i).setChecked(true);
-                    Log.d(TAG, "onActiveChecklistChanged: setChecked " + newActiveChecklist);
-                    break;
+                MenuItem item = menu.getItem(i);
+                boolean active = item.getTitle().equals(newActiveChecklist);
+                item.setChecked(active);
+                View actionView = item.getActionView();
+                if (actionView != null) {
+                    // Show ActionView only for selected checklist and hide
+                    // every other ActionView.
+                    actionView.setVisibility(active ? View.VISIBLE : View.INVISIBLE);
                 }
             }
             showChecklist(newActiveChecklist);
@@ -236,25 +243,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onChecklistTitlesChanged(List<String> newChecklistTitles) {
+        // Remove entire group and populate again with current checklist titles.
         mBinding.navView.getMenu().removeGroup(R.id.group_checklists);
         newChecklistTitles.forEach(title -> {
+            // Create new MenuItem.
             Menu menu = mBinding.navView.getMenu();
-            MenuItem newItem = menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
-            newItem.setCheckable(true);
-            if (mActiveChecklist.isInitialized()) {
-                if (mActiveChecklist.getValue() == null) {
-                    // No checklist selected yet
-                }
-                else if (mActiveChecklist.getValue().equals(title)) {
+            MenuItem menuItem = menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
+            menuItem.setCheckable(true);
+            // Add ActionView.
+            AppCompatImageButton actionView = new AppCompatImageButton(this);
+            actionView.setImageResource(R.drawable.ic_delete);
+            actionView.setBackground(null);
+            actionView.setOnClickListener(v -> showDeleteListDialog());
+            menuItem.setActionView(actionView);
+            // Highlight the currently selected checklist and hide ActionViews
+            // from all other items.
+            if (mActiveChecklist.getValue() != null) { // null if no checklist selected yet.
+                if (mActiveChecklist.getValue().equals(title)) {
                     Log.d(TAG, "onChecklistTitlesChanged: setChecked " + title);
-                    newItem.setChecked(true);
+                    menuItem.setChecked(true);
                 }else{
-                    // Do nothing
+                    actionView.setVisibility(View.INVISIBLE);
                 }
-            } else {
-                // TODO: Remove, for debugging only
-//                throw new RuntimeException("mActiveChecklist not initialized yet");
-                Log.e(TAG, "onChecklistTitlesChanged: mActiveChecklist not initialized yet!, " + newChecklistTitles);
             }
         });
     }
