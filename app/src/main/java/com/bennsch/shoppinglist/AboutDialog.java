@@ -20,7 +20,7 @@ public class AboutDialog extends DialogFragment {
                 requireActivity().getLayoutInflater());
 
         MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-        binding.aboutVersion.setText(viewModel.getVersionName());
+        binding.aboutVersion.setText("Version " + viewModel.getVersionName());
 
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
         return builder
