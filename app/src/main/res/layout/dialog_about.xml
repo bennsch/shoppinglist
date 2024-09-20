@@ -6,7 +6,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:paddingTop="@dimen/dialog_padding">
+    android:paddingTop="@dimen/dialog_padding"
+    android:paddingLeft="@dimen/dialog_padding"
+    android:paddingRight="@dimen/dialog_padding">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/about_name"
