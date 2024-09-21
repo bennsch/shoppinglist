@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-        android:paddingBottom="16dp"
+        android:paddingBottom="24dp"
         android:text="@string/app_name"/>
 
     <com.google.android.material.textview.MaterialTextView
@@ -36,11 +36,11 @@
         android:gravity="center"
         android:text="@string/git_repo_url"
         android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-        android:paddingBottom="16dp"/>
+        android:paddingBottom="24dp"/>
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         app:srcCompat="@drawable/ic_app_icon" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
