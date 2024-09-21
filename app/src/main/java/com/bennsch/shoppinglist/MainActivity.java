@@ -250,12 +250,14 @@ public class MainActivity extends AppCompatActivity {
             Menu menu = mBinding.navView.getMenu();
             MenuItem menuItem = menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
             menuItem.setCheckable(true);
-            // Add ActionView.
-            AppCompatImageButton actionView = new AppCompatImageButton(this);
-            actionView.setImageResource(R.drawable.ic_delete);
-            actionView.setBackground(null);
-            actionView.setOnClickListener(v -> showDeleteListDialog());
-            menuItem.setActionView(actionView);
+            if (GlobalConfig.DBG_SHOW_NAVDRAWER_ACTIONVIEW) {
+                // Add ActionView.
+                AppCompatImageButton actionView = new AppCompatImageButton(this);
+                actionView.setImageResource(R.drawable.ic_delete);
+                actionView.setBackground(null);
+                actionView.setOnClickListener(v -> showDeleteListDialog());
+                menuItem.setActionView(actionView);
+            }
             // Highlight the currently selected checklist and hide ActionViews
             // from all other items.
             if (mActiveChecklist.getValue() != null) { // null if no checklist selected yet.
@@ -263,7 +265,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onChecklistTitlesChanged: setChecked " + title);
                     menuItem.setChecked(true);
                 }else{
-                    actionView.setVisibility(View.INVISIBLE);
+                    View actionView = menuItem.getActionView();
+                    if (actionView != null) {
+                        menuItem.getActionView().setVisibility(View.INVISIBLE);
+                    }
                 }
             }
         });
