@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d3ff3f3c7656cf6111abfe7ee115ab1b",
+    "identityHash": "cb9f0c1ac1b71d632732622972769243",
     "entities": [
       {
         "tableName": "DbChecklist",
@@ -32,7 +32,7 @@
       },
       {
         "tableName": "DbChecklistItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `belongsToChecklist` TEXT NOT NULL, `isChecked` INTEGER NOT NULL, `position` INTEGER NOT NULL, FOREIGN KEY(`belongsToChecklist`) REFERENCES `DbChecklist`(`checklistTitle`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `belongsToChecklist` TEXT NOT NULL, `isChecked` INTEGER NOT NULL, `position` INTEGER NOT NULL, `incidence` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`belongsToChecklist`) REFERENCES `DbChecklist`(`checklistTitle`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "itemId",
@@ -63,6 +63,13 @@
             "columnName": "position",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "incidence",
+            "columnName": "incidence",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -71,7 +78,17 @@
             "itemId"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_DbChecklistItem_belongsToChecklist",
+            "unique": false,
+            "columnNames": [
+              "belongsToChecklist"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_DbChecklistItem_belongsToChecklist` ON `${TABLE_NAME}` (`belongsToChecklist`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "DbChecklist",
@@ -90,7 +107,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd3ff3f3c7656cf6111abfe7ee115ab1b')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cb9f0c1ac1b71d632732622972769243')"
     ]
   }
 }

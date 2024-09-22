@@ -39,7 +39,6 @@ import java.util.Objects;
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
 
-// TODO: Fix: [Build output]: "warning: belongsToChecklist column references a foreign key but it is not part of an index"
 // TODO: Update gradle packages
 // TODO: Update target API
 // TODO: Use old icon (shopping cart)

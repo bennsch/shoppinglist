@@ -23,8 +23,10 @@ import java.util.concurrent.Executors;
 
 @Database(
         entities = {DbChecklist.class, DbChecklistItem.class},
-        version = 2,
-        autoMigrations = {@AutoMigration(from = 1, to = 2)}
+        version = 1,
+        autoMigrations = {
+//                @AutoMigration(from = 1, to = 2)
+        }
          /*exportSchema = false*/)
 public abstract class ChecklistDatabase extends RoomDatabase {
 

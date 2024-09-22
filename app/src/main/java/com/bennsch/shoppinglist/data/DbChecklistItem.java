@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 
@@ -11,14 +12,16 @@ import androidx.room.PrimaryKey;
 // the DbChecklistItems which belong to it.
 // ForeignKey.CASCADE will make sure that if a DbChecklist is deleted/updated,
 // so are its DbChecklistItems
-@Entity(foreignKeys = {
+@Entity(indices = {
+            @Index("belongsToChecklist")},
+        foreignKeys = {
             @ForeignKey(
                 entity = DbChecklist.class,
                 parentColumns = "checklistTitle",
                 childColumns = "belongsToChecklist",
                 onDelete = ForeignKey.CASCADE,
-                onUpdate = ForeignKey.CASCADE)
-})
+                onUpdate = ForeignKey.CASCADE)}
+)
 public class DbChecklistItem {
 
     // autoGenerate: null is treated as "non-set".
