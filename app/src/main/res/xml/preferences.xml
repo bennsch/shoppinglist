@@ -1,6 +1,7 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+
     <EditTextPreference
         app:key="@string/key_complete_msg"
         app:title="List Completed Message"
@@ -11,5 +12,20 @@
         app:key="@string/key_use_dynamic_colors"
         android:title="Use Dynamic Colors"
         app:defaultValue="true"/>
+
+    <PreferenceCategory
+        app:title="Debug">
+
+        <SwitchPreferenceCompat
+            app:key="dbg_show_incidence"
+            android:title="Show Incidence"
+            app:defaultValue="false"/>
+
+        <SwitchPreferenceCompat
+            app:key="dbg_show_navdrawer_actionview"
+            android:title="Show NavDrawer ActionView"
+            app:defaultValue="false"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>
