@@ -38,6 +38,7 @@ import java.util.Objects;
 // TODO: Test dark mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
+// TODO: Test rotating the screen in a possible views
 
 // TODO: Update gradle packages
 // TODO: Update target API
@@ -54,7 +55,7 @@ import java.util.Objects;
 //          -Show suggestions
 //          -Delete list
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NewListDialog.DialogListener{
 
     private static final String TAG = "MainActivity";
 
@@ -148,21 +149,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void showNewListDialog() {
         NewListDialog dialog =  new NewListDialog();
-        dialog.setDialogListener(new NewListDialog.DialogListener() {
-            @Override
-            public void onCreateListClicked(String title) {
-                try {
-                    viewModel.insertChecklist(title);
-                } catch (IllegalArgumentException e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelClicked() {
-                // Do nothing.
-            }
-        });
         dialog.show(getSupportFragmentManager(), "NewListDialog");
     }
 
@@ -340,11 +326,26 @@ public class MainActivity extends AppCompatActivity {
             @NonNull
             @Override
             public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
+                // TODO: Handle landscape orientation
                 Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
                 mBinding.navView.setPadding(0, 0, 0, insetsNormal.bottom); // to show version number above bottom navigation bar
                 return insets;
 //                 return WindowInsetsCompat.CONSUMED;
             }
         });
+    }
+
+    @Override
+    public void newListDialogOnCreateClicked(String title) {
+        try {
+            viewModel.insertChecklist(title);
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public String newListDialogOnValidateTitle(String text) {
+        return viewModel.validateNewChecklistName(text);
     }
 }
