@@ -14,6 +14,7 @@ import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -25,21 +26,19 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
-import java.util.Objects;
 
 // TODO: Test dark mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
 // TODO: Test rotating the screen in a possible views
 
+// TODO: fix build warning: uses or overrides deprecated API
 // TODO: Update gradle packages
 // TODO: Update target API
 // TODO: Use old icon (shopping cart)
@@ -55,7 +54,10 @@ import java.util.Objects;
 //          -Show suggestions
 //          -Delete list
 
-public class MainActivity extends AppCompatActivity implements NewListDialog.DialogListener{
+public class MainActivity
+        extends AppCompatActivity
+        implements  NewListDialog.DialogListener,
+                    EditListDialog.DialogListener{
 
     private static final String TAG = "MainActivity";
 
@@ -66,6 +68,10 @@ public class MainActivity extends AppCompatActivity implements NewListDialog.Dia
     private LiveData<String> mActiveChecklist;
     private IMEHelper mIMEHelper;
     private Menu mOptionsMenu;
+
+    private interface DialogResultListener {
+        void onDialogResult(boolean result);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,8 +133,8 @@ public class MainActivity extends AppCompatActivity implements NewListDialog.Dia
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.clmenu_delete_list) {
-            showDeleteListDialog();
+        if (item.getItemId() == R.id.clmenu_edit_list) {
+            showEditListDialog();
         } else if (item.getItemId() == R.id.clmenu_delete_items) {
             this.viewModel.toggleDeleteIconsVisibility();
         }
@@ -148,12 +154,15 @@ public class MainActivity extends AppCompatActivity implements NewListDialog.Dia
     }
 
     private void showNewListDialog() {
-        NewListDialog dialog =  new NewListDialog();
-        dialog.show(getSupportFragmentManager(), "NewListDialog");
+        new NewListDialog().show(getSupportFragmentManager(), "NewListDialog");
     }
 
     private void showAboutDialog() {
         new AboutDialog().show(getSupportFragmentManager(), "AboutDialog");
+    }
+
+    private void showEditListDialog() {
+        new EditListDialog().show(getSupportFragmentManager(), "EditListDialog");
     }
 
     private void showSettingsActivity() {
@@ -161,7 +170,8 @@ public class MainActivity extends AppCompatActivity implements NewListDialog.Dia
         startActivity(intent);
     }
     
-    private void showDeleteListDialog() {
+    private void showDeleteListDialog(DialogResultListener resultListener) {
+        // TODO: also put in separate file
         MenuItem menuItem = mBinding.navView.getCheckedItem();
         if (menuItem == null) {
             // Do nothing
@@ -170,8 +180,13 @@ public class MainActivity extends AppCompatActivity implements NewListDialog.Dia
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
             builder.setTitle("Delete List")
                     .setMessage("Are you sure to delete \"" + currentList + "\"?")
-                    .setPositiveButton("Delete", (dialog, which) -> viewModel.deleteChecklist(currentList))
-                    .setNegativeButton("Cancel", (dialog, which) -> {/* Nothing to do */});
+                    .setPositiveButton("Delete", (dialog, which) -> {
+                        viewModel.deleteChecklist(currentList);
+                        resultListener.onDialogResult(true);
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        resultListener.onDialogResult(false);
+                    });
             AlertDialog dialog = builder.create();
             dialog.setOnShowListener(dialogInterface -> {
                 TypedValue typedValue = new TypedValue();
@@ -238,9 +253,9 @@ public class MainActivity extends AppCompatActivity implements NewListDialog.Dia
             if (GlobalConfig.DBG_SHOW_NAVDRAWER_ACTIONVIEW) {
                 // Add ActionView.
                 AppCompatImageButton actionView = new AppCompatImageButton(this);
-                actionView.setImageResource(R.drawable.ic_delete);
+                actionView.setImageResource(R.drawable.ic_edit);
                 actionView.setBackground(null);
-                actionView.setOnClickListener(v -> showDeleteListDialog());
+                actionView.setOnClickListener(v -> showEditListDialog());
                 menuItem.setActionView(actionView);
             }
             // Highlight the currently selected checklist and hide ActionViews
@@ -335,8 +350,9 @@ public class MainActivity extends AppCompatActivity implements NewListDialog.Dia
         });
     }
 
+    // NewListDialog.DialogListener
     @Override
-    public void newListDialogOnCreateClicked(String title) {
+    public void newListDialog_onCreateClicked(String title) {
         try {
             viewModel.insertChecklist(title);
         } catch (IllegalArgumentException e) {
@@ -345,7 +361,36 @@ public class MainActivity extends AppCompatActivity implements NewListDialog.Dia
     }
 
     @Override
-    public String newListDialogOnValidateTitle(String text) {
-        return viewModel.validateNewChecklistName(text);
+    public String newListDialog_onValidateTitle(String title) throws Exception{
+        return viewModel.validateNewChecklistName(title);
+    }
+
+    // EditListDialog.DialogListener
+    @Override
+    public void editListDialog_onSafeClicked(String oldTitle, String newTitle) throws IllegalArgumentException{
+        try {
+            viewModel.renameChecklist(oldTitle, newTitle);
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public String editListDialog_onValidateTitle(String title) throws Exception{
+        return viewModel.validateNewChecklistName(title);
+    }
+
+    @Override
+    public String editListDialog_getTitle() {
+        return mActiveChecklist.getValue();
+    }
+
+    @Override
+    public void editListDialog_onDeleteClicked(DialogFragment dialogFragment) {
+        showDeleteListDialog(result -> {
+            if (result) {
+                dialogFragment.dismiss();
+            }
+        });
     }
 }

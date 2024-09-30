@@ -141,7 +141,7 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public String validateNewChecklistName(String newTitle) {
+    public String validateNewChecklistName(String newTitle) throws IllegalArgumentException{
         String newTitleStripped = stripWhitespace(newTitle);
         List<String> currentTitles = getAllChecklistTitles().getValue();
         assert currentTitles != null;
@@ -157,7 +157,7 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public void insertChecklist(String listTitle) {
+    public void insertChecklist(String listTitle) throws IllegalArgumentException{
         String listTitleValidated = validateNewChecklistName(listTitle);
         mExecutor.execute(() -> {
             mChecklistRepo.insertChecklist(listTitleValidated);
@@ -190,16 +190,15 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    public void renameChecklist(@NonNull final String checklistTitle, @NonNull final String newTitle) {
-        String newTitleStripped = stripWhitespace(newTitle);
+    public void renameChecklist(@NonNull final String title, @NonNull final String newTitle) throws IllegalArgumentException{
         assert mChecklistTitles.getValue() != null;
-        if (mChecklistTitles.getValue().contains(newTitleStripped)) {
-            // TODO: replace with appropriate exception
-            throw new IllegalArgumentException("Checklist title '" + newTitleStripped + "' already present");
-        } else {
+        if (mChecklistTitles.getValue().contains(title)) {
+            String newTitleValidated = validateNewChecklistName(newTitle);
             mExecutor.execute(() -> {
-                mChecklistRepo.updateChecklistName(checklistTitle, newTitleStripped);
+                mChecklistRepo.updateChecklistName(title, newTitleValidated);
             });
+        } else {
+            throw new IllegalArgumentException("List \"" + title + "\" doesn't exist" );
         }
     }
 

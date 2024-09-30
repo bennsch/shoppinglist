@@ -6,28 +6,32 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
-import com.bennsch.shoppinglist.databinding.DialogNewListBinding;
+import com.bennsch.shoppinglist.databinding.DialogEditListBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Objects;
 
 
-public class NewListDialog extends DialogFragment {
+public class EditListDialog extends DialogFragment {
 
-    private static final String TAG = "NewListDialog";
+    private static final String TAG = "EditListDialog";
 
     // Using interface, because we cannot override DialogFragment constructor
     // (Fragment gets recreated on e.g. screen rotation and arguments would be lost)
     // Using "onAttach()" recommended by API doc.
     public interface DialogListener{
-        void newListDialog_onCreateClicked(String title);
-        String newListDialog_onValidateTitle(String title) throws Exception;
+        void editListDialog_onSafeClicked(String oldTitle, String newTitle);
+        void editListDialog_onDeleteClicked(DialogFragment dialogFragment);
+        String editListDialog_onValidateTitle(String title) throws Exception;
+        String editListDialog_getTitle();
     }
 
     DialogListener listener;
@@ -49,20 +53,21 @@ public class NewListDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // TODO: don't scroll ChecklistItems if IME is displayed
-        DialogNewListBinding binding = DialogNewListBinding.inflate(requireActivity().getLayoutInflater());
+        DialogEditListBinding binding = DialogEditListBinding.inflate(requireActivity().getLayoutInflater());
 
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
         builder.setView(binding.getRoot())
-                .setTitle("Create a new list")
-                .setMessage("Please enter the name of your list")
-                .setPositiveButton("Create", (dialog, which) -> {
-                    listener.newListDialog_onCreateClicked(
-                            Objects.requireNonNull(
-                                    binding.listTitle.getText()).toString());
-                })
-                .setNegativeButton("Cancel", null);
+                .setTitle("Edit")
+                .setNegativeButton("Cancel", null)
+                .setNeutralButton("Delete List", null) // OnClickListener set in onShow()
+                .setPositiveButton("Save", (dialog, which) -> {
+                    listener.editListDialog_onSafeClicked(
+                            listener.editListDialog_getTitle(),
+                            Objects.requireNonNull(binding.listTitle.getText()).toString());
+                });
         AlertDialog dialog = builder.create();
 
+        binding.listTitle.setText(listener.editListDialog_getTitle());
         binding.listTitle.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -75,7 +80,7 @@ public class NewListDialog extends DialogFragment {
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    String titleValidated = listener.newListDialog_onValidateTitle(s.toString());
+                    String titleValidated = listener.editListDialog_onValidateTitle(s.toString());
                     // TODO: This would recursively call afterTextChanged()
                     //  binding.listTitle.setText(titleValidated);
                     binding.listTitle.setError(null);
@@ -90,7 +95,20 @@ public class NewListDialog extends DialogFragment {
         dialog.setOnShowListener(dialog1 -> {
             // Disable positive button when dialog is first opened, so TextChangedListener
             // decides to enable/disable the button when user enters the first character.
-            ((AlertDialog) dialog1).getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+            ((AlertDialog) dialog1).getButton(DialogInterface.BUTTON_POSITIVE)
+                    .setEnabled(false);
+            // Add listener here to prevent the dialog from closing when the button is pressed.
+            ((AlertDialog) dialog1).getButton(DialogInterface.BUTTON_NEUTRAL)
+                    .setOnClickListener(v -> listener.editListDialog_onDeleteClicked(this));
+            // Change color of "Delete" button.
+            TypedValue typedValue = new TypedValue();
+            getContext().getTheme().resolveAttribute(com.google.android.material.R.attr.colorError, typedValue, true);
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
+                    .setTextColor(
+                            ContextCompat.getColor(
+                                    getContext(), typedValue.resourceId));
+
+
         });
         // Focus on EditText
         binding.listTitle.requestFocus();

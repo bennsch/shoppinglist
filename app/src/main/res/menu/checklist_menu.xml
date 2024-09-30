@@ -9,8 +9,8 @@
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/clmenu_delete_list"
-        android:title="Delete List" />
+        android:id="@+id/clmenu_edit_list"
+        android:title="Edit List" />
 
     <item
         android:id="@+id/clmenu_config"
