@@ -162,7 +162,8 @@ public class MainActivity
     }
 
     private void showEditListDialog() {
-        new EditListDialog().show(getSupportFragmentManager(), "EditListDialog");
+        EditListDialog.newInstance(mActiveChecklist.getValue())
+                .show(getSupportFragmentManager(), "EditListDialog");
     }
 
     private void showSettingsActivity() {
@@ -170,36 +171,6 @@ public class MainActivity
         startActivity(intent);
     }
     
-    private void showDeleteListDialog(DialogResultListener resultListener) {
-        // TODO: also put in separate file
-        MenuItem menuItem = mBinding.navView.getCheckedItem();
-        if (menuItem == null) {
-            // Do nothing
-        } else {
-            String currentList = menuItem.getTitle().toString();
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setTitle("Delete List")
-                    .setMessage("Are you sure to delete \"" + currentList + "\"?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
-                        viewModel.deleteChecklist(currentList);
-                        resultListener.onDialogResult(true);
-                    })
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        resultListener.onDialogResult(false);
-                    });
-            AlertDialog dialog = builder.create();
-            dialog.setOnShowListener(dialogInterface -> {
-                TypedValue typedValue = new TypedValue();
-                getTheme().resolveAttribute(com.google.android.material.R.attr.colorError, typedValue, true);
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setTextColor(
-                                ContextCompat.getColor(
-                                        MainActivity.this, typedValue.resourceId));
-            });
-            dialog.show();
-        }
-    }
-
     private boolean onNavDrawerItemSelected(MenuItem item){
         if (mBinding.navView.getCheckedItem() == item) {
             // Item already selected.
@@ -381,16 +352,7 @@ public class MainActivity
     }
 
     @Override
-    public String editListDialog_getTitle() {
-        return mActiveChecklist.getValue();
-    }
-
-    @Override
-    public void editListDialog_onDeleteClicked(DialogFragment dialogFragment) {
-        showDeleteListDialog(result -> {
-            if (result) {
-                dialogFragment.dismiss();
-            }
-        });
+    public void editListDialog_onDeleteClicked(String listTitle) {
+        viewModel.deleteChecklist(listTitle);
     }
 }
