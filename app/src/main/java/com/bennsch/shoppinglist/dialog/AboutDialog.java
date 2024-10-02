@@ -1,4 +1,4 @@
-package com.bennsch.shoppinglist;
+package com.bennsch.shoppinglist.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bennsch.shoppinglist.MainViewModel;
 import com.bennsch.shoppinglist.databinding.DialogAboutBinding;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 

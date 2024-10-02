@@ -1,4 +1,4 @@
-package com.bennsch.shoppinglist;
+package com.bennsch.shoppinglist.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -11,7 +11,6 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.text.AllCapsTransformationMethod;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 

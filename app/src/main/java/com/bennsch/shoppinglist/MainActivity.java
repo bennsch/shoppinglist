@@ -5,23 +5,19 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,7 +25,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.bennsch.shoppinglist.dialog.AboutDialog;
+import com.bennsch.shoppinglist.dialog.EditListDialog;
+import com.bennsch.shoppinglist.dialog.NewListDialog;
 
 import java.util.List;
 

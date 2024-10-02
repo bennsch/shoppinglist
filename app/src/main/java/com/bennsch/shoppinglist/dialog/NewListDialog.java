@@ -1,4 +1,4 @@
-package com.bennsch.shoppinglist;
+package com.bennsch.shoppinglist.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
