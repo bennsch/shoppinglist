@@ -156,7 +156,8 @@ public class MainActivity
     }
 
     private void showAboutDialog() {
-        new AboutDialog().show(getSupportFragmentManager(), "AboutDialog");
+        AboutDialog.newInstance(viewModel.getVersionName())
+                .show(getSupportFragmentManager(), "AboutDialog");
     }
 
     private void showEditListDialog() {

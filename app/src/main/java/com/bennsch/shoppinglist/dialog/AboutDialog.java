@@ -14,20 +14,35 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 
 public class AboutDialog extends DialogFragment {
+
+    private static final String ARG_VERSION_NAME = "version_name";
+
+    public static AboutDialog newInstance(String versionName) {
+        Bundle args = new Bundle();
+        args.putString(ARG_VERSION_NAME, versionName);
+        AboutDialog fragment = new AboutDialog();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Bundle args = getArguments();
+        assert args != null;
+        String versionName = getArguments().getString(ARG_VERSION_NAME);
+        assert versionName != null;
+
         @NonNull DialogAboutBinding binding = DialogAboutBinding.inflate(
                 requireActivity().getLayoutInflater());
-
-        MainViewModel viewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
-        binding.aboutVersion.setText("Version " + viewModel.getVersionName());
+        binding.aboutVersion.setText("Version " + versionName);
 
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
         return builder
                 .setView(binding.getRoot())
                 // TODO: use string resource for "Close"
-                .setNegativeButton("Close", (dlg, id) -> AboutDialog.this.getDialog().cancel())
+                .setNegativeButton("Close", null)
                 .create();
     }
+
 }
