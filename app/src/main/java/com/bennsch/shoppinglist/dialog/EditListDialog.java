@@ -76,10 +76,13 @@ public class EditListDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // TODO: don't scroll ChecklistItems if IME is displayed
-        DialogEditListBinding binding = DialogEditListBinding.inflate(requireActivity().getLayoutInflater());
 
-        String listTitle = getArguments().getString(ARG_LIST_TITLE, null);
+        Bundle args = getArguments();
+        assert args != null;
+        String listTitle = getArguments().getString(ARG_LIST_TITLE);
         assert listTitle != null;
+
+        DialogEditListBinding binding = DialogEditListBinding.inflate(requireActivity().getLayoutInflater());
 
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
         builder.setView(binding.getRoot())
@@ -106,9 +109,7 @@ public class EditListDialog extends DialogFragment {
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    String titleValidated = listener.editListDialog_onValidateTitle(s.toString());
-                    // TODO: This would recursively call afterTextChanged()
-                    //  binding.listTitle.setText(titleValidated);
+                    listener.editListDialog_onValidateTitle(s.toString());
                     binding.listTitle.setError(null);
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                 }catch (Exception e){
@@ -150,7 +151,6 @@ public class EditListDialog extends DialogFragment {
                     dismiss(); // Dismiss EditListDialog.
                 });
         confirmationDialog = builder.create();
-
         // Change color of "Delete" button.
         confirmationDialog.setOnShowListener(
                 d -> setButtonTextColor(

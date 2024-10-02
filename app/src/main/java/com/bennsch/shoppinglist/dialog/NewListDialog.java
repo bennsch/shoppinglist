@@ -27,7 +27,7 @@ public class NewListDialog extends DialogFragment {
     // Using "onAttach()" recommended by API doc.
     public interface DialogListener{
         void newListDialog_onCreateClicked(String title);
-        String newListDialog_onValidateTitle(String title) throws Exception;
+        void newListDialog_onValidateTitle(String title) throws Exception;
     }
 
     DialogListener listener;
@@ -49,6 +49,7 @@ public class NewListDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // TODO: don't scroll ChecklistItems if IME is displayed
+        // TODO: "Create" button will be disabled after screen is rotated
         DialogNewListBinding binding = DialogNewListBinding.inflate(requireActivity().getLayoutInflater());
 
         AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
@@ -75,9 +76,7 @@ public class NewListDialog extends DialogFragment {
             @Override
             public void afterTextChanged(Editable s) {
                 try {
-                    String titleValidated = listener.newListDialog_onValidateTitle(s.toString());
-                    // TODO: This would recursively call afterTextChanged()
-                    //  binding.listTitle.setText(titleValidated);
+                    listener.newListDialog_onValidateTitle(s.toString());
                     binding.listTitle.setError(null);
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                 }catch (Exception e){

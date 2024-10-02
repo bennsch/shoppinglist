@@ -67,9 +67,6 @@ public class MainActivity
     private IMEHelper mIMEHelper;
     private Menu mOptionsMenu;
 
-    private interface DialogResultListener {
-        void onDialogResult(boolean result);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,25 +148,6 @@ public class MainActivity
         }
     }
 
-    private void showNewListDialog() {
-        new NewListDialog().show(getSupportFragmentManager(), "NewListDialog");
-    }
-
-    private void showAboutDialog() {
-        AboutDialog.newInstance(viewModel.getVersionName())
-                .show(getSupportFragmentManager(), "AboutDialog");
-    }
-
-    private void showEditListDialog() {
-        EditListDialog.newInstance(mActiveChecklist.getValue())
-                .show(getSupportFragmentManager(), "EditListDialog");
-    }
-
-    private void showSettingsActivity() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
-    }
-    
     private boolean onNavDrawerItemSelected(MenuItem item){
         if (mBinding.navView.getCheckedItem() == item) {
             // Item already selected.
@@ -277,6 +255,11 @@ public class MainActivity
 
     }
 
+    private void showSettingsActivity() {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
     private void setupNavDrawer() {
         mBinding.navView.setNavigationItemSelectedListener(this::onNavDrawerItemSelected);
         // drawer layout instance to toggle the menu icon to
@@ -320,7 +303,21 @@ public class MainActivity
         });
     }
 
-    // NewListDialog.DialogListener
+    private void showNewListDialog() {
+        new NewListDialog()
+                .show(getSupportFragmentManager(), "NewListDialog");
+    }
+
+    private void showAboutDialog() {
+        AboutDialog.newInstance(viewModel.getVersionName())
+                .show(getSupportFragmentManager(), "AboutDialog");
+    }
+
+    private void showEditListDialog() {
+        EditListDialog.newInstance(mActiveChecklist.getValue())
+                .show(getSupportFragmentManager(), "EditListDialog");
+    }
+
     @Override
     public void newListDialog_onCreateClicked(String title) {
         try {
@@ -331,11 +328,10 @@ public class MainActivity
     }
 
     @Override
-    public String newListDialog_onValidateTitle(String title) throws Exception{
-        return viewModel.validateNewChecklistName(title);
+    public void newListDialog_onValidateTitle(String title) throws Exception{
+        viewModel.validateNewChecklistName(title);
     }
 
-    // EditListDialog.DialogListener
     @Override
     public void editListDialog_onSafeClicked(String oldTitle, String newTitle) throws IllegalArgumentException{
         try {
