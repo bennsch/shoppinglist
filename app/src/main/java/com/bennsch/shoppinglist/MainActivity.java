@@ -36,6 +36,7 @@ import java.util.List;
 // TODO: test device rotation
 // TODO: Test rotating the screen in a possible views
 
+// TODO: Disable "Delete" button when list is empty (maybe via Viewmodel?)
 // TODO: fix build warning: uses or overrides deprecated API
 // TODO: Update gradle packages
 // TODO: Update target API

@@ -10,10 +10,7 @@
 
     <item
         android:id="@+id/clmenu_edit_list"
+        android:icon="@drawable/ic_edit"
+        app:showAsAction="never"
         android:title="Edit List" />
-
-    <item
-        android:id="@+id/clmenu_config"
-        android:title="List Settings"
-        android:enabled="false"/>
 </menu>
