@@ -151,19 +151,20 @@ public class MainActivity
     private boolean onNavDrawerItemSelected(MenuItem item){
         if (mBinding.navView.getCheckedItem() == item) {
             // Item already selected.
+        } else if (item.getGroupId() == R.id.group_checklists) {
+            // A list has been selected
+            viewModel.setActiveChecklist(item.getTitle().toString());
+            mBinding.drawerLayout.close();
+        } else if (item.getItemId() == R.id.nav_new_list) {
+            showNewListDialog();
+            mBinding.drawerLayout.close();
+        } else if (item.getItemId() == R.id.nav_about) {
+            showAboutDialog();
+        } else if (item.getItemId() == R.id.nav_settings) {
+            showSettingsActivity();
+        } else {
+            assert false;
         }
-        else {
-            if (item.getGroupId() == R.id.group_checklists) {
-                viewModel.setActiveChecklist(item.getTitle().toString());
-            } else if (item.getItemId() == R.id.nav_new_list) {
-                showNewListDialog();
-            } else if (item.getItemId() == R.id.nav_about) {
-                showAboutDialog();
-            } else if (item.getItemId() == R.id.nav_settings) {
-                showSettingsActivity();
-            }
-        }
-        mBinding.drawerLayout.close();
         // Return false to not display the item as checked
         // (will be handled in onActiveChecklistChanged())
         return false;
