@@ -84,6 +84,10 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Query("SELECT * FROM DbChecklist WHERE active == 1")
         LiveData<DbChecklist> getActiveChecklist();
 
+        // Returns 0 if list is empty
+        @Query("SELECT MIN(incidence) FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
+        long getMinIncidence(@NonNull final String listTitle);
+
         @Transaction
         default void insertAndUpdate(DbChecklistItem itemToInsert, List<DbChecklistItem> itemsToUpdate) {
             // Use Transaction so that multiple Queries will result in only one LiveData event.

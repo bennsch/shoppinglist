@@ -222,14 +222,22 @@ public class MainViewModel extends AndroidViewModel {
                 DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), strippedName);
                 if (dbItem == null){
                     // Item does not exist in database. Insert a new item.
-                    List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
+
+                    // A new item will have the lowest incidence.
+                    long incidence = mChecklistRepo.getMinIncidence(listTitle) - 1;
                     // TODO: maybe don't use integral type for 'position', so that undefined position is allowed
-                    DbChecklistItem newDbItem = new DbChecklistItem(strippedName, isChecked, 0, listTitle, 0);
+                    DbChecklistItem newDbItem = new DbChecklistItem(
+                            strippedName, isChecked, 0, listTitle, incidence);
+
+                    List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
                     dbItems.add(newDbItem);
+
+                    // TODO: is this really necessary?
                     if (isChecked) {
                         sortByIncidenceDescending(dbItems);
                     }
                     updatePositionByOrder(dbItems);
+
                     Log.d(TAG, "insertItem: \"" + newDbItem.getName() + "\"");
                     mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
                 } else {

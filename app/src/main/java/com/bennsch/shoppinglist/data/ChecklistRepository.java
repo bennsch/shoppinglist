@@ -88,6 +88,11 @@ public class ChecklistRepository {
         return mItemDao.getItemsFromChecklist(listTitle);
     }
 
+    public long getMinIncidence(@NonNull String listTitle) {
+        // Returns 0 if list is empty
+        return mItemDao.getMinIncidence(listTitle);
+    }
+
     public LiveData<List<DbChecklistItem>> getAllItemsLiveData(@NonNull final String listTitle) {
         return mItemDao.getItemsFromChecklistLiveData(listTitle);
     }
