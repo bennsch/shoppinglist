@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -40,7 +41,7 @@ public class ChecklistFragment extends Fragment {
     private boolean mDisplayChecked;
     private String mListTitle;
     private MainViewModel mViewModel;
-
+    private LiveData<Boolean> mIsDeleteItemsActive;
 
     public ChecklistFragment() {
         // Required empty public constructor
@@ -85,7 +86,8 @@ public class ChecklistFragment extends Fragment {
             mBinding.emptyListPlaceholderUnchecked.setText(s);
         });
 
-        mViewModel.getDeleteIconsVisible().observe(
+        mIsDeleteItemsActive = mViewModel.getDeleteItemsActive();
+        mIsDeleteItemsActive.observe(
                 getViewLifecycleOwner(),
                 this::onDeleteIconsVisibilityChanged);
 
@@ -129,15 +131,16 @@ public class ChecklistFragment extends Fragment {
     }
 
     private void onItemClicked(ChecklistItem item, int position) {
-        if (mViewModel.isDeleteIconVisible()) {
-            vibrate();
-        } else {
+        // User cannot flip items while "DeleteItems" is active.
+        if (mIsDeleteItemsActive.getValue() == null || !mIsDeleteItemsActive.getValue()) {
             mViewModel.flipItem(mListTitle, mDisplayChecked, item);
+        } else {
+            vibrate();
         }
     }
 
     private void onItemLongClicked(ChecklistItem item, int position) {
-        mViewModel.toggleDeleteIconsVisibility();
+        mViewModel.toggleDeleteItemsActive();
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
@@ -208,10 +211,13 @@ public class ChecklistFragment extends Fragment {
             } else {
                 textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
-            holder.getBinding().deleteIcon.setVisibility(
-                    mViewModel.isDeleteIconVisible() ? View.VISIBLE : View.GONE);
-            holder.getBinding().dragHandle.setVisibility(
-                    !mViewModel.isDeleteIconVisible() ? View.VISIBLE : View.GONE);
+
+            holder.getBinding().deleteIcon.setVisibility((mIsDeleteItemsActive.getValue() == null ||
+                    !mIsDeleteItemsActive.getValue())
+                    ? View.GONE : View.VISIBLE);
+            holder.getBinding().dragHandle.setVisibility((mIsDeleteItemsActive.getValue() == null ||
+                    !mIsDeleteItemsActive.getValue())
+                    ? View.VISIBLE : View.GONE);
         }
 
         @Override

@@ -19,7 +19,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -71,7 +70,8 @@ public class MainActivity
     private MainViewModel viewModel;
     // getValue() is null if no checklist selected yet
     private LiveData<String> mActiveChecklist;
-    private LiveData<Boolean> mDeleteIconsVisible;
+    private LiveData<Boolean> mIsDeleteItemsActive;
+    private LiveData<Boolean> mIsChecklistEmpty;
     private IMEHelper mIMEHelper;
 
 
@@ -95,8 +95,8 @@ public class MainActivity
         this.viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
-        mDeleteIconsVisible = viewModel.getDeleteIconsVisible();
-        mDeleteIconsVisible.observe(this, isVisible -> {
+        mIsDeleteItemsActive = viewModel.getDeleteItemsActive();
+        mIsDeleteItemsActive.observe(this, isVisible -> {
             // Will trigger onPrepareOptionsMenu() callback.
             invalidateMenu();
         });
@@ -113,17 +113,25 @@ public class MainActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        Boolean isVisible = mDeleteIconsVisible.getValue();
+        Log.d(TAG, "onPrepareOptionsMenu: ");
+        Boolean isVisible = mIsDeleteItemsActive.getValue();
         if (isVisible == null) {
             isVisible = false;
         }
         MenuItem menuItem = menu.findItem(R.id.clmenu_delete_items);
         assert menuItem != null;
-            Drawable icon = ContextCompat.getDrawable(this,
-                    isVisible ? R.drawable.ic_not_delete : R.drawable.ic_delete);
-            assert icon != null;
-            icon.setTint(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
-            menuItem.setIcon(icon);
+
+        Drawable icon = ContextCompat.getDrawable(this,
+                isVisible ? R.drawable.ic_not_delete : R.drawable.ic_delete);
+        assert icon != null;
+        if (mIsChecklistEmpty == null || mIsChecklistEmpty.getValue() == null || !mIsChecklistEmpty.getValue()) {
+            menuItem.setEnabled(true);
+        } else {
+            menuItem.setEnabled(false);
+            icon.setAlpha(100);
+        }
+        icon.setTint(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
+        menuItem.setIcon(icon);
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -147,7 +155,7 @@ public class MainActivity
         if (item.getItemId() == R.id.clmenu_edit_list) {
             showEditListDialog();
         } else if (item.getItemId() == R.id.clmenu_delete_items) {
-            this.viewModel.toggleDeleteIconsVisibility();
+            this.viewModel.toggleDeleteItemsActive();
         }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);
@@ -157,8 +165,8 @@ public class MainActivity
         Log.d(TAG, "handleOnBackPressed: ");
         if (mBinding.drawerLayout.isOpen()) {
             mBinding.drawerLayout.close();
-        } else if (viewModel.isDeleteIconVisible()) {
-            viewModel.toggleDeleteIconsVisibility();
+        } else if (mIsDeleteItemsActive.getValue() != null && mIsDeleteItemsActive.getValue()) {
+            viewModel.toggleDeleteItemsActive();
         } else {
             finish();
         }
@@ -203,6 +211,8 @@ public class MainActivity
                     actionView.setVisibility(active ? View.VISIBLE : View.INVISIBLE);
                 }
             }
+            mIsChecklistEmpty = viewModel.isChecklistEmpty(newActiveChecklist);
+            mIsChecklistEmpty.observe(this, empty -> {invalidateMenu();});
             showChecklist(newActiveChecklist);
         }
     }

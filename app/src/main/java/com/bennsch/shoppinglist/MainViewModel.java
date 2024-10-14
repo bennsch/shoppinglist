@@ -45,7 +45,7 @@ public class MainViewModel extends AndroidViewModel {
     private final ChecklistRepository mChecklistRepo;
     private final PreferencesRepository mPreferencesRepo;
     private final LiveData<List<String>> mChecklistTitles;
-    private final MutableLiveData<Boolean> mDeleteIconsVisible;
+    private final MutableLiveData<Boolean> mDeleteItemsActive;
 
 
     public MainViewModel(@NonNull Application application) {
@@ -54,7 +54,7 @@ public class MainViewModel extends AndroidViewModel {
         mChecklistRepo = new ChecklistRepository(application);
         mPreferencesRepo = PreferencesRepository.getInstance(application);
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
-        mDeleteIconsVisible = new MutableLiveData<>(false);
+        mDeleteItemsActive = new MutableLiveData<>(false);
     }
 
     @NonNull
@@ -74,29 +74,15 @@ public class MainViewModel extends AndroidViewModel {
         return mPreferencesRepo.getPrefMessageListDeleted();
     }
 
-//    @NonNull
-//    public String getAppName() {
-//        return getApplication()
-//                .getApplicationInfo()
-//                .loadLabel(getApplication().getPackageManager())
-//                .toString();
-//    }
-
-    public void toggleDeleteIconsVisibility() {
-        Boolean visible = mDeleteIconsVisible.getValue();
+    public void toggleDeleteItemsActive() {
+        Boolean visible = mDeleteItemsActive.getValue();
         assert visible != null;
         visible = !visible;
-        mDeleteIconsVisible.postValue(visible);
+        mDeleteItemsActive.postValue(visible);
     }
 
-    public LiveData<Boolean> getDeleteIconsVisible() {
-        return mDeleteIconsVisible;
-    }
-
-    public boolean isDeleteIconVisible() {
-        Boolean visible = mDeleteIconsVisible.getValue();
-        assert visible != null;
-        return visible;
+    public LiveData<Boolean> getDeleteItemsActive() {
+        return mDeleteItemsActive;
     }
 
     public void setActiveChecklist(String checklistTitle) {

@@ -111,4 +111,8 @@ public class ChecklistRepository {
 //                mItemDao.getItemsSortedByPositionLiveData(listTitle, isChecked));
         return mItemDao.getItemsSortedByPositionLiveData(listTitle, isChecked);
     }
+
+    public LiveData<Integer> getItemsFromChecklistCount(@NonNull final String listTitle) {
+        return mItemDao.getItemsFromChecklistCount(listTitle);
+    }
 }
