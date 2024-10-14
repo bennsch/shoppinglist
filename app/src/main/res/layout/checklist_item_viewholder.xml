@@ -53,7 +53,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:srcCompat="@drawable/ic_drag_handle"
-            android:tint="?colorOutline"/>
+            android:tint="?colorOutline"
+            android:alpha="0.6"/>
 
     </FrameLayout>
 

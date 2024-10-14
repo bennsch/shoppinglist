@@ -2,11 +2,13 @@ package com.bennsch.shoppinglist;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
@@ -16,8 +18,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,6 +41,7 @@ import java.util.List;
 // TODO: test device rotation
 // TODO: Test rotating the screen in a possible views
 
+// TODO: darker color for FAB and TextField in dark mode
 // TODO: Disable "Delete" button when list is empty (maybe via Viewmodel?)
 // TODO: fix build warning: uses or overrides deprecated API
 // TODO: Update gradle packages
@@ -65,8 +71,8 @@ public class MainActivity
     private MainViewModel viewModel;
     // getValue() is null if no checklist selected yet
     private LiveData<String> mActiveChecklist;
+    private LiveData<Boolean> mDeleteIconsVisible;
     private IMEHelper mIMEHelper;
-    private Menu mOptionsMenu;
 
 
     @Override
@@ -89,17 +95,10 @@ public class MainActivity
         this.viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
-        this.viewModel.getDeleteIconsVisible().observe(this, isVisible -> {
-            if (mOptionsMenu != null) {
-                MenuItem menuItem = mOptionsMenu.findItem(R.id.clmenu_delete_items);
-                if (menuItem != null) {
-                    if (isVisible) {
-                        menuItem.setIcon(R.drawable.ic_not_delete);
-                    } else {
-                        menuItem.setIcon(R.drawable.ic_delete);
-                    }
-                }
-            }
+        mDeleteIconsVisible = viewModel.getDeleteIconsVisible();
+        mDeleteIconsVisible.observe(this, isVisible -> {
+            // Will trigger onPrepareOptionsMenu() callback.
+            invalidateMenu();
         });
 
         mBinding.versionLabel.setText("v" + viewModel.getVersionName());
@@ -113,6 +112,23 @@ public class MainActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        Boolean isVisible = mDeleteIconsVisible.getValue();
+        if (isVisible == null) {
+            isVisible = false;
+        }
+        MenuItem menuItem = menu.findItem(R.id.clmenu_delete_items);
+        assert menuItem != null;
+            Drawable icon = ContextCompat.getDrawable(this,
+                    isVisible ? R.drawable.ic_not_delete : R.drawable.ic_delete);
+            assert icon != null;
+            icon.setTint(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
+            menuItem.setIcon(icon);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         // avoid starting with arrow in toolbar
         this.actionBarDrawerToggle.syncState();
@@ -121,7 +137,6 @@ public class MainActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        mOptionsMenu = menu;
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.checklist_menu, menu);
         return true;
@@ -204,6 +219,7 @@ public class MainActivity
                 // Add ActionView.
                 AppCompatImageButton actionView = new AppCompatImageButton(this);
                 actionView.setImageResource(R.drawable.ic_edit);
+                actionView.setColorFilter(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
                 actionView.setBackground(null);
                 actionView.setOnClickListener(v -> showEditListDialog());
                 menuItem.setActionView(actionView);
@@ -351,5 +367,12 @@ public class MainActivity
     @Override
     public void editListDialog_onDeleteClicked(String listTitle) {
         viewModel.deleteChecklist(listTitle);
+    }
+
+    @ColorInt
+    private int getColorFromRes(int resId){
+        TypedValue typedValue = new TypedValue();
+        getTheme().resolveAttribute(resId, typedValue, true);
+        return ContextCompat.getColor(this, typedValue.resourceId);
     }
 }

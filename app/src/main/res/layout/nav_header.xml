@@ -15,7 +15,8 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         app:srcCompat="@drawable/ic_app_icon"
-        android:tint="?colorOnBackground" />
+        android:alpha="0.8"
+        android:tint="?colorOnBackground"/>
 <!-- TODO: why is the color not as black as the text?   -->
 
     <TextView

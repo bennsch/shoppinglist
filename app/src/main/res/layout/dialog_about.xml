@@ -41,6 +41,8 @@
     <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="48dp"
         android:layout_height="48dp"
+        app:tint="@color/md_theme_onBackground"
+        android:alpha="0.8"
         app:srcCompat="@drawable/ic_app_icon" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>
