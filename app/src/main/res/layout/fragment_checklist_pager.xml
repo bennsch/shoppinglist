@@ -77,6 +77,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_add"
+            app:tint="?colorOnPrimaryContainer"
             app:maxImageSize="28dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
