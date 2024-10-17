@@ -40,7 +40,12 @@ import java.util.List;
 // TODO: test device rotation
 // TODO: Test rotating the screen in a possible views
 
+// TODO: Use MainViewModel and ChecklistViewModel (contains all functions and store temporary data
+//  specific to one Checklist). MainActivity would instantiate two ViewModels
+// TODO: On real device, ic_delete is sometimes falsely shown with alpha:
+//  Use separate Drawable instead of applying alpha?
 // TODO: darker color for FAB and TextField in dark mode
+// TODO: Handle integer overflow for incidence
 // TODO: Disable "Delete" button when list is empty (maybe via Viewmodel?)
 // TODO: fix build warning: uses or overrides deprecated API
 // TODO: Update gradle packages
@@ -126,6 +131,7 @@ public class MainActivity
         assert icon != null;
         if (mIsChecklistEmpty == null || mIsChecklistEmpty.getValue() == null || !mIsChecklistEmpty.getValue()) {
             menuItem.setEnabled(true);
+            icon.setAlpha(255);
         } else {
             menuItem.setEnabled(false);
             icon.setAlpha(100);
