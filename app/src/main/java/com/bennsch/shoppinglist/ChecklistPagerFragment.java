@@ -52,7 +52,6 @@ public class ChecklistPagerFragment extends Fragment {
     private String mListTitle;
     private OnBackPressedCallback mOnBackPressedCallback;
     private IMEHelper mIMEHelper;
-    private LiveData<Boolean> mIsDeleteItemsActive;
 
 
     public ChecklistPagerFragment() {
@@ -78,8 +77,6 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
 //        mBinding.viewpager.setPageTransformer(new FanTransformer());
         mBinding.fab.setOnClickListener(view -> this.onFabClicked());
-
-        mIsDeleteItemsActive = mViewModel.getDeleteItemsActive();
 
         mViewModel.isChecklistEmpty(mListTitle)
                 .observe(getViewLifecycleOwner(), this::onChecklistEmptyChanged);
@@ -258,10 +255,6 @@ public class ChecklistPagerFragment extends Fragment {
             // Change ViewPager page so that the first item will be added to "Unchecked".
             mBinding.viewpager.setCurrentItem(ViewPagerAdapter.POS_UNCHECKED);
             Log.d(TAG, "onChecklistEmptyChanged: " + isCurrentPageChecked());
-            // TODO: This has to be done in ViewModel!
-            if (mIsDeleteItemsActive.getValue() != null && mIsDeleteItemsActive.getValue()) {
-                mViewModel.toggleDeleteItemsActive();
-            }
         } else {
             mBinding.emptyListPlaceholderBoth.setVisibility(View.GONE);
             mBinding.viewpager.setVisibility(View.VISIBLE);

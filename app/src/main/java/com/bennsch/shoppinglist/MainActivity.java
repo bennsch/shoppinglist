@@ -75,8 +75,7 @@ public class MainActivity
     private MainViewModel viewModel;
     // getValue() is null if no checklist selected yet
     private LiveData<String> mActiveChecklist;
-    private LiveData<Boolean> mIsDeleteItemsActive;
-    private LiveData<Boolean> mIsChecklistEmpty;
+    private LiveData<MainViewModel.DeleteItemsState> mDeleteItemsState;
     private IMEHelper mIMEHelper;
 
 
@@ -100,12 +99,6 @@ public class MainActivity
         this.viewModel = new ViewModelProvider(this).get(MainViewModel.class);
         viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
 
-        mIsDeleteItemsActive = viewModel.getDeleteItemsActive();
-        mIsDeleteItemsActive.observe(this, isVisible -> {
-            // Will trigger onPrepareOptionsMenu() callback.
-            invalidateMenu();
-        });
-
         mBinding.versionLabel.setText("v" + viewModel.getVersionName());
 
         mActiveChecklist = viewModel.getActiveChecklist();
@@ -119,26 +112,29 @@ public class MainActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         Log.d(TAG, "onPrepareOptionsMenu: ");
-        Boolean isVisible = mIsDeleteItemsActive.getValue();
-        if (isVisible == null) {
-            isVisible = false;
+        if (mDeleteItemsState != null && mDeleteItemsState.isInitialized()) {
+            MenuItem menuItem = menu.findItem(R.id.clmenu_delete_items);
+            assert menuItem != null;
+            Drawable icon = null;
+            switch (mDeleteItemsState.getValue()) {
+                case ACTIVE:
+                    icon = ContextCompat.getDrawable(this, R.drawable.ic_not_delete);
+                    icon.setAlpha(255);
+                    menuItem.setEnabled(true);
+                    break;
+                case INACTIVE:
+                    icon = ContextCompat.getDrawable(this, R.drawable.ic_delete);
+                    icon.setAlpha(255);
+                    menuItem.setEnabled(true);
+                    break;
+                case DISABLED:
+                    icon = ContextCompat.getDrawable(this, R.drawable.ic_delete);
+                    icon.setAlpha(100);
+                    menuItem.setEnabled(false);
+            }
+            icon.setTint(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
+            menuItem.setIcon(icon);
         }
-        MenuItem menuItem = menu.findItem(R.id.clmenu_delete_items);
-        assert menuItem != null;
-
-        Drawable icon = ContextCompat.getDrawable(this,
-                isVisible ? R.drawable.ic_not_delete : R.drawable.ic_delete);
-        assert icon != null;
-        if (mIsChecklistEmpty == null || mIsChecklistEmpty.getValue() == null || !mIsChecklistEmpty.getValue()) {
-            menuItem.setEnabled(true);
-            icon.setAlpha(255);
-        } else {
-            menuItem.setEnabled(false);
-            icon.setAlpha(100);
-        }
-        icon.setTint(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
-        menuItem.setIcon(icon);
-
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -161,7 +157,7 @@ public class MainActivity
         if (item.getItemId() == R.id.clmenu_edit_list) {
             showEditListDialog();
         } else if (item.getItemId() == R.id.clmenu_delete_items) {
-            this.viewModel.toggleDeleteItemsActive();
+            viewModel.toggleDeleteItemsState(mActiveChecklist.getValue());
         }
         // Open navigation drawer if toolbar icon is clicked.
         return this.actionBarDrawerToggle.onOptionsItemSelected(item);
@@ -171,8 +167,8 @@ public class MainActivity
         Log.d(TAG, "handleOnBackPressed: ");
         if (mBinding.drawerLayout.isOpen()) {
             mBinding.drawerLayout.close();
-        } else if (mIsDeleteItemsActive.getValue() != null && mIsDeleteItemsActive.getValue()) {
-            viewModel.toggleDeleteItemsActive();
+        } else if (mDeleteItemsState.getValue() == MainViewModel.DeleteItemsState.ACTIVE) {
+            viewModel.toggleDeleteItemsState(mActiveChecklist.getValue());
         } else {
             finish();
         }
@@ -217,8 +213,18 @@ public class MainActivity
                     actionView.setVisibility(active ? View.VISIBLE : View.INVISIBLE);
                 }
             }
-            mIsChecklistEmpty = viewModel.isChecklistEmpty(newActiveChecklist);
-            mIsChecklistEmpty.observe(this, empty -> {invalidateMenu();});
+
+            mDeleteItemsState = viewModel.getDeleteItemsState(newActiveChecklist);
+            mDeleteItemsState.observe(this, isVisible -> {
+                // Will trigger onPrepareOptionsMenu() callback.
+                invalidateMenu();
+            });
+            // TODO: Should this be done in ViewModel? No, because ViewModel
+            //  doesn't know that GUI might display multiple lists.
+            // Deactivate if user switched to a different list.
+            if (mDeleteItemsState.getValue() == MainViewModel.DeleteItemsState.ACTIVE) {
+                viewModel.toggleDeleteItemsState(mActiveChecklist.getValue());
+            }
             showChecklist(newActiveChecklist);
         }
     }
