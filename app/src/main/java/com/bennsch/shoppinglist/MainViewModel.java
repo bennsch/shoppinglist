@@ -7,9 +7,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
 import com.bennsch.shoppinglist.data.ChecklistRepository;
@@ -37,10 +39,50 @@ public class MainViewModel extends AndroidViewModel {
     // All the app's business logic should be handled in the ViewModel.
     // It's the interface between data and UI.
 
-    public enum DeleteItemsState {
-        DISABLED,
-        ACTIVE,
-        INACTIVE
+
+    public static class DeleteItemsState{
+
+        public enum State {
+            DISABLED,
+            ACTIVE,
+            INACTIVE
+        }
+
+        private MediatorLiveData<State> mState;
+
+        public DeleteItemsState(LiveData<Boolean> isListEmpty) {
+            mState = new MediatorLiveData<>(State.INACTIVE);
+            mState.addSource(isListEmpty, empty -> mState.setValue(
+                    empty ? State.DISABLED : State.INACTIVE));
+        }
+
+        @NonNull
+        public State getState() {
+            State state = mState.getValue();
+            assert state != null; // Should never be null since we initialize mState in ctor.
+            return state;
+        }
+
+        public void observe(@NonNull LifecycleOwner owner,
+                            @NonNull Observer<? super State> observer) {
+            mState.observe(owner, observer);
+        }
+
+        public void toggle() {
+            if (mState.getValue() == State.ACTIVE) {
+                mState.setValue(State.INACTIVE);
+            } else if (mState.getValue() == State.INACTIVE) {
+                mState.setValue(State.ACTIVE);
+            } else {
+                // Cannot toggle if disabled or null
+            }
+        }
+
+        public void deactivate() {
+            if (mState.getValue() == State.ACTIVE) {
+                mState.setValue(State.INACTIVE);
+            }
+        }
     }
 
     public static final int AUTOCOMPLETE_THRESHOLD = 0;
@@ -53,7 +95,9 @@ public class MainViewModel extends AndroidViewModel {
     private final ChecklistRepository mChecklistRepo;
     private final PreferencesRepository mPreferencesRepo;
     private final LiveData<List<String>> mChecklistTitles;
-    private final Map<String, MutableLiveData<DeleteItemsState>> mDeleteItemsState;
+    // Store the state in the ViewModel instance (instead of Database), because
+    // we don't want to keep the state when the App is closed.
+    private final Map<String, DeleteItemsState> mDeleteItemsStates;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -61,37 +105,18 @@ public class MainViewModel extends AndroidViewModel {
         mChecklistRepo = new ChecklistRepository(application);
         mPreferencesRepo = PreferencesRepository.getInstance(application);
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
-        mDeleteItemsState = new HashMap<>();
+        mDeleteItemsStates = new HashMap<>();
     }
 
     @NonNull
-    public LiveData<DeleteItemsState> getDeleteItemsState(String listTitle) {
-        return getDelItemState(listTitle);
-    }
-
-    public void toggleDeleteItemsState(String listTitle) {
-        MutableLiveData<DeleteItemsState> state = getDelItemState(listTitle);
-        DeleteItemsState val = state.getValue();
-        assert val != null;
-        if (val == DeleteItemsState.ACTIVE) {
-            state.setValue(DeleteItemsState.INACTIVE);
-        } else if (val == DeleteItemsState.INACTIVE) {
-            state.setValue(DeleteItemsState.ACTIVE);
+    public DeleteItemsState getDeleteItemsState(String listTitle) {
+        if (mDeleteItemsStates.containsKey(listTitle)) {
+            return mDeleteItemsStates.get(listTitle);
         } else {
-            // Cannot toggle if state is DISABLED.
+            DeleteItemsState state = new DeleteItemsState(isChecklistEmpty(listTitle));
+            mDeleteItemsStates.put(listTitle, state);
+            return state;
         }
-    }
-
-    @NonNull
-    private MutableLiveData<DeleteItemsState> getDelItemState(String listTitle) {
-        if (!mDeleteItemsState.containsKey(listTitle)) {
-            MediatorLiveData<DeleteItemsState> state =
-                    new MediatorLiveData<>(DeleteItemsState.INACTIVE);
-            state.addSource(isChecklistEmpty(listTitle), empty -> state.setValue(
-                    empty ? DeleteItemsState.DISABLED : DeleteItemsState.INACTIVE));
-            mDeleteItemsState.put(listTitle, state);
-        }
-        return mDeleteItemsState.get(listTitle);
     }
 
     @NonNull
