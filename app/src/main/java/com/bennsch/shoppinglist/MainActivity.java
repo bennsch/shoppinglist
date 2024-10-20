@@ -133,6 +133,10 @@ public class MainActivity
             menuItem.getIcon()
                     .setTint(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
         }
+
+        // Hide toolbar icons if no Checklist is active.
+        menu.setGroupVisible(0, mActiveChecklist.getValue() != null);
+
         // Return true for the menu to be displayed.
         return true;
     }
@@ -280,8 +284,7 @@ public class MainActivity
                             new NoListsFragment())
                     .commit();
             mBinding.toolbar.setTitle("");
-            // TODO: what if there's more than one group?
-            mBinding.toolbar.getMenu().setGroupVisible(0, false);
+            invalidateMenu();
         } else {
             getSupportFragmentManager().beginTransaction()
                     //.setCustomAnimations(R.anim.slide, R.anim.slide)
@@ -291,9 +294,7 @@ public class MainActivity
                             ChecklistPagerFragment.makeArgs(listTitle))
                     .commit();
             mBinding.toolbar.setTitle(listTitle);
-            mBinding.toolbar.getMenu().setGroupVisible(0, true);
         }
-
     }
 
     private void showSettingsActivity() {
