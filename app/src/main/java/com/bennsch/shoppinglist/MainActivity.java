@@ -44,10 +44,8 @@ import java.util.List;
 //  specific to one Checklist)?. MainActivity would instantiate two ViewModels
 // TODO: darker color for FAB and TextField in dark mode
 // TODO: Handle integer overflow for incidence
-// TODO: Disable "Delete" button when list is empty (maybe via Viewmodel?)
 // TODO: fix build warning: uses or overrides deprecated API
 // TODO: Update gradle packages
-// TODO: Update target API
 // TODO: Use old icon (shopping cart)
 // TODO: highlight action icon while delete mode is active?
 // TODO: Limit number of characters for every text input
