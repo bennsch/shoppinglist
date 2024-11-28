@@ -76,8 +76,11 @@ public class PreferencesRepository {
 
         // Apply the default values from the xml, because the SharedPreferences
         // won't be initialized until the SettingsActivity is started.
+        // Parameter "readAgain" is set to "true", so that default values will be applied
+        // even if this method has been called in the past (so that newly added preferences
+        // will get their default value applied).
         // This won't override the preferences after the user changed them.
-        PreferenceManager.setDefaultValues(context, PREF_RES, false);
+        PreferenceManager.setDefaultValues(context, PREF_RES, true);
 
         // Initialize the LiveData.
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
