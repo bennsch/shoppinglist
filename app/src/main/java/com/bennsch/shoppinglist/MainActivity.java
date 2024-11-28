@@ -35,15 +35,16 @@ import com.bennsch.shoppinglist.dialog.NewListDialog;
 
 import java.util.List;
 
-// TODO: Test dark mode
+// TODO: Test night mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
 // TODO: Test rotating the screen in a possible views
 
 // TODO: Use MainViewModel and ChecklistViewModel (contains all functions and store temporary data
 //  specific to one Checklist)?. MainActivity would instantiate two ViewModels
-// TODO: darker color for FAB and TextField in dark mode
+// TODO: darker color for FAB and TextField in night mode
 // TODO: Handle integer overflow for incidence
+// TODO: Add description for each preference?
 // TODO: fix build warning: uses or overrides deprecated API
 // TODO: Update gradle packages
 // TODO: Use old icon (shopping cart)

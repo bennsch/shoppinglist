@@ -1,10 +1,10 @@
 package com.bennsch.shoppinglist;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
 import com.bennsch.shoppinglist.data.PreferencesRepository;
@@ -28,6 +28,7 @@ public class MyApplication extends Application {
 
 
         PreferencesRepository preferencesRepository = PreferencesRepository.getInstance(this);
+
         Boolean useDynamicColors = preferencesRepository.getPrefUseDynamicColors().getValue();
         if (Boolean.TRUE.equals(useDynamicColors)) {
             DynamicColors.applyToActivitiesIfAvailable(
@@ -37,5 +38,22 @@ public class MyApplication extends Application {
                             .setContentBasedSource(GlobalConfig.DBG_DYNAMIC_COLOR_SEED)
                             .build());
         }
+
+        // No need to remove observer, because all resources will be freed when
+        // Application finishes.
+        preferencesRepository
+                .getPrefNightMode()
+                .observeForever(nightMode -> {
+                    Log.d(TAG, "onCreate: Setting Night-Mode to " + nightMode);
+                    switch (nightMode) {
+                        case ENABLED: AppCompatDelegate.setDefaultNightMode(
+                                AppCompatDelegate.MODE_NIGHT_YES); break;
+                        case DISABLED: AppCompatDelegate.setDefaultNightMode(
+                                AppCompatDelegate.MODE_NIGHT_NO); break;
+                        case FOLLOW_SYSTEM: AppCompatDelegate.setDefaultNightMode(
+                                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM); break;
+                        default: assert false;
+                    }
+                });
     }
 }

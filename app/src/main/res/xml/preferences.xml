@@ -13,6 +13,15 @@
         android:title="Use Dynamic Colors"
         app:defaultValue="true"/>
 
+<!--    <DropDownPreference-->
+    <ListPreference
+        app:key="@string/key_night_mode"
+        android:title="Night Mode"
+        android:entries="@array/pref_night_mode_entries"
+        android:entryValues="@array/pref_night_mode_entry_values"
+        app:defaultValue="@string/pref_night_mode_entry_value_follow_system"
+        app:useSimpleSummaryProvider="true"/>
+
     <PreferenceCategory
         app:title="Debug">
 
