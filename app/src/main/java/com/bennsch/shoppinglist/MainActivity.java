@@ -188,7 +188,6 @@ public class MainActivity
             mBinding.drawerLayout.close();
         } else if (item.getItemId() == R.id.nav_new_list) {
             showNewListDialog();
-            mBinding.drawerLayout.close();
         } else if (item.getItemId() == R.id.nav_about) {
             showAboutDialog();
         } else if (item.getItemId() == R.id.nav_settings) {
