@@ -40,7 +40,7 @@ public class ChecklistFragment extends Fragment {
     private boolean mDisplayChecked;
     private String mListTitle;
     private MainViewModel mViewModel;
-    private MainViewModel.DeleteItemsState mDeleteItemsState;
+    private MainViewModel.DeleteItemsMode mDeleteItemsMode;
 
     public ChecklistFragment() {
         // Required empty public constructor
@@ -85,10 +85,10 @@ public class ChecklistFragment extends Fragment {
             mBinding.emptyListPlaceholderUnchecked.setText(s);
         });
 
-        mDeleteItemsState = mViewModel.getDeleteItemsState(mListTitle);
-        mDeleteItemsState.observe(
+        mDeleteItemsMode = mViewModel.getDeleteItemsMode();
+        mDeleteItemsMode.observe(
                 getViewLifecycleOwner(),
-                this::onDeleteItemsStateChanged);
+                mode -> mRecyclerViewAdapter.notifyDataSetChanged());
 
         return mBinding.getRoot();
     }
@@ -114,11 +114,6 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.smoothScrollToPosition(pos);
     }
 
-    private void onDeleteItemsStateChanged(MainViewModel.DeleteItemsState.State state) {
-        Log.d(TAG, "onDeleteItemsStateChanged: " + (mDisplayChecked ? "Checked," : "Unchecked,") + state);
-        mRecyclerViewAdapter.notifyDataSetChanged();
-    }
-
     private void onDeleteIconClicked(ChecklistItem item, int position) {
         mViewModel.deleteItem(mListTitle, item);
     }
@@ -130,7 +125,7 @@ public class ChecklistFragment extends Fragment {
     }
 
     private void onItemClicked(ChecklistItem item, int position) {
-        if (mDeleteItemsState.getState() == MainViewModel.DeleteItemsState.State.ACTIVE) {
+        if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED) {
             // User cannot flip items while "DeleteItems" is active.
             vibrate();
         } else {
@@ -139,7 +134,7 @@ public class ChecklistFragment extends Fragment {
     }
 
     private void onItemLongClicked(ChecklistItem item, int position) {
-        mDeleteItemsState.toggle();
+        mDeleteItemsMode.toggle();
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
@@ -211,7 +206,7 @@ public class ChecklistFragment extends Fragment {
                 textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
 
-            if (mDeleteItemsState.getState() == MainViewModel.DeleteItemsState.State.ACTIVE) {
+            if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED) {
                 holder.getBinding().deleteIcon.setVisibility(View.VISIBLE);
                 holder.getBinding().dragHandle.setVisibility(View.GONE);
             } else {

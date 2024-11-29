@@ -23,12 +23,12 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
+import kotlin.jvm.functions.Function1;
 
 
 public class MainViewModel extends AndroidViewModel {
@@ -40,50 +40,48 @@ public class MainViewModel extends AndroidViewModel {
     // It's the interface between data and UI.
 
 
-    public static class DeleteItemsState{
+    public static class DeleteItemsMode {
+        // Convenience class to handle all logic related to DeleteItemsMode.
 
-        public enum State {
-            DISABLED,
-            ACTIVE,
-            INACTIVE
+        public static final int DISABLED = 0;
+        public static final int ACTIVATED = 1;
+        public static final int DEACTIVATED = 2;
+
+        private final MediatorLiveData<Integer> mValue;
+
+        public DeleteItemsMode(int initValue,
+                               @NonNull LiveData<String> activeChecklist,
+                               @NonNull Function1<String, LiveData<Boolean>> isChecklistEmpty) {
+            // Disable DeleteItemsMode if the active Checklist is or becomes empty.
+            // Set it to INACTIVE once items have been added again.
+            mValue = new MediatorLiveData<>(initValue);
+            mValue.addSource(
+                    Transformations.switchMap(activeChecklist, isChecklistEmpty),
+                    isActiveChecklistEmpty -> mValue.setValue(
+                            isActiveChecklistEmpty ? DISABLED : DEACTIVATED));
         }
 
-        private MediatorLiveData<State> mState;
-
-        public DeleteItemsState(LiveData<Boolean> isListEmpty) {
-            mState = new MediatorLiveData<>(State.INACTIVE);
-            mState.addSource(isListEmpty, empty -> mState.setValue(
-                    empty ? State.DISABLED : State.INACTIVE));
-        }
-
-        @NonNull
-        public State getState() {
-            State state = mState.getValue();
-            assert state != null; // Should never be null since we initialize mState in ctor.
-            return state;
+        public int getValue() {
+            assert mValue.getValue() != null;
+            return mValue.getValue();
         }
 
         public void observe(@NonNull LifecycleOwner owner,
-                            @NonNull Observer<? super State> observer) {
-            mState.observe(owner, observer);
+                            @NonNull Observer<Integer> observer) {
+            mValue.observe(owner, observer);
         }
 
         public void toggle() {
-            if (mState.getValue() == State.ACTIVE) {
-                mState.setValue(State.INACTIVE);
-            } else if (mState.getValue() == State.INACTIVE) {
-                mState.setValue(State.ACTIVE);
+            if (getValue() == ACTIVATED) {
+                mValue.setValue(DEACTIVATED);
+            } else if (getValue() == DEACTIVATED) {
+                mValue.setValue(ACTIVATED);
             } else {
-                // Cannot toggle if disabled or null
-            }
-        }
-
-        public void deactivate() {
-            if (mState.getValue() == State.ACTIVE) {
-                mState.setValue(State.INACTIVE);
+                // Cannot toggle if disabled.
             }
         }
     }
+
 
     public static final int AUTOCOMPLETE_THRESHOLD = 0;
     public static final int LIST_TITLE_MAX_LENGTH = 50;
@@ -95,9 +93,10 @@ public class MainViewModel extends AndroidViewModel {
     private final ChecklistRepository mChecklistRepo;
     private final PreferencesRepository mPreferencesRepo;
     private final LiveData<List<String>> mChecklistTitles;
-    // Store the state in the ViewModel instance (instead of Database), because
+    // Store the mode in the ViewModel instance (instead of Database), because
     // we don't want to keep the state when the App is closed.
-    private final Map<String, DeleteItemsState> mDeleteItemsStates;
+    private final DeleteItemsMode mDeleteItemsMode;
+
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -105,18 +104,15 @@ public class MainViewModel extends AndroidViewModel {
         mChecklistRepo = new ChecklistRepository(application);
         mPreferencesRepo = PreferencesRepository.getInstance(application);
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
-        mDeleteItemsStates = new HashMap<>();
+        mDeleteItemsMode = new DeleteItemsMode(
+                DeleteItemsMode.DISABLED,
+                getActiveChecklist(),
+                this::isChecklistEmpty);
     }
 
     @NonNull
-    public DeleteItemsState getDeleteItemsState(String listTitle) {
-        if (mDeleteItemsStates.containsKey(listTitle)) {
-            return mDeleteItemsStates.get(listTitle);
-        } else {
-            DeleteItemsState state = new DeleteItemsState(isChecklistEmpty(listTitle));
-            mDeleteItemsStates.put(listTitle, state);
-            return state;
-        }
+    public DeleteItemsMode getDeleteItemsMode() {
+        return mDeleteItemsMode;
     }
 
     @NonNull
