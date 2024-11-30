@@ -80,6 +80,15 @@ public class ChecklistPagerFragment extends Fragment {
 
         mViewModel.isChecklistEmpty(mListTitle)
                 .observe(getViewLifecycleOwner(), this::onChecklistEmptyChanged);
+
+        mViewModel.getDeleteItemsMode().observe(this, deleteItemsMode -> {
+            // hide() and show() will animate the transition.
+            if (deleteItemsMode == MainViewModel.DeleteItemsMode.ACTIVATED) {
+                mBinding.fab.hide();
+            } else {
+                mBinding.fab.show();
+            }
+        });
         return mBinding.getRoot();
     }
 

@@ -43,9 +43,9 @@ public class MainViewModel extends AndroidViewModel {
     public static class DeleteItemsMode {
         // Convenience class to handle all logic related to DeleteItemsMode.
 
-        public static final int DISABLED = 0;
-        public static final int ACTIVATED = 1;
-        public static final int DEACTIVATED = 2;
+        public static final int DISABLED = 0; // Mode cannot be activated
+        public static final int ACTIVATED = 1; // Items can be deleted
+        public static final int DEACTIVATED = 2; // Items cannot be deleted
 
         private final MediatorLiveData<Integer> mValue;
 
@@ -53,7 +53,7 @@ public class MainViewModel extends AndroidViewModel {
                                @NonNull LiveData<String> activeChecklist,
                                @NonNull Function1<String, LiveData<Boolean>> isChecklistEmpty) {
             // Disable DeleteItemsMode if the active Checklist is or becomes empty.
-            // Set it to INACTIVE once items have been added again.
+            // Set it to DEACTIVATED once items have been added again.
             mValue = new MediatorLiveData<>(initValue);
             mValue.addSource(
                     Transformations.switchMap(activeChecklist, isChecklistEmpty),
