@@ -3,6 +3,7 @@ package com.bennsch.shoppinglist.data;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.room.AutoMigration;
 import androidx.room.Dao;
@@ -99,7 +100,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         }
 
         @Transaction
-        default void setActiveChecklist(String checklistName) {
+        default void setActiveChecklist(@Nullable String checklistName) {
             // Use Transaction so that multiple Queries will result in only one LiveData event.
             // Only activate a single checklist and make every other inactive.
             setAllChecklistsInactive();

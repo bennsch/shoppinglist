@@ -25,7 +25,7 @@ public class MyApplication extends Application {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         GlobalConfig.DBG_SHOW_INCIDENCE = preferences.getBoolean("dbg_show_incidence", false);
         GlobalConfig.DBG_SHOW_NAVDRAWER_ACTIONVIEW = preferences.getBoolean("dbg_show_navdrawer_actionview", false);
-
+        GlobalConfig.DBG_SHOW_TRASH = preferences.getBoolean("dbg_show_trash", false);
 
         PreferencesRepository preferencesRepository = PreferencesRepository.getInstance(this);
 

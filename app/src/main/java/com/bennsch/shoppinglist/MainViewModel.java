@@ -22,6 +22,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -87,6 +88,7 @@ public class MainViewModel extends AndroidViewModel {
     public static final int LIST_TITLE_MAX_LENGTH = 50;
 
     private static final String TAG = "AppViewModel";
+    private static final String TRASH_LABEL = "__TRASH__";
     private static final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
     private static final ListeningExecutorService mListeningExecutor = MoreExecutors.listeningDecorator(mExecutor);
 
@@ -151,8 +153,19 @@ public class MainViewModel extends AndroidViewModel {
         return mChecklistRepo.getActiveChecklistTitle();
     }
 
-    public LiveData<List<String>> getAllChecklistTitles() {
-        return mChecklistTitles;
+    public LiveData<List<String>> getAllChecklistTitles(boolean includeTrash) {
+        if (includeTrash) {
+            return mChecklistTitles;
+        } else {
+            MediatorLiveData<List<String>> filtered = new MediatorLiveData<>();
+            filtered.addSource(mChecklistTitles, listTitles -> {
+                filtered.setValue(
+                        listTitles.stream()
+                                .filter(listTitle -> !listTitle.contains(TRASH_LABEL))
+                                .collect(Collectors.toList()));
+            });
+            return Transformations.distinctUntilChanged(filtered);
+        }
     }
 
     public LiveData<List<String>> getAutoCompleteItems(@NonNull String listTitle, @Nullable Boolean isChecked) {
@@ -176,7 +189,7 @@ public class MainViewModel extends AndroidViewModel {
 
     public String validateNewChecklistName(String newTitle) throws IllegalArgumentException{
         String newTitleStripped = stripWhitespace(newTitle);
-        List<String> currentTitles = getAllChecklistTitles().getValue();
+        List<String> currentTitles = mChecklistTitles.getValue();
         assert currentTitles != null;
         // TODO: replace with appropriate exception
         if (currentTitles.contains(newTitleStripped)) {
@@ -198,28 +211,24 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    public void deleteChecklist(String checklistTitle) {
+    public void moveChecklistToTrash(String checklistTitle) {
         assert mChecklistTitles.getValue() != null;
         if (!mChecklistTitles.getValue().contains(checklistTitle)) {
             // TODO: replace with appropriate exception
             throw new IllegalArgumentException("List with title \"" + checklistTitle +  "\" does not exists");
         }
         mExecutor.execute(() -> {
-            mChecklistRepo.deleteChecklist(checklistTitle);
-            if (mChecklistTitles.isInitialized()) {
-                List<String> listTitles = mChecklistTitles.getValue();
-                // Select the first list that is not this one
-                // (Database may have not been updated yet, so
-                // the just deleted item might still be in there).
-                if (listTitles != null) {
-                    for (String listTitle : listTitles) {
-                        if (!listTitle.equals(checklistTitle)) {
-                            mChecklistRepo.setActiveChecklist(listTitle);
-                            break;
-                        }
-                    }
-                }
-            }
+            String trashed_title = TRASH_LABEL + checklistTitle + Calendar.getInstance().getTime();
+            mChecklistRepo.updateChecklistName(checklistTitle, trashed_title);
+            assert mChecklistTitles.getValue() != null;
+            String ac =                     mChecklistTitles.getValue().stream()
+                    .filter(listTitle ->
+                            !listTitle.contains(TRASH_LABEL) &&
+                            // Required because old list title is still present at this point (why?)
+                            !listTitle.equals(checklistTitle))
+                    .findFirst()
+                    .orElse(null);
+            mChecklistRepo.setActiveChecklist(ac);
         });
     }
 

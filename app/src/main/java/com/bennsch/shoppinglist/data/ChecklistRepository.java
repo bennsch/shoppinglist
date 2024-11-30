@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
@@ -53,9 +54,10 @@ public class ChecklistRepository {
                         }));
     }
 
-    public void setActiveChecklist(String checklistTitle) {
+    public void setActiveChecklist(@Nullable String checklistTitle) {
         // Make Checklist with title "checklistTitle" active, and all other
-        // Checklists inactive
+        // Checklists inactive.
+        // Make no Checklist active if null.
         mItemDao.setActiveChecklist(checklistTitle);
     }
 

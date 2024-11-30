@@ -41,6 +41,7 @@ import java.util.List;
 // TODO: Test auto backup
 
 // TODO: Add undo functionality if list got deleted
+// TODO: Save database backup to  shoppinglist/media/ folder
 // TODO: Add animation to DeleteItemsMode, FAB, ItemNameBox etc...
 // TODO: darker color for FAB and TextField in night mode
 // TODO: Handle integer overflow for incidence
@@ -95,7 +96,8 @@ public class MainActivity
         });
 
         this.viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        viewModel.getAllChecklistTitles().observe(this, this::onChecklistTitlesChanged);
+        viewModel.getAllChecklistTitles(GlobalConfig.DBG_SHOW_TRASH)
+                .observe(this, this::onChecklistTitlesChanged);
 
         mBinding.versionLabel.setText("v" + viewModel.getVersionName());
 
@@ -200,6 +202,7 @@ public class MainActivity
     }
 
     private void onActiveChecklistChanged(@Nullable String newActiveChecklist) {
+        Log.d(TAG, "onActiveChecklistChanged: " + newActiveChecklist);
         if (newActiveChecklist == null) {
             // No item selected yet or no lists present.
             showChecklist(null);
@@ -376,7 +379,7 @@ public class MainActivity
 
     @Override
     public void editListDialog_onDeleteClicked(String listTitle) {
-        viewModel.deleteChecklist(listTitle);
+        viewModel.moveChecklistToTrash(listTitle);
     }
 
     @ColorInt

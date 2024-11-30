@@ -13,7 +13,6 @@
         android:title="Use Dynamic Colors"
         app:defaultValue="true"/>
 
-<!--    <DropDownPreference-->
     <ListPreference
         app:key="@string/key_night_mode"
         android:title="Night Mode"
@@ -33,6 +32,11 @@
         <SwitchPreferenceCompat
             app:key="dbg_show_navdrawer_actionview"
             android:title="Show NavDrawer ActionView"
+            app:defaultValue="true"/>
+
+        <SwitchPreferenceCompat
+            app:key="dbg_show_trash"
+            android:title="Show Trash"
             app:defaultValue="false"/>
 
     </PreferenceCategory>
