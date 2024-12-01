@@ -39,6 +39,10 @@
             android:title="Show Trash"
             app:defaultValue="false"/>
 
+        <Preference
+            app:key="@string/key_export_csv"
+            android:title="Export to CSV"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

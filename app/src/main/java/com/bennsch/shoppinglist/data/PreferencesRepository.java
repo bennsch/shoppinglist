@@ -15,7 +15,7 @@ import com.bennsch.shoppinglist.R;
 
 public class PreferencesRepository {
 
-    public static final int PREF_RES = R.xml.preferences;
+    public static final int PREF_RES = R.xml.preference_screen;
 
 
     public enum NightMode {

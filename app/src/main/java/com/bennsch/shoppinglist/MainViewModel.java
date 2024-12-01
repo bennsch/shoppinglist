@@ -105,7 +105,7 @@ public class MainViewModel extends AndroidViewModel {
     public MainViewModel(@NonNull Application application) {
         super(application);
         Log.d(TAG, "AppViewModel: CTOR");
-        mChecklistRepo = new ChecklistRepository(application);
+        mChecklistRepo = ChecklistRepository.getInstance(application);
         mPreferencesRepo = PreferencesRepository.getInstance(application);
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
         mDeleteItemsMode = new DeleteItemsMode(

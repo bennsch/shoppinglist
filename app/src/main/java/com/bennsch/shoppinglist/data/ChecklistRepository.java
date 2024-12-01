@@ -1,7 +1,6 @@
 package com.bennsch.shoppinglist.data;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,13 +17,21 @@ public class ChecklistRepository {
     // Currently only one data source is implemented (Room database).
 
     private static final String TAG = "ChecklistRepository";
-
+    private static ChecklistRepository INSTANCE;
     private final ChecklistDatabase.ItemDao mItemDao;
 
 
-    public ChecklistRepository(@NonNull Application application) {
+    private ChecklistRepository(@NonNull Application application) {
         ChecklistDatabase db = ChecklistDatabase.getInstance(application);
         mItemDao = db.itemDao();
+    }
+
+    // TODO: Singleton cannot have argument!!
+    public static synchronized ChecklistRepository getInstance(@NonNull final Application application) {
+        if (INSTANCE == null) {
+            INSTANCE = new ChecklistRepository(application);
+        }
+        return INSTANCE;
     }
 
     public LiveData<List<String>> getAllChecklistTitles() {
@@ -84,6 +91,10 @@ public class ChecklistRepository {
 
     public void deleteItem(@NonNull DbChecklistItem item) {
         mItemDao.delete(item);
+    }
+
+    public List<DbChecklistItem> getAllItemsFromAllLists() {
+        return mItemDao.getAllItemsFromAllLists();
     }
 
     public List<DbChecklistItem> getAllItems(@NonNull final String listTitle) {

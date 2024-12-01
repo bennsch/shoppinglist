@@ -3,6 +3,7 @@
     <string name="key_complete_msg">message_list_completed</string>
     <string name="key_use_dynamic_colors">use_dynamic_colors</string>
     <string name="key_night_mode">night_mode</string>
+    <string name="key_export_csv">export_csv</string>
 
     <string name="pref_night_mode_entry_value_enabled">enabled</string>
     <string name="pref_night_mode_entry_value_disabled">disabled</string>

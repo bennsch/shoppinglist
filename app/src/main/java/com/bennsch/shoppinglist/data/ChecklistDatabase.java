@@ -64,6 +64,9 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Query("UPDATE DbChecklist SET active = 0")
         void setAllChecklistsInactive();
 
+        @Query("SELECT * FROM DbChecklistItem")
+        List<DbChecklistItem> getAllItemsFromAllLists();
+
         @Query("SELECT * FROM DbChecklist")
         LiveData<List<DbChecklist>> getAllChecklists();
 
