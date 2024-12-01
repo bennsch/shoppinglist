@@ -95,9 +95,11 @@ public class MainViewModel extends AndroidViewModel {
     private final ChecklistRepository mChecklistRepo;
     private final PreferencesRepository mPreferencesRepo;
     private final LiveData<List<String>> mChecklistTitles;
-    // Store the mode in the ViewModel instance (instead of Database), because
-    // we don't want to keep the state when the App is closed.
+
+    // Store in the ViewModel (instead of database) because we don't
+    // need to keep them when the app finishes.
     private final DeleteItemsMode mDeleteItemsMode;
+    private final MutableLiveData<Boolean> mAreItemsDragged;
 
 
     public MainViewModel(@NonNull Application application) {
@@ -110,6 +112,16 @@ public class MainViewModel extends AndroidViewModel {
                 DeleteItemsMode.DISABLED,
                 getActiveChecklist(),
                 this::isChecklistEmpty);
+        mAreItemsDragged = new MutableLiveData<>(false);
+    }
+
+    public void setItemsDragged(boolean dragged) {
+        mAreItemsDragged.setValue(dragged);
+    }
+
+    @NonNull
+    public LiveData<Boolean> areItemsDragged() { // Expose only immutable LiveData
+        return mAreItemsDragged;
     }
 
     @NonNull

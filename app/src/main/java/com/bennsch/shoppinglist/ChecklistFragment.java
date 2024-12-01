@@ -229,8 +229,10 @@ public class ChecklistFragment extends Fragment {
                 @Override
                 public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
                     super.onSelectedChanged(viewHolder, actionState);
-                    if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-                        onMoveCompleted();
+                    if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                        onDragStart();
+                    } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
+                        onDragFinished();
                     }
                 }
 
@@ -320,7 +322,12 @@ public class ChecklistFragment extends Fragment {
             }
         }
 
-        public void onMoveCompleted() {
+        public void onDragStart() {
+            mViewModel.setItemsDragged(true);
+        }
+
+        public void onDragFinished() {
+            mViewModel.setItemsDragged(false);
             onItemsMoved(mCachedItems);
         }
 
