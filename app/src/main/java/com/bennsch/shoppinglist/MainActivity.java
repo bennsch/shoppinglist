@@ -40,6 +40,7 @@ import java.util.List;
 // TODO: Test rotating the screen in a possible views
 // TODO: Test auto backup
 
+// TODO: Add undo functionality for deleted items
 // TODO: Add undo functionality if list got deleted
 // TODO: Save database backup to  shoppinglist/media/ folder
 // TODO: Add animation to DeleteItemsMode, FAB, ItemNameBox etc...

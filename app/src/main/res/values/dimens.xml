@@ -9,4 +9,6 @@
     <dimen name="fab_radius">16dp</dimen>
     <dimen name="fab_elevation">6dp</dimen>
     <dimen name="item_name_box_spacing">8dp</dimen>
+    <dimen name="item_viewholder_padding_start">8dp</dimen>
+    <dimen name="item_viewholder_padding_end">16dp</dimen>
 </resources>

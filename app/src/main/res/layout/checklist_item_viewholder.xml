@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:background="@drawable/viewholder_background"
-    android:paddingStart="8dp"
-    android:paddingEnd="16dp">
+    android:paddingStart="@dimen/item_viewholder_padding_start"
+    android:paddingEnd="0dp">
 <!-- Using background drawable to avoid "transparent" item while moving -->
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -28,7 +28,7 @@
             android:theme="@style/ChecklistItem.Unchecked"
             tools:text="CheckList Item"/>
 
-        <!-- TODO: Is there a better widget to be used as spacer? -->
+        <!-- Used as spacer -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -45,18 +45,21 @@
             android:id="@+id/delete_icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:paddingEnd="@dimen/item_viewholder_padding_end"
             app:srcCompat="@drawable/ic_delete"
             android:tint="?colorError"/>
 
+        <!-- Add padding to "drag_handle", so the user can
+             touch it even if it's right behind the FAB -->
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/drag_handle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:paddingEnd="@dimen/item_viewholder_padding_end"
             app:srcCompat="@drawable/ic_drag_handle"
             android:tint="?colorOutline"
             android:alpha="0.6"/>
 
     </FrameLayout>
-
 
 </androidx.appcompat.widget.LinearLayoutCompat>
