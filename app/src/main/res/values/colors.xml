@@ -1,4 +1,6 @@
 <resources>
+    <color name="brand_color">#FAD058</color>
+
     <color name="md_theme_primary">#7D570E</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
     <color name="md_theme_primaryContainer">#FFDEAE</color>
