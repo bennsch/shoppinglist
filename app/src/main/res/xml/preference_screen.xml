@@ -1,17 +1,11 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-
     <EditTextPreference
         app:key="@string/key_complete_msg"
         app:title="List Completed Message"
         app:defaultValue="Yo're all done!"
         app:useSimpleSummaryProvider="true" />
-
-    <SwitchPreferenceCompat
-        app:key="@string/key_use_dynamic_colors"
-        android:title="Use Dynamic Colors"
-        app:defaultValue="true"/>
 
     <ListPreference
         app:key="@string/key_night_mode"
@@ -21,8 +15,21 @@
         app:defaultValue="@string/pref_night_mode_entry_value_follow_system"
         app:useSimpleSummaryProvider="true"/>
 
+
+    <Preference
+        app:key="@string/key_export_csv"
+        android:title="Export to CSV"
+        android:summary=""/>
+
+
     <PreferenceCategory
-        app:title="Debug">
+        app:title="Debug"
+        app:isPreferenceVisible="true">
+
+        <SwitchPreferenceCompat
+            app:key="@string/key_use_dynamic_colors"
+            android:title="Use Dynamic Colors"
+            app:defaultValue="true"/>
 
         <SwitchPreferenceCompat
             app:key="dbg_show_incidence"
@@ -38,10 +45,6 @@
             app:key="dbg_show_trash"
             android:title="Show Trash"
             app:defaultValue="false"/>
-
-        <Preference
-            app:key="@string/key_export_csv"
-            android:title="Export to CSV"/>
 
     </PreferenceCategory>
 
