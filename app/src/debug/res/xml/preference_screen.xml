@@ -20,4 +20,31 @@
         android:title="Export to CSV"
         android:summary=""/>
 
+
+    <PreferenceCategory
+        app:title="Debug"
+        app:isPreferenceVisible="true">
+
+        <SwitchPreferenceCompat
+            app:key="@string/key_use_dynamic_colors"
+            android:title="Use Dynamic Colors"
+            app:defaultValue="false"/>
+
+        <SwitchPreferenceCompat
+            app:key="dbg_show_incidence"
+            android:title="Show Incidence"
+            app:defaultValue="false"/>
+
+        <SwitchPreferenceCompat
+            app:key="dbg_show_navdrawer_actionview"
+            android:title="Show NavDrawer ActionView"
+            app:defaultValue="true"/>
+
+        <SwitchPreferenceCompat
+            app:key="dbg_show_trash"
+            android:title="Show Trash"
+            app:defaultValue="false"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
