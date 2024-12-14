@@ -38,10 +38,10 @@ import java.util.List;
 // TODO: For Mini release:
 // TODO:    github: Add bette github description
 // TODO:    github: create pre-release
-// TODO:    No default lists
 // TODO:    signing?
 
-
+// TODO: Disable logging of DEBUG level in release build
+// TODO: Show line between app bar and content when no item in list?
 // TODO: Test night mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation

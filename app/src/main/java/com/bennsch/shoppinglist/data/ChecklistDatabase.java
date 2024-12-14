@@ -1,11 +1,11 @@
 package com.bennsch.shoppinglist.data;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.room.AutoMigration;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Delete;
@@ -16,6 +16,8 @@ import androidx.room.RoomDatabase;
 import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+
+import com.bennsch.shoppinglist.BuildConfig;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -30,6 +32,8 @@ import java.util.concurrent.Executors;
         }
          /*exportSchema = false*/)
 public abstract class ChecklistDatabase extends RoomDatabase {
+
+    private static final String TAG = "ChecklistDatabase";
 
     @Dao
     interface ItemDao {
@@ -117,43 +121,48 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
     abstract ItemDao itemDao();
 
-    private static final RoomDatabase.Callback populateInitialDatabase = new RoomDatabase.Callback() {
+    private static final RoomDatabase.Callback initialCallback = new RoomDatabase.Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
             executor.execute(() -> {
+                Log.d(TAG, "initialCallback()");
                 INSTANCE.clearAllTables();
-                ItemDao dao = INSTANCE.itemDao();
 
-                DbChecklist shortList = new DbChecklist("Short List", false);
-                dao.insert(shortList);
-                dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle(), 0));
-                dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle(), 0));
-                dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle(), 0));
-
-                DbChecklist longList = new DbChecklist("Long", true);
-                dao.insert(longList);
-                int sizeUnchecked = 20;
-                for (int i = 0; i < sizeUnchecked; i++) {
-                    dao.insert(new DbChecklistItem("Item " + i, false, i, longList.getChecklistTitle(), 0));
-                }
-                for (int i = 0; i < 10; i++) {
-                    dao.insert(new DbChecklistItem("Item " + (i + sizeUnchecked), true, i, longList.getChecklistTitle(), 0));
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "Populating database");
+                    ItemDao dao = INSTANCE.itemDao();
+                    DbChecklist shortList = new DbChecklist("Short List", false);
+                    dao.insert(shortList);
+                    dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle(), 0));
+                    dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle(), 0));
+                    dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle(), 0));
+                    DbChecklist emptyList = new DbChecklist("Empty List", false);
+                    dao.insert(emptyList);
+                    DbChecklist longList = new DbChecklist("Long", true);
+                    dao.insert(longList);
+                    int sizeUnchecked = 20;
+                    for (int i = 0; i < sizeUnchecked; i++) {
+                        dao.insert(new DbChecklistItem("Item " + i, false, i, longList.getChecklistTitle(), 0));
+                    }
+                    for (int i = 0; i < 10; i++) {
+                        dao.insert(new DbChecklistItem("Item " + (i + sizeUnchecked), true, i, longList.getChecklistTitle(), 0));
+                    }
                 }
             });
         }
     };
 
-    // TODO: Singleton cannot have argument!!
+    // TODO: Singleton cannot have argument!! (maybe store one instance per context (map)?)
     static ChecklistDatabase getInstance(final Context context) {
         if (INSTANCE == null) {
             synchronized (ChecklistDatabase.class) {
                 if (INSTANCE == null) {
-                    // Create and populate the database if no data is present
+                    // Create the database if and call "initialCallback" no data is present yet.
                     // (e.g. app just got installed or user deleted app storage).
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     ChecklistDatabase.class, "checklist_database")
-                            .addCallback(populateInitialDatabase)
+                            .addCallback(initialCallback)
                             .build();
                 }
             }
