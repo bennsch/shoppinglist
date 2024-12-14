@@ -24,7 +24,7 @@
         android:layout_height="48dp"
         android:layout_marginStart="8sp"
         android:gravity="center_vertical"
-        android:text="Shopping List"
+        android:text="@string/app_name"
         android:textAllCaps="true"
         android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 

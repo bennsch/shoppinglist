@@ -29,7 +29,7 @@
         <SwitchPreferenceCompat
             app:key="@string/key_use_dynamic_colors"
             android:title="Use Dynamic Colors"
-            app:defaultValue="true"/>
+            app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
             app:key="dbg_show_incidence"

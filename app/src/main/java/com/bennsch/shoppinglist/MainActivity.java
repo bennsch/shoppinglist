@@ -34,6 +34,12 @@ import com.bennsch.shoppinglist.dialog.NewListDialog;
 
 import java.util.List;
 
+
+// TODO: For Mini release:
+// TODO:    No default lists
+// TODO:    signing?
+// TODO:    make release on github (including apk binary)
+
 // TODO: Test night mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation

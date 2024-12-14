@@ -2,13 +2,9 @@
     <string name="app_name">Shopping List</string>
     <string name="navdrawer_open">Open navigation drawer</string>
     <string name="navdrawer_close">Close navigation drawer</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="git_repo_url">https://github.com/bennsch/shoppinglist</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-
+    <string name="title_activity_settings">Settings</string>
     <string name="pref_night_mode_enabled">Enabled</string>
     <string name="pref_night_mode_disabled">Disabled</string>
     <string name="pref_night_mode_follow_system">Follow System</string>
-
 </resources>
