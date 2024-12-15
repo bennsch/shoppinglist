@@ -23,6 +23,7 @@ android {
 
     buildTypes {
         release {
+            versionNameSuffix ' [beta]'
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

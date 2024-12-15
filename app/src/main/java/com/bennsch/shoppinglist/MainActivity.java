@@ -40,6 +40,7 @@ import java.util.List;
 // TODO:    github: create pre-release
 // TODO:    signing?
 // TODO: add setting: Orientation (portrait default)
+// TODO: Remove version label
 
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
