@@ -39,9 +39,12 @@ import java.util.List;
 // TODO:    github: Add bette github description
 // TODO:    github: create pre-release
 // TODO:    signing?
+// TODO: add setting: Orientation (portrait default)
 
+// TODO: Remove *.txt from exported CSV file
+// TODO: Show line between app bar and content when no item in list
+// TODO: App bar overlaps NavBar in landscape mode
 // TODO: Disable logging of DEBUG level in release build
-// TODO: Show line between app bar and content when no item in list?
 // TODO: Test night mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation
