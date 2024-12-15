@@ -42,6 +42,7 @@ import java.util.List;
 // TODO: add setting: Orientation (portrait default)
 // TODO: Remove version label
 
+// TODO: Enable proguard (why night mode not applied instantly?)
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
 // TODO: Show line between app bar and content when no item in list
