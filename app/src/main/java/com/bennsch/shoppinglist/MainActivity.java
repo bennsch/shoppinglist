@@ -98,6 +98,8 @@ public class MainActivity
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
 
+        OrientationHelper.observeOrientationPreference(getApplication(), this);
+
         mIMEHelper = new IMEHelper(this);
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());

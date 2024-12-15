@@ -17,7 +17,7 @@ public class PreferencesRepository {
 
     public static final int PREF_RES = R.xml.preference_screen;
 
-
+    // TODO: Find better solution. E.g. simply use integers instead of strings
     public enum NightMode {
         ENABLED,
         DISABLED,
@@ -39,6 +39,27 @@ public class PreferencesRepository {
         }
     }
 
+    public enum Orientation {
+        PORTRAIT,
+        LANDSCAPE,
+        AUTO;
+
+        public static Orientation fromPrefEntryValue(@NonNull String entryValue) {
+            // Needs to match resource array "pref_orientation_entry_values".
+            switch (entryValue) {
+                case "portrait":
+                    return Orientation.PORTRAIT;
+                case "landscape":
+                    return Orientation.LANDSCAPE;
+                case "auto":
+                    return Orientation.AUTO;
+                default:
+                    assert false : "Invalid entryValue: " + entryValue;
+                    return null;
+            }
+        }
+    }
+
     private static PreferencesRepository INSTANCE;
     private static final String TAG = "PreferencesRepository";
 
@@ -46,6 +67,7 @@ public class PreferencesRepository {
     private final MutableLiveData<String> mPrefMessageListCompleted = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefUseDynamicColors = new MutableLiveData<>();
     private final MutableLiveData<NightMode> mPrefNightMode = new MutableLiveData<>();
+    private final MutableLiveData<Orientation> mPrefOrientation = new MutableLiveData<>();
 
 
     public static synchronized PreferencesRepository getInstance(@NonNull Application application) {
@@ -67,12 +89,17 @@ public class PreferencesRepository {
         return mPrefNightMode;
     }
 
+    public LiveData<Orientation> getPrefOrientation() {
+        return mPrefOrientation;
+    }
+
     private PreferencesRepository(@NonNull Context context) {
         Log.d(TAG, "PreferencesRepository: Ctor " + context);
 
         String keyMessageListDeleted = context.getResources().getString(R.string.key_complete_msg);
         String keyUseDynamicColors = context.getResources().getString(R.string.key_use_dynamic_colors);
         String keyNightMode = context.getResources().getString(R.string.key_night_mode);
+        String keyOrientation = context.getResources().getString(R.string.key_orientation);
 
         // Apply the default values from the xml, because the SharedPreferences
         // won't be initialized until the SettingsActivity is started.
@@ -90,6 +117,7 @@ public class PreferencesRepository {
         mPrefMessageListCompleted.setValue(preferences.getString(keyMessageListDeleted, null));
         mPrefUseDynamicColors.setValue(preferences.getBoolean(keyUseDynamicColors, false));
         mPrefNightMode.setValue(NightMode.fromPrefEntryValue(preferences.getString(keyNightMode, "")));
+        mPrefOrientation.setValue(Orientation.fromPrefEntryValue(preferences.getString(keyOrientation, "")));
         // Register a change listener.
         // Cannot use anonymous inner class, because the PreferenceManager
         // does not store a strong reference to the listener and it
@@ -105,6 +133,8 @@ public class PreferencesRepository {
                 mPrefUseDynamicColors.setValue(sharedPreferences.getBoolean(key, false));
             } else if (key.contentEquals(keyNightMode)) {
                 mPrefNightMode.setValue(NightMode.fromPrefEntryValue(sharedPreferences.getString(key, "")));
+            }else if (key.contentEquals(keyOrientation)) {
+                mPrefOrientation.setValue(Orientation.fromPrefEntryValue(sharedPreferences.getString(key, "")));
             }
         };
         preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);

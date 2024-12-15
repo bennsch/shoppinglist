@@ -7,4 +7,7 @@
     <string name="pref_night_mode_enabled">Enabled</string>
     <string name="pref_night_mode_disabled">Disabled</string>
     <string name="pref_night_mode_follow_system">Follow System</string>
+    <string name="pref_orientation_portrait">Portrait</string>
+    <string name="pref_orientation_landscape">Landscape</string>
+    <string name="pref_orientation_auto">Automatic</string>
 </resources>

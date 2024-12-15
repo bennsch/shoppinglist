@@ -3,11 +3,16 @@
     <string name="key_complete_msg">message_list_completed</string>
     <string name="key_use_dynamic_colors">use_dynamic_colors</string>
     <string name="key_night_mode">night_mode</string>
+    <string name="key_orientation">orientation</string>
     <string name="key_export_csv">export_csv</string>
 
     <string name="pref_night_mode_entry_value_enabled">enabled</string>
     <string name="pref_night_mode_entry_value_disabled">disabled</string>
     <string name="pref_night_mode_entry_value_follow_system">follow_system</string>
+
+    <string name="pref_orientation_entry_value_portrait">portrait</string>
+    <string name="pref_orientation_entry_value_landscape">landscape</string>
+    <string name="pref_orientation_entry_value_auto">auto</string>
 
     <string-array name="pref_night_mode_entry_values">
         <item>@string/pref_night_mode_entry_value_enabled</item>
@@ -15,9 +20,21 @@
         <item>@string/pref_night_mode_entry_value_follow_system</item>
     </string-array>
 
+    <string-array name="pref_orientation_entry_values">
+        <item>@string/pref_orientation_entry_value_portrait</item>
+        <item>@string/pref_orientation_entry_value_landscape</item>
+        <item>@string/pref_orientation_entry_value_auto</item>
+    </string-array>
+
     <string-array name="pref_night_mode_entries">
         <item>@string/pref_night_mode_enabled</item>
         <item>@string/pref_night_mode_disabled</item>
         <item>@string/pref_night_mode_follow_system</item>
+    </string-array>
+
+    <string-array name="pref_orientation_entries">
+        <item>@string/pref_orientation_portrait</item>
+        <item>@string/pref_orientation_landscape</item>
+        <item>@string/pref_orientation_auto</item>
     </string-array>
 </resources>
