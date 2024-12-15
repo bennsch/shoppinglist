@@ -41,6 +41,7 @@ import java.util.List;
 // TODO:    signing?
 // TODO: add setting: Orientation (portrait default)
 
+// TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
 // TODO: Show line between app bar and content when no item in list
 // TODO: App bar overlaps NavBar in landscape mode

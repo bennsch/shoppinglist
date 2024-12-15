@@ -230,7 +230,7 @@ public class MainViewModel extends AndroidViewModel {
             throw new IllegalArgumentException("List with title \"" + checklistTitle +  "\" does not exists");
         }
         mExecutor.execute(() -> {
-            String trashed_title = TRASH_LABEL + checklistTitle + Calendar.getInstance().getTime();
+            String trashed_title = TRASH_LABEL + checklistTitle + "(" + Calendar.getInstance().getTime() + ")";
             mChecklistRepo.updateChecklistName(checklistTitle, trashed_title);
             assert mChecklistTitles.getValue() != null;
             String ac =                     mChecklistTitles.getValue().stream()
