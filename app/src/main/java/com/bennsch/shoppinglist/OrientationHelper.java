@@ -13,13 +13,13 @@ public class OrientationHelper {
 
     private static final String TAG = "OrientationHelper";
 
+    // Call this method during onCreate() of every activity.
     public static void observeOrientationPreference(Application application, AppCompatActivity activity) {
         PreferencesRepository
                 .getInstance(application)
                 .getPrefOrientation()
                 .observe(activity, orientation -> {
                     // TODO: Will briefly switch to landscape if phone held sideways
-                    //  (try to use https://developer.android.com/quick-guides/content/restrict-app-orientation-on-phones
                     // TODO: called multiple times
                     Log.d(TAG, activity.getClass().getSimpleName() + ": Setting orientation to " + orientation);
                     switch (orientation) {

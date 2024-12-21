@@ -39,7 +39,6 @@ import java.util.List;
 // TODO:    github: Add bette github description
 // TODO:    github: create pre-release
 // TODO:    signing?
-// TODO: add setting: Orientation (portrait default)
 // TODO: Remove version label
 
 // TODO: Enable proguard (why night mode not applied instantly?)
