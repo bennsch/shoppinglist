@@ -35,12 +35,6 @@ import com.bennsch.shoppinglist.dialog.NewListDialog;
 import java.util.List;
 
 
-// TODO: For Mini release:
-// TODO:    github: Add bette github description
-// TODO:    github: create pre-release
-// TODO:    signing?
-// TODO: Remove version label
-
 // TODO: Enable proguard (why night mode not applied instantly?)
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
@@ -102,6 +96,7 @@ public class MainActivity
         mIMEHelper = new IMEHelper(this);
 
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
+
         setContentView(mBinding.getRoot());
 
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
@@ -129,6 +124,10 @@ public class MainActivity
         setSupportActionBar(mBinding.toolbar);
         setupNavDrawer();
         setupEdgeToEdgeInsets();
+
+        if (BuildConfig.DEBUG) {
+            mBinding.versionLabel.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
