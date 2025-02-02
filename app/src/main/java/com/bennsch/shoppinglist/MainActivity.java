@@ -41,11 +41,8 @@ import java.util.List;
 // TODO: Show line between app bar and content when no item in list
 // TODO: App bar overlaps NavBar in landscape mode
 // TODO: Disable logging of DEBUG level in release build
-// TODO: Test night mode
-// TODO: Test on oldest supported Android version (no dynamic color pre v12)
-// TODO: test device rotation
-// TODO: Test rotating the screen in a possible views
-// TODO: Test auto backup
+// TODO: Scroll faster to bottom of list if IME shows up (
+//        maybe fixed scrolling duration regardless of number of items)
 
 // TODO: Add undo functionality for deleted items
 // TODO: Add undo functionality if list got deleted
@@ -61,6 +58,13 @@ import java.util.List;
 // TODO: Limit number of characters for every text input
 // TODO: Make all TextFields use textColor as highlight color
 // TODO: Put all hardcoded strings to strings.xml
+
+// TODO: Test night mode
+// TODO: Test on oldest supported Android version (no dynamic color pre v12)
+// TODO: test device rotation
+// TODO: Test rotating the screen in a possible views
+// TODO: Test auto backup
+
 // TODO: General settings:
 //          -Dynamic color seed
 // TODO: Per Checklist settings:
