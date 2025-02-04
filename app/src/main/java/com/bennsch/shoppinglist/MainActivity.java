@@ -39,7 +39,6 @@ import java.util.List;
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
 // TODO: Show line between app bar and content when no item in list
-// TODO: App bar overlaps NavBar in landscape mode
 // TODO: Disable logging of DEBUG level in release build
 // TODO: Scroll faster to bottom of list if IME shows up (
 //        maybe fixed scrolling duration regardless of number of items)
@@ -127,7 +126,7 @@ public class MainActivity
 
         setSupportActionBar(mBinding.toolbar);
         setupNavDrawer();
-        setupEdgeToEdgeInsets();
+        addNavViewPadding();
 
         if (BuildConfig.DEBUG) {
             mBinding.versionLabel.setVisibility(View.VISIBLE);
@@ -338,15 +337,15 @@ public class MainActivity
         }
     }
 
-    private void setupEdgeToEdgeInsets() {
+    private void addNavViewPadding() {
+        // To show version number above bottom navigation bar
         View view = mBinding.fragmentContainerView;
         ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
             @NonNull
             @Override
             public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
-                // TODO: Handle landscape orientation
                 Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
-                mBinding.navView.setPadding(0, 0, 0, insetsNormal.bottom); // to show version number above bottom navigation bar
+                mBinding.navView.setPadding(0, 0, 0, insetsNormal.bottom);
                 return insets;
 //                 return WindowInsetsCompat.CONSUMED;
             }
