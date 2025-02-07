@@ -1,7 +1,9 @@
 package com.bennsch.shoppinglist;
 
 import android.app.Application;
+import android.app.UiModeManager;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatDelegate;
@@ -44,15 +46,36 @@ public class MyApplication extends Application {
         preferencesRepository
                 .getPrefNightMode()
                 .observeForever(nightMode -> {
-                    Log.d(TAG, "onCreate: Setting Night-Mode to " + nightMode);
-                    switch (nightMode) {
-                        case ENABLED: AppCompatDelegate.setDefaultNightMode(
-                                AppCompatDelegate.MODE_NIGHT_YES); break;
-                        case DISABLED: AppCompatDelegate.setDefaultNightMode(
-                                AppCompatDelegate.MODE_NIGHT_NO); break;
-                        case FOLLOW_SYSTEM: AppCompatDelegate.setDefaultNightMode(
-                                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM); break;
-                        default: assert false;
+                    Log.d(TAG, "Setting Night-Mode to " + nightMode);
+                    if (Build.VERSION.SDK_INT >= 31) {
+                        UiModeManager uim = (UiModeManager) getSystemService(UI_MODE_SERVICE);
+                        switch (nightMode) {
+                            case ENABLED:
+                                uim.setApplicationNightMode(UiModeManager.MODE_NIGHT_YES);
+                                break;
+                            case DISABLED:
+                                uim.setApplicationNightMode(UiModeManager.MODE_NIGHT_NO);
+                                break;
+                            case FOLLOW_SYSTEM:
+                                uim.setApplicationNightMode(UiModeManager.MODE_NIGHT_AUTO);
+                                break;
+                            default:
+                                assert false;
+                        }
+                    }else {
+                        switch (nightMode) {
+                            case ENABLED:
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                                break;
+                            case DISABLED:
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                                break;
+                            case FOLLOW_SYSTEM:
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                                break;
+                            default:
+                                assert false;
+                        }
                     }
                 });
     }

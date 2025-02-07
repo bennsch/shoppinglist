@@ -35,7 +35,6 @@ import com.bennsch.shoppinglist.dialog.NewListDialog;
 import java.util.List;
 
 
-// TODO: Enable proguard (why night mode not applied instantly?)
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
 // TODO: Show line between app bar and content when no item in list
@@ -58,6 +57,7 @@ import java.util.List;
 // TODO: Make all TextFields use textColor as highlight color
 // TODO: Put all hardcoded strings to strings.xml
 
+// TODO: Test everything in both release build
 // TODO: Test night mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
 // TODO: test device rotation

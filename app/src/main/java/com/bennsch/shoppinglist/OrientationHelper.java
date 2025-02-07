@@ -20,7 +20,7 @@ public class OrientationHelper {
                 .getPrefOrientation()
                 .observe(activity, orientation -> {
                     // TODO: Will briefly switch to landscape if phone held sideways
-                    // TODO: called multiple times
+                    // TODO: Why is is called when ANY preference updated?
                     Log.d(TAG, activity.getClass().getSimpleName() + ": Setting orientation to " + orientation);
                     switch (orientation) {
                         case PORTRAIT:

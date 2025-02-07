@@ -63,7 +63,8 @@ public class PreferencesRepository {
     private static PreferencesRepository INSTANCE;
     private static final String TAG = "PreferencesRepository";
 
-    private final SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
+    // TODO: Why does using an instance variable not work in release build? Instance variables are strong references.
+    private static SharedPreferences.OnSharedPreferenceChangeListener mPreferenceChangeListener = null;
     private final MutableLiveData<String> mPrefMessageListCompleted = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefUseDynamicColors = new MutableLiveData<>();
     private final MutableLiveData<NightMode> mPrefNightMode = new MutableLiveData<>();
@@ -122,7 +123,10 @@ public class PreferencesRepository {
         // Cannot use anonymous inner class, because the PreferenceManager
         // does not store a strong reference to the listener and it
         // would be garbage collected.
-        preferenceChangeListener = (sharedPreferences, key) -> {
+        if (mPreferenceChangeListener != null) {
+            throw new RuntimeException("mPreferenceChangeListener != null");
+        }
+        mPreferenceChangeListener = (sharedPreferences, key) -> {
             // TODO: use postValue()?
             Log.d(TAG, "PreferencesRepository: onChangeListener " + key);
             if (key == null) {
@@ -137,6 +141,6 @@ public class PreferencesRepository {
                 mPrefOrientation.setValue(Orientation.fromPrefEntryValue(sharedPreferences.getString(key, "")));
             }
         };
-        preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+        preferences.registerOnSharedPreferenceChangeListener(mPreferenceChangeListener);
     }
 }
