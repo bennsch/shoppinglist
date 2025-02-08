@@ -12,7 +12,10 @@
             android:layout_width="match_parent"
             android:layout_height="3dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:tabIndicatorFullWidth="true" />
+            app:tabIndicatorFullWidth="true"
+            app:tabMaxWidth="0dp"
+            app:tabGravity="fill"
+            app:tabMode="fixed"/>
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewpager"
