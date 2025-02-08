@@ -70,8 +70,6 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        OrientationHelper.observeOrientationPreference(getApplication(), this);
-
         mBinding = SettingsActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
 

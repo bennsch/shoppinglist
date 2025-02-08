@@ -35,6 +35,7 @@ import com.bennsch.shoppinglist.dialog.NewListDialog;
 import java.util.List;
 
 
+// TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
 // TODO: Show line between app bar and content when no item in list
@@ -46,7 +47,6 @@ import java.util.List;
 // TODO: Add undo functionality if list got deleted
 // TODO: Save database backup to  shoppinglist/media/ folder
 // TODO: Add animation to DeleteItemsMode, FAB, ItemNameBox etc...
-// TODO: darker color for FAB and TextField in night mode
 // TODO: Handle integer overflow for incidence
 // TODO: Add description for each preference?
 // TODO: fix build warning: uses or overrides deprecated API
@@ -57,6 +57,7 @@ import java.util.List;
 // TODO: Make all TextFields use textColor as highlight color
 // TODO: Put all hardcoded strings to strings.xml
 
+// TODO: Test different screen sizes
 // TODO: Test everything in both release build
 // TODO: Test night mode
 // TODO: Test on oldest supported Android version (no dynamic color pre v12)
@@ -93,8 +94,6 @@ public class MainActivity
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
-
-        OrientationHelper.observeOrientationPreference(getApplication(), this);
 
         mIMEHelper = new IMEHelper(this);
 

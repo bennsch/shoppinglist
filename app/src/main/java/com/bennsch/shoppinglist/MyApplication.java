@@ -1,11 +1,17 @@
 package com.bennsch.shoppinglist;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.UiModeManager;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
 
@@ -29,9 +35,15 @@ public class MyApplication extends Application {
         GlobalConfig.DBG_SHOW_NAVDRAWER_ACTIONVIEW = preferences.getBoolean("dbg_show_navdrawer_actionview", true);
         GlobalConfig.DBG_SHOW_TRASH = preferences.getBoolean("dbg_show_trash", false);
 
-        PreferencesRepository preferencesRepository = PreferencesRepository.getInstance(this);
+        applyDynamicColors();
+        observePrefNightMode();
+        observePrefOrientation();
+    }
 
-        Boolean useDynamicColors = preferencesRepository.getPrefUseDynamicColors().getValue();
+    private void applyDynamicColors() {
+        Boolean useDynamicColors = PreferencesRepository.getInstance(this)
+                .getPrefUseDynamicColors()
+                .getValue();
         if (Boolean.TRUE.equals(useDynamicColors)) {
             DynamicColors.applyToActivitiesIfAvailable(
                     this,
@@ -40,10 +52,12 @@ public class MyApplication extends Application {
                             .setContentBasedSource(GlobalConfig.DBG_DYNAMIC_COLOR_SEED)
                             .build());
         }
+    }
 
+    private void observePrefNightMode() {
         // No need to remove observer, because all resources will be freed when
         // Application finishes.
-        preferencesRepository
+        PreferencesRepository.getInstance(this)
                 .getPrefNightMode()
                 .observeForever(nightMode -> {
                     Log.d(TAG, "Setting Night-Mode to " + nightMode);
@@ -78,5 +92,43 @@ public class MyApplication extends Application {
                         }
                     }
                 });
+    }
+
+    private void observePrefOrientation() {
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityPreCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+                PreferencesRepository.getInstance(activity.getApplication())
+                        .getPrefOrientation()
+                        .observe((AppCompatActivity)activity, orientation -> {
+                            // TODO: When returning to MainActivity, the old orientation is still
+                            //  visible briefly before it rotates.
+                            Log.d(TAG, activity.getClass().getSimpleName() + ": Setting orientation to " + orientation);
+                            switch (orientation) {
+                                case PORTRAIT:
+                                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); break;
+                                case LANDSCAPE:
+                                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); break;
+                                case AUTO:
+                                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); break;
+                            }
+                        });
+            }
+
+            @Override
+            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {}
+            @Override
+            public void onActivityStarted(@NonNull Activity activity) {}
+            @Override
+            public void onActivityResumed(@NonNull Activity activity) {}
+            @Override
+            public void onActivityPaused(@NonNull Activity activity) {}
+            @Override
+            public void onActivityStopped(@NonNull Activity activity) {}
+            @Override
+            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {}
+            @Override
+            public void onActivityDestroyed(@NonNull Activity activity) {}
+        });
     }
 }
