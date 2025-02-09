@@ -96,8 +96,7 @@ public class MyApplication extends Application {
 
     private void observePrefOrientation() {
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityPreCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
                 PreferencesRepository.getInstance(activity.getApplication())
                         .getPrefOrientation()
                         .observe((AppCompatActivity)activity, orientation -> {
@@ -115,8 +114,6 @@ public class MyApplication extends Application {
                         });
             }
 
-            @Override
-            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {}
             @Override
             public void onActivityStarted(@NonNull Activity activity) {}
             @Override
