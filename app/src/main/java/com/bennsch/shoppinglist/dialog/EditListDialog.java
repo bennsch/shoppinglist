@@ -84,7 +84,8 @@ public class EditListDialog extends DialogFragment {
 
         DialogEditListBinding binding = DialogEditListBinding.inflate(requireActivity().getLayoutInflater());
 
-        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+//        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setView(binding.getRoot())
                 .setTitle("Edit")
                 .setNegativeButton("Cancel", null)
@@ -142,7 +143,8 @@ public class EditListDialog extends DialogFragment {
     }
 
     private void showConfirmationDialog(String listTitle) {
-        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+//        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Delete List")
                 .setMessage("Are you sure to delete \"" + listTitle + "\"?")
                 .setNegativeButton("Cancel", null)

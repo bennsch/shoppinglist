@@ -52,7 +52,10 @@ public class NewListDialog extends DialogFragment {
         // TODO: "Create" button will be disabled after screen is rotated
         DialogNewListBinding binding = DialogNewListBinding.inflate(requireActivity().getLayoutInflater());
 
-        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+        // MaterialAlertDialogBuilder is not scaled properly on smaller screens.
+        // AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setView(binding.getRoot())
                 .setTitle("Create a new list")
                 .setMessage("Please enter the name of your list")

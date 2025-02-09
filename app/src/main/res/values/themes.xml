@@ -52,16 +52,15 @@
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
 
-        <!-- PreferenceScreen is using AlertDialog to inflate the view (instead of
-             MaterialAlertDialog), so we need to apply Material3 styling -->
+        <!-- Apply Material3 styling to all AlertDialogs (including dialogs in PreferenceScreen) -->
         <item name="alertDialogTheme">@style/Material3AlertDialog</item>
+        <!-- <item name="switchStyle">@style/Material3AlertDialog</item> too large for smaller screens -->
         <!-- <item name="materialAlertDialogTheme">@style/Material3AlertDialog</item>-->
     </style>
 
     <style name="Material3AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="dialogCornerRadius">28dp</item>
         <item name="android:background">?colorSurfaceContainerHigh</item>
-        <!-- TODO: Make switches to use Material3 style -->
     </style>
 
     <style name="ChecklistItem">

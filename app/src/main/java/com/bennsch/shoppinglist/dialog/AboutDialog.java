@@ -37,7 +37,8 @@ public class AboutDialog extends DialogFragment {
                 requireActivity().getLayoutInflater());
         binding.aboutVersion.setText("Version " + versionName);
 
-        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+//        AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         return builder
                 .setView(binding.getRoot())
                 // TODO: use string resource for "Close"
