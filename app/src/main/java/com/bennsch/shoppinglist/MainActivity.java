@@ -34,7 +34,6 @@ import com.bennsch.shoppinglist.dialog.NewListDialog;
 
 import java.util.List;
 
-// TODO: AppIcon is white on API24
 // TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
