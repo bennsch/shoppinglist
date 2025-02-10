@@ -34,14 +34,25 @@ import com.bennsch.shoppinglist.dialog.NewListDialog;
 
 import java.util.List;
 
+// TODO: PUBLISH:
 // TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
+// TODO: Sign with release certificate
+// TODO: Add "Swipe left to view other list" note on first use
+// TODO: Add "Click on item" note on first use
+// TODO: Remove "Export to CSV"?
+// TODO: Rename "List Completed Message" preference
+// TODO: Disable logging of DEBUG level in release build
+// TODO: Set version label to "1.0"
+// TODO: Create promotional gif and screenshots
+// TODO: Update github README (description, screenshots, how to build)
+// TODO: Improve "About" dialog contents
+
+// TODO: Is auto backup working?
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
 // TODO: Show line between app bar and content when no item in list
-// TODO: Disable logging of DEBUG level in release build
 // TODO: Scroll faster to bottom of list if IME shows up (
 //        maybe fixed scrolling duration regardless of number of items)
-
 // TODO: Add undo functionality for deleted items
 // TODO: Add undo functionality if list got deleted
 // TODO: Save database backup to  shoppinglist/media/ folder
@@ -50,29 +61,28 @@ import java.util.List;
 // TODO: Add description for each preference?
 // TODO: fix build warning: uses or overrides deprecated API
 // TODO: Update gradle packages
-// TODO: Use old icon (shopping cart)
 // TODO: highlight action icon while delete mode is active?
 // TODO: Limit number of characters for every text input
 // TODO: Make all TextFields use textColor as highlight color
 // TODO: Put all hardcoded strings to strings.xml
+// TODO: Provide translations
+// TODO: Add setting: ChecklistItem text size
+// TODO: Add setting: ChecklistItems condensed view (less top/bottom padding)
+// TODO: Add setting: Dynamic color seed
+// TODO: Add Checklist setting: Sort by incidence
+// TODO: Add Checklist setting: Hide title bar
+// TODO: Add Checklist setting: Show typing suggestions
 
-// TODO: Test different screen sizes
-// TODO: Test everything in both release build
-// TODO: Test night mode
-// TODO: Test on oldest supported Android version (no dynamic color pre v12)
-// TODO: test device rotation
-// TODO: Test rotating the screen in a possible views
-// TODO: Test auto backup
+/*
+TESTS:
+    -Test on different screen sizes and API levels:
+        -Dialogs ("New List", "Edit List", "About" etc...) displayed properly?
+        -Is data being retained?
+        -Does CSV export work?
+        -Landscape displayed properly (in all possible views)?
+        -Night Mode displayed properly?
+ */
 
-// TODO: General settings:
-//          -Dynamic color seed
-//          -ChecklistItem text size
-//          -ChecklistItems condensed view (less top/bottom padding)
-// TODO: Per Checklist settings:
-//          -Sort by incidence
-//          -List name
-//          -Show suggestions
-//          -Delete list
 
 public class MainActivity
         extends AppCompatActivity
