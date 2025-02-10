@@ -4,7 +4,7 @@
     <!-- <item name="android:windowTranslucentNavigation">false</item>-->
     <!-- <item name="android:navigationBarColor">@color/md_theme_light_background</item>-->
 
-    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
@@ -54,8 +54,9 @@
 
         <!-- Apply Material3 styling to all AlertDialogs (including dialogs in PreferenceScreen) -->
         <item name="alertDialogTheme">@style/Material3AlertDialog</item>
-        <!-- <item name="switchStyle">@style/Material3AlertDialog</item> too large for smaller screens -->
         <!-- <item name="materialAlertDialogTheme">@style/Material3AlertDialog</item>-->
+        <!-- Too large for smaller screens -->
+        <!-- <item name="switchStyle">@style/Material3AlertDialog</item> -->
     </style>
 
     <style name="Material3AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
