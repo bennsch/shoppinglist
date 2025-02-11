@@ -27,18 +27,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bennsch.shoppinglist.data.PreferencesRepository;
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
 import com.bennsch.shoppinglist.dialog.AboutDialog;
 import com.bennsch.shoppinglist.dialog.EditListDialog;
 import com.bennsch.shoppinglist.dialog.NewListDialog;
+import com.bennsch.shoppinglist.dialog.WelcomeDialog;
 
 import java.util.List;
 
 // TODO: PUBLISH:
 // TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 // TODO: Sign with release certificate
-// TODO: Add "Swipe left to view other list" note on first use
-// TODO: Add "Click on item" note on first use
+// TODO: Fix Welcome screen
 // TODO: Remove "Export to CSV"?
 // TODO: Rename "List Completed Message" preference
 // TODO: Disable logging of DEBUG level in release build
@@ -46,7 +47,10 @@ import java.util.List;
 // TODO: Create promotional gif and screenshots
 // TODO: Update github README (description, screenshots, how to build)
 // TODO: Improve "About" dialog contents
+// TODO: Code cleanup
 
+// TODO: Add button to show Intro tutorial again
+// TODO: Add guided tutorial how to use the app (try Focus libraries?)
 // TODO: Is auto backup working?
 // TODO: Apply debug settings without restarting app
 // TODO: Remove *.txt from exported CSV file
@@ -66,6 +70,7 @@ import java.util.List;
 // TODO: Make all TextFields use textColor as highlight color
 // TODO: Put all hardcoded strings to strings.xml
 // TODO: Provide translations
+// TODO: Feature: Save reward cards (picture of bar code)
 // TODO: Add setting: ChecklistItem text size
 // TODO: Add setting: ChecklistItems condensed view (less top/bottom padding)
 // TODO: Add setting: Dynamic color seed
@@ -141,6 +146,11 @@ public class MainActivity
         if (BuildConfig.DEBUG) {
             mBinding.versionLabel.setVisibility(View.VISIBLE);
         }
+
+        if (PreferencesRepository.getPrefFirstStartup(getApplication())) {
+            showWelcomeDialog();
+            PreferencesRepository.setPrefFirstStartup(false, getApplication());
+        }
     }
 
     @Override
@@ -173,9 +183,9 @@ public class MainActivity
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
         // avoid starting with arrow in toolbar
         this.actionBarDrawerToggle.syncState();
-        super.onPostCreate(savedInstanceState);
     }
 
     @Override
@@ -370,6 +380,11 @@ public class MainActivity
     private void showAboutDialog() {
         AboutDialog.newInstance(viewModel.getVersionName())
                 .show(getSupportFragmentManager(), "AboutDialog");
+    }
+
+    private void showWelcomeDialog() {
+        WelcomeDialog.newInstance()
+                .show(getSupportFragmentManager(), "WelcomeDialog");
     }
 
     private void showEditListDialog() {

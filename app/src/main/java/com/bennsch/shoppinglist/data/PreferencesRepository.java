@@ -62,13 +62,16 @@ public class PreferencesRepository {
 
     private static PreferencesRepository INSTANCE;
     private static final String TAG = "PreferencesRepository";
+    private static final String KEY_FIRST_STARTUP = "first_startup";
 
     // TODO: Why does using an instance variable not work in release build? Instance variables are strong references.
+    //  Maybe try to keep SharedPreferences object as instance variable?
     private static SharedPreferences.OnSharedPreferenceChangeListener mPreferenceChangeListener = null;
     private final MutableLiveData<String> mPrefMessageListCompleted = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefUseDynamicColors = new MutableLiveData<>();
     private final MutableLiveData<NightMode> mPrefNightMode = new MutableLiveData<>();
     private final MutableLiveData<Orientation> mPrefOrientation = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> mPrefFirstStartup = new MutableLiveData<>();
 
 
     public static synchronized PreferencesRepository getInstance(@NonNull Application application) {
@@ -92,6 +95,16 @@ public class PreferencesRepository {
 
     public LiveData<Orientation> getPrefOrientation() {
         return mPrefOrientation;
+    }
+
+    public static boolean getPrefFirstStartup(Application context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(KEY_FIRST_STARTUP, true);
+    }
+
+    public static void setPrefFirstStartup(boolean firstStartup, Application context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.edit().putBoolean(KEY_FIRST_STARTUP, firstStartup).apply();
     }
 
     private PreferencesRepository(@NonNull Context context) {
@@ -119,6 +132,7 @@ public class PreferencesRepository {
         mPrefUseDynamicColors.setValue(preferences.getBoolean(keyUseDynamicColors, false));
         mPrefNightMode.setValue(NightMode.fromPrefEntryValue(preferences.getString(keyNightMode, "")));
         mPrefOrientation.setValue(Orientation.fromPrefEntryValue(preferences.getString(keyOrientation, "")));
+
         // Register a change listener.
         // Cannot use anonymous inner class, because the PreferenceManager
         // does not store a strong reference to the listener and it
@@ -137,7 +151,7 @@ public class PreferencesRepository {
                 mPrefUseDynamicColors.setValue(sharedPreferences.getBoolean(key, false));
             } else if (key.contentEquals(keyNightMode)) {
                 mPrefNightMode.setValue(NightMode.fromPrefEntryValue(sharedPreferences.getString(key, "")));
-            }else if (key.contentEquals(keyOrientation)) {
+            } else if (key.contentEquals(keyOrientation)) {
                 mPrefOrientation.setValue(Orientation.fromPrefEntryValue(sharedPreferences.getString(key, "")));
             }
         };
