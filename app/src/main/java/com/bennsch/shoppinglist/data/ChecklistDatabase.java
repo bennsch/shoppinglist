@@ -18,6 +18,7 @@ import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.bennsch.shoppinglist.BuildConfig;
+import com.bennsch.shoppinglist.GlobalConfig;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -121,14 +122,13 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
     abstract ItemDao itemDao();
 
-    private static final RoomDatabase.Callback initialCallback = new RoomDatabase.Callback() {
+    private static final RoomDatabase.Callback onCreateCallback = new RoomDatabase.Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
             executor.execute(() -> {
                 Log.d(TAG, "initialCallback()");
                 INSTANCE.clearAllTables();
-
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "Populating database");
                     ItemDao dao = INSTANCE.itemDao();
@@ -153,6 +153,20 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         }
     };
 
+    private static final RoomDatabase.Callback onOpenCallback = new Callback() {
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+            executor.execute(() -> {
+                Log.d(TAG, "onOpenCallback()");
+                if (GlobalConfig.DBG_FIRST_STARTUP) {
+                    INSTANCE.clearAllTables();
+                    Log.d(TAG, "onOpen: " + "Database cleared");
+                }
+            });
+        }
+    };
+
     // TODO: Singleton cannot have argument!! (maybe store one instance per context (map)?)
     static ChecklistDatabase getInstance(final Context context) {
         if (INSTANCE == null) {
@@ -162,7 +176,8 @@ public abstract class ChecklistDatabase extends RoomDatabase {
                     // (e.g. app just got installed or user deleted app storage).
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     ChecklistDatabase.class, "checklist_database")
-                            .addCallback(initialCallback)
+                            .addCallback(onCreateCallback)
+                            .addCallback(onOpenCallback)
                             .build();
                 }
             }

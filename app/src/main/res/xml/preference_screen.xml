@@ -4,7 +4,7 @@
     <EditTextPreference
         app:key="@string/key_complete_msg"
         app:title="List Completed Message"
-        app:defaultValue="Yo're all done!"
+        app:defaultValue="You're all done!"
         app:useSimpleSummaryProvider="true" />
 
     <ListPreference

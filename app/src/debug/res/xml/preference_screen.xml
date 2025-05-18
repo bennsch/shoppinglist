@@ -4,7 +4,7 @@
     <EditTextPreference
         app:key="@string/key_complete_msg"
         app:title="List Completed Message"
-        app:defaultValue="Yo're all done!"
+        app:defaultValue="You're all done!"
         app:useSimpleSummaryProvider="true" />
 
     <ListPreference
@@ -51,6 +51,11 @@
         <SwitchPreferenceCompat
             app:key="dbg_show_trash"
             android:title="Show Trash"
+            app:defaultValue="false"/>
+
+        <SwitchPreferenceCompat
+            app:key="dbg_first_startup"
+            android:title="Pretend First Startup"
             app:defaultValue="false"/>
 
     </PreferenceCategory>

@@ -34,6 +34,7 @@ public class MyApplication extends Application {
         GlobalConfig.DBG_SHOW_INCIDENCE = preferences.getBoolean("dbg_show_incidence", false);
         GlobalConfig.DBG_SHOW_NAVDRAWER_ACTIONVIEW = preferences.getBoolean("dbg_show_navdrawer_actionview", true);
         GlobalConfig.DBG_SHOW_TRASH = preferences.getBoolean("dbg_show_trash", false);
+        GlobalConfig.DBG_FIRST_STARTUP = preferences.getBoolean("dbg_first_startup", false);
 
         applyDynamicColors();
         observePrefNightMode();

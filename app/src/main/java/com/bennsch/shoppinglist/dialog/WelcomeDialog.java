@@ -26,7 +26,7 @@ public class WelcomeDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         return builder
                 .setView(binding.getRoot())
-                // TODO: use string resource for "Close"
+                // TODO: use string resource
                 .setNegativeButton("Got It", null)
                 .create();
     }

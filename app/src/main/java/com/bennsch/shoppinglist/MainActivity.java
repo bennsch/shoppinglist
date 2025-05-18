@@ -147,7 +147,7 @@ public class MainActivity
             mBinding.versionLabel.setVisibility(View.VISIBLE);
         }
 
-        if (PreferencesRepository.getPrefFirstStartup(getApplication())) {
+        if (PreferencesRepository.getPrefFirstStartup(getApplication()) || GlobalConfig.DBG_FIRST_STARTUP) {
             showWelcomeDialog();
             PreferencesRepository.setPrefFirstStartup(false, getApplication());
         }
