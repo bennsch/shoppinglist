@@ -32,6 +32,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 
 import com.bennsch.shoppinglist.databinding.FragmentChecklistPagerBinding;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -52,6 +53,7 @@ public class ChecklistPagerFragment extends Fragment {
     private String mListTitle;
     private OnBackPressedCallback mOnBackPressedCallback;
     private IMEHelper mIMEHelper;
+    private Snackbar mOnboardingSnackbar;
 
 
     public ChecklistPagerFragment() {
@@ -87,6 +89,33 @@ public class ChecklistPagerFragment extends Fragment {
                 mBinding.fab.hide();
             } else {
                 mBinding.fab.show();
+            }
+        });
+
+        mViewModel.getOnboarding().getStage().observe(getViewLifecycleOwner(), stage -> {
+            if (stage == MainViewModel.Onboarding.Stage.INIT) {
+                if (mOnboardingSnackbar != null) {
+                    mOnboardingSnackbar.dismiss();
+                    mOnboardingSnackbar = null;
+                }
+            } else if (stage == MainViewModel.Onboarding.Stage.DONE){
+                if (mOnboardingSnackbar != null) {
+                    mOnboardingSnackbar = Snackbar.make(
+                            mBinding.getRoot().getRootView(),
+                            stage.toString(),
+                            Snackbar.LENGTH_SHORT);
+                    mOnboardingSnackbar.setAnchorView(mBinding.fab);
+                    mOnboardingSnackbar.setAnchorViewLayoutListenerEnabled(true);
+                    mOnboardingSnackbar.show();
+                }
+            } else {
+                mOnboardingSnackbar = Snackbar.make(
+                        mBinding.getRoot().getRootView(),
+                        stage.toString(),
+                        Snackbar.LENGTH_INDEFINITE);
+                mOnboardingSnackbar.setAnchorView(mBinding.fab);
+                mOnboardingSnackbar.setAnchorViewLayoutListenerEnabled(true);
+                mOnboardingSnackbar.show();
             }
         });
 
@@ -204,6 +233,11 @@ public class ChecklistPagerFragment extends Fragment {
                 super.onPageSelected(position);
                 mBinding.itemNameBox.dismissDropDown();
                 isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: or postValue()?
+                if (isCurrentPageChecked()) {
+                    mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.SWIPED_TO_CHECKED);
+                } else {
+                    mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.SWIPED_TO_UNCHECKED);
+                }
             }
         });
 
@@ -301,6 +335,7 @@ public class ChecklistPagerFragment extends Fragment {
             @Override
             public void onSuccess(Void result) {
                 mBinding.itemNameBox.setText("");
+                mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.ITEM_INSERTED);
             }
 
             @Override

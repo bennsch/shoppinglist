@@ -130,6 +130,7 @@ public class ChecklistFragment extends Fragment {
             vibrate();
         } else {
             mViewModel.flipItem(mListTitle, mDisplayChecked, item);
+            mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.ITEM_CLICKED);
         }
     }
 

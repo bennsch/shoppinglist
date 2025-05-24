@@ -5,6 +5,8 @@
     <string name="key_night_mode">night_mode</string>
     <string name="key_orientation">orientation</string>
     <string name="key_export_csv">export_csv</string>
+    <string name="key_first_startup">first_startup</string>
+    <string name="key_onboarding_stage">onboarding_stage</string>
 
     <string name="pref_night_mode_entry_value_enabled">enabled</string>
     <string name="pref_night_mode_entry_value_disabled">disabled</string>

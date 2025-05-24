@@ -39,6 +39,11 @@ public class MyApplication extends Application {
         applyDynamicColors();
         observePrefNightMode();
         observePrefOrientation();
+
+        if (GlobalConfig.DBG_FIRST_STARTUP) {
+//            preferences.edit().clear().commit();
+            PreferencesRepository.getInstance(this).setPrefOnboardingStage(MainViewModel.Onboarding.Stage.INIT.ordinal());
+        }
     }
 
     private void applyDynamicColors() {

@@ -62,16 +62,25 @@ public class PreferencesRepository {
 
     private static PreferencesRepository INSTANCE;
     private static final String TAG = "PreferencesRepository";
-    private static final String KEY_FIRST_STARTUP = "first_startup";
+
+    private final SharedPreferences mSharedPreferences;
+
+    private final String mKeyMessageListDeleted;
+    private final String mKeyUseDynamicColors;
+    private final String mKeyNightMode;
+    private final String mKeyOrientation;
+    private final String mKeyFirstStartup;
+    private final String mKeyOnboardingStage;
 
     // TODO: Why does using an instance variable not work in release build? Instance variables are strong references.
     //  Maybe try to keep SharedPreferences object as instance variable?
     private static SharedPreferences.OnSharedPreferenceChangeListener mPreferenceChangeListener = null;
+
+    // Create LiveData objects for preferences displayed on the PreferenceScreen:
     private final MutableLiveData<String> mPrefMessageListCompleted = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefUseDynamicColors = new MutableLiveData<>();
     private final MutableLiveData<NightMode> mPrefNightMode = new MutableLiveData<>();
     private final MutableLiveData<Orientation> mPrefOrientation = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> mPrefFirstStartup = new MutableLiveData<>();
 
 
     public static synchronized PreferencesRepository getInstance(@NonNull Application application) {
@@ -97,23 +106,33 @@ public class PreferencesRepository {
         return mPrefOrientation;
     }
 
-    public static boolean getPrefFirstStartup(Application context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getBoolean(KEY_FIRST_STARTUP, true);
+    public boolean getPrefFirstStartup() {
+        return mSharedPreferences.getBoolean(mKeyFirstStartup, true);
     }
 
-    public static void setPrefFirstStartup(boolean firstStartup, Application context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        preferences.edit().putBoolean(KEY_FIRST_STARTUP, firstStartup).apply();
+    public void setPrefFirstStartup(boolean firstStartup) {
+        mSharedPreferences.edit().putBoolean(mKeyFirstStartup, firstStartup).apply();
+    }
+
+    public int getPrefOnboardingStage() {
+        return mSharedPreferences.getInt(mKeyOnboardingStage, 0);
+    }
+
+    public void setPrefOnboardingStage(int stage) {
+        mSharedPreferences.edit().putInt(mKeyOnboardingStage, stage).apply();
     }
 
     private PreferencesRepository(@NonNull Context context) {
         Log.d(TAG, "PreferencesRepository: Ctor " + context);
 
-        String keyMessageListDeleted = context.getResources().getString(R.string.key_complete_msg);
-        String keyUseDynamicColors = context.getResources().getString(R.string.key_use_dynamic_colors);
-        String keyNightMode = context.getResources().getString(R.string.key_night_mode);
-        String keyOrientation = context.getResources().getString(R.string.key_orientation);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        mKeyMessageListDeleted = context.getResources().getString(R.string.key_complete_msg);
+        mKeyUseDynamicColors = context.getResources().getString(R.string.key_use_dynamic_colors);
+        mKeyNightMode = context.getResources().getString(R.string.key_night_mode);
+        mKeyOrientation = context.getResources().getString(R.string.key_orientation);
+        mKeyFirstStartup = context.getResources().getString(R.string.key_first_startup);
+        mKeyOnboardingStage = context.getResources().getString(R.string.key_onboarding_stage);
 
         // Apply the default values from the xml, because the SharedPreferences
         // won't be initialized until the SettingsActivity is started.
@@ -124,14 +143,13 @@ public class PreferencesRepository {
         PreferenceManager.setDefaultValues(context, PREF_RES, true);
 
         // Initialize the LiveData.
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         // TODO: use postValue()?
         // We don't need to worry about the default values, because PreferenceManager.setDefaultValues()
         // has been called already.
-        mPrefMessageListCompleted.setValue(preferences.getString(keyMessageListDeleted, null));
-        mPrefUseDynamicColors.setValue(preferences.getBoolean(keyUseDynamicColors, false));
-        mPrefNightMode.setValue(NightMode.fromPrefEntryValue(preferences.getString(keyNightMode, "")));
-        mPrefOrientation.setValue(Orientation.fromPrefEntryValue(preferences.getString(keyOrientation, "")));
+        mPrefMessageListCompleted.setValue(mSharedPreferences.getString(mKeyMessageListDeleted, null));
+        mPrefUseDynamicColors.setValue(mSharedPreferences.getBoolean(mKeyUseDynamicColors, false));
+        mPrefNightMode.setValue(NightMode.fromPrefEntryValue(mSharedPreferences.getString(mKeyNightMode, "")));
+        mPrefOrientation.setValue(Orientation.fromPrefEntryValue(mSharedPreferences.getString(mKeyOrientation, "")));
 
         // Register a change listener.
         // Cannot use anonymous inner class, because the PreferenceManager
@@ -145,16 +163,16 @@ public class PreferencesRepository {
             Log.d(TAG, "PreferencesRepository: onChangeListener " + key);
             if (key == null) {
                 Log.w(TAG, "key == null");
-            } else if (key.contentEquals(keyMessageListDeleted)) {
+            } else if (key.contentEquals(mKeyMessageListDeleted)) {
                 mPrefMessageListCompleted.setValue(sharedPreferences.getString(key, null));
-            } else if (key.contentEquals(keyUseDynamicColors)) {
+            } else if (key.contentEquals(mKeyUseDynamicColors)) {
                 mPrefUseDynamicColors.setValue(sharedPreferences.getBoolean(key, false));
-            } else if (key.contentEquals(keyNightMode)) {
+            } else if (key.contentEquals(mKeyNightMode)) {
                 mPrefNightMode.setValue(NightMode.fromPrefEntryValue(sharedPreferences.getString(key, "")));
-            } else if (key.contentEquals(keyOrientation)) {
+            } else if (key.contentEquals(mKeyOrientation)) {
                 mPrefOrientation.setValue(Orientation.fromPrefEntryValue(sharedPreferences.getString(key, "")));
             }
         };
-        preferences.registerOnSharedPreferenceChangeListener(mPreferenceChangeListener);
+        mSharedPreferences.registerOnSharedPreferenceChangeListener(mPreferenceChangeListener);
     }
 }

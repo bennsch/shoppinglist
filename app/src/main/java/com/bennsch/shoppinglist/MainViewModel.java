@@ -40,6 +40,64 @@ public class MainViewModel extends AndroidViewModel {
     // All the app's business logic should be handled in the ViewModel.
     // It's the interface between data and UI.
 
+    public static class Onboarding {
+
+        public enum Event {
+            ITEM_INSERTED,
+            ITEM_CLICKED,
+            SWIPED_TO_CHECKED,
+            SWIPED_TO_UNCHECKED,
+            OTHER_LIST_SELECTED
+        }
+
+        public enum Stage {
+            INIT,
+            CLICK_ON_ITEM_TO_CHECK,
+            SWIPE,
+            CLICK_ITEM_TO_UNCHECK,
+            SWIPE_TO_UNCHECKED,
+            DONE,
+            SWIPE_BACK
+        }
+
+        private final MutableLiveData<Stage> mStage;
+
+        // Determine the next stage based on current stage and event. Null means remain
+        // in current stage.
+
+        // TODO: Use import com.google.common.collect.Table instead?
+
+        private static final Stage[][] STAGE_LOOKUP = {
+
+            /*                          ITEM_INSERTED                   ITEM_CLICKED                SWIPED_TO_CHECKED               SWIPED_TO_UNCHECKED             OTHER_LIST_SELECTED            */
+            /* INIT             */      {Stage.CLICK_ON_ITEM_TO_CHECK,  null,                       Stage.CLICK_ITEM_TO_UNCHECK,    null,                           Stage.INIT},
+            /* CLICK_ON_ITEM_TO_CHECK */{null,                          Stage.SWIPE,                Stage.SWIPE_BACK,               null,                           Stage.INIT},
+            /* SWIPE      */            {null,                          null,                       Stage.CLICK_ITEM_TO_UNCHECK,    null,                           Stage.INIT},
+            /* CLICK_ITEM_TO_UNCHECK */ {null,                          Stage.SWIPE_TO_UNCHECKED,   Stage.SWIPE_BACK,               Stage.SWIPE,                    Stage.INIT},
+            /* SWIPE_TO_UNCHECKED */    {null,                          null,                       null,                           Stage.DONE,                     Stage.INIT},
+            /* DONE */                  {null,                          null,                       null,                           null,                           null},
+            /* SWIPE_BACK      */       {null,                          null,                       null,                           Stage.CLICK_ON_ITEM_TO_CHECK,   Stage.INIT},
+
+        };
+
+        private Onboarding(int initialStage) {
+            mStage = new MutableLiveData<>(Stage.values()[initialStage]);
+        }
+
+        public LiveData<Stage> getStage() {
+            // Return immutable LiveData
+            return mStage;
+        }
+
+        public void notify(Event event) {
+            // TODO: postValue?
+            Log.d(TAG, "notify: " + event.toString());
+            Stage nextStage = STAGE_LOOKUP[mStage.getValue().ordinal()][event.ordinal()];
+            if (nextStage != null) {
+                mStage.setValue(nextStage);
+            }
+        }
+    }
 
     public static class DeleteItemsMode {
         // Convenience class to handle all logic related to DeleteItemsMode.
@@ -99,6 +157,8 @@ public class MainViewModel extends AndroidViewModel {
     // Store in the ViewModel (instead of database) because we don't
     // need to keep them when the app finishes.
     private final DeleteItemsMode mDeleteItemsMode;
+    private final Onboarding mOnboarding;
+    private final Observer<Onboarding.Stage> mOnboardingStageObserver;
     private final MutableLiveData<Boolean> mAreItemsDragged;
 
 
@@ -113,6 +173,16 @@ public class MainViewModel extends AndroidViewModel {
                 getActiveChecklist(),
                 this::isChecklistEmpty);
         mAreItemsDragged = new MutableLiveData<>(false);
+
+        mOnboarding = new Onboarding(mPreferencesRepo.getPrefOnboardingStage());
+        mOnboardingStageObserver = stage -> mPreferencesRepo.setPrefOnboardingStage(stage.ordinal());
+        mOnboarding.getStage().observeForever(mOnboardingStageObserver);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        mOnboarding.getStage().removeObserver(mOnboardingStageObserver);
     }
 
     public void setItemsDragged(boolean dragged) {
@@ -127,6 +197,11 @@ public class MainViewModel extends AndroidViewModel {
     @NonNull
     public DeleteItemsMode getDeleteItemsMode() {
         return mDeleteItemsMode;
+    }
+
+    @NonNull
+    public Onboarding getOnboarding() {
+        return mOnboarding;
     }
 
     @NonNull

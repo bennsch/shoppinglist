@@ -147,9 +147,10 @@ public class MainActivity
             mBinding.versionLabel.setVisibility(View.VISIBLE);
         }
 
-        if (PreferencesRepository.getPrefFirstStartup(getApplication()) || GlobalConfig.DBG_FIRST_STARTUP) {
+        PreferencesRepository preferencesRepo = PreferencesRepository.getInstance(getApplication());
+        if (preferencesRepo.getPrefFirstStartup() || GlobalConfig.DBG_FIRST_STARTUP) {
             showWelcomeDialog();
-            PreferencesRepository.setPrefFirstStartup(false, getApplication());
+            preferencesRepo.setPrefFirstStartup(false);
         }
     }
 
@@ -258,6 +259,7 @@ public class MainActivity
                 }
             }
             showChecklist(newActiveChecklist);
+            viewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.OTHER_LIST_SELECTED);
         }
     }
 
