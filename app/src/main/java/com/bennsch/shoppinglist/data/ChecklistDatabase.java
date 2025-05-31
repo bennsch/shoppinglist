@@ -122,34 +122,47 @@ public abstract class ChecklistDatabase extends RoomDatabase {
 
     abstract ItemDao itemDao();
 
+    private static final Runnable populateDatabaseRunnable = () -> {
+        Log.d(TAG, "Populating database");
+        INSTANCE.clearAllTables();
+        ItemDao dao = INSTANCE.itemDao();
+        DbChecklist shortList = new DbChecklist("Grocery List", true);
+        dao.insert(shortList);
+        dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Stump", true, 3, shortList.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Grass", true, 4, shortList.getChecklistTitle(), 0));
+    };
+
+    private static final Runnable populateDatabaseDebugRunnable = () -> {
+        Log.d(TAG, "Populating debug database");
+        INSTANCE.clearAllTables();
+        ItemDao dao = INSTANCE.itemDao();
+        DbChecklist shortList = new DbChecklist("Short List", false);
+        dao.insert(shortList);
+        dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle(), 0));
+        DbChecklist emptyList = new DbChecklist("Empty List", false);
+        dao.insert(emptyList);
+        DbChecklist longList = new DbChecklist("Long", true);
+        dao.insert(longList);
+        int sizeUnchecked = 20;
+        for (int i = 0; i < sizeUnchecked; i++) {
+            dao.insert(new DbChecklistItem("Item " + i, false, i, longList.getChecklistTitle(), 0));
+        }
+        for (int i = 0; i < 10; i++) {
+            dao.insert(new DbChecklistItem("Item " + (i + sizeUnchecked), true, i, longList.getChecklistTitle(), 0));
+        }
+    };
+
     private static final RoomDatabase.Callback onCreateCallback = new RoomDatabase.Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-            executor.execute(() -> {
-                Log.d(TAG, "initialCallback()");
-                INSTANCE.clearAllTables();
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "Populating database");
-                    ItemDao dao = INSTANCE.itemDao();
-                    DbChecklist shortList = new DbChecklist("Short List", false);
-                    dao.insert(shortList);
-                    dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle(), 0));
-                    dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle(), 0));
-                    dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle(), 0));
-                    DbChecklist emptyList = new DbChecklist("Empty List", false);
-                    dao.insert(emptyList);
-                    DbChecklist longList = new DbChecklist("Long", true);
-                    dao.insert(longList);
-                    int sizeUnchecked = 20;
-                    for (int i = 0; i < sizeUnchecked; i++) {
-                        dao.insert(new DbChecklistItem("Item " + i, false, i, longList.getChecklistTitle(), 0));
-                    }
-                    for (int i = 0; i < 10; i++) {
-                        dao.insert(new DbChecklistItem("Item " + (i + sizeUnchecked), true, i, longList.getChecklistTitle(), 0));
-                    }
-                }
-            });
+            Log.d(TAG, "onCreateCallback()");
+            executor.execute(populateDatabaseRunnable);
         }
     };
 
@@ -157,13 +170,10 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
-            executor.execute(() -> {
-                Log.d(TAG, "onOpenCallback()");
-                if (GlobalConfig.DBG_FIRST_STARTUP) {
-                    INSTANCE.clearAllTables();
-                    Log.d(TAG, "onOpen: " + "Database cleared");
-                }
-            });
+            Log.d(TAG, "onOpenCallback()");
+            if (GlobalConfig.DBG_FIRST_STARTUP) {
+                executor.execute(populateDatabaseRunnable);
+            }
         }
     };
 
