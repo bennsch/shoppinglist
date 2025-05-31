@@ -385,8 +385,10 @@ public class MainActivity
     }
 
     private void showWelcomeDialog() {
-        WelcomeDialog.newInstance()
-                .show(getSupportFragmentManager(), "WelcomeDialog");
+        WelcomeDialog dialog = WelcomeDialog.newInstance();
+        dialog.setOnClickListener((dlg, which) ->
+                viewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.START_ONBOARDING));
+        dialog.show(getSupportFragmentManager(), "WelcomeDialog");
     }
 
     private void showEditListDialog() {

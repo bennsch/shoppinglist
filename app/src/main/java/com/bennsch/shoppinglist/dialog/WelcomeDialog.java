@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist.dialog;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,8 @@ import com.bennsch.shoppinglist.databinding.DialogWelcomeBinding;
 
 
 public class WelcomeDialog extends DialogFragment {
+
+    private DialogInterface.OnClickListener mOnClickListener = null;
 
     public static WelcomeDialog newInstance() {
         return new WelcomeDialog();
@@ -27,8 +30,12 @@ public class WelcomeDialog extends DialogFragment {
         return builder
                 .setView(binding.getRoot())
                 // TODO: use string resource
-                .setNegativeButton("Got It", null)
+                .setNegativeButton("Got It", mOnClickListener)
                 .create();
+    }
+
+    public void setOnClickListener(DialogInterface.OnClickListener listener) {
+        mOnClickListener = listener;
     }
 
 }

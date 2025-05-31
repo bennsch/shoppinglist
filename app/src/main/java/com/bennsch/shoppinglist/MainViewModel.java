@@ -43,21 +43,20 @@ public class MainViewModel extends AndroidViewModel {
     public static class Onboarding {
 
         public enum Event {
-            ITEM_INSERTED,
-            ITEM_CLICKED,
+            START_ONBOARDING,
+            ITEM_TAPPED,
             SWIPED_TO_CHECKED,
             SWIPED_TO_UNCHECKED,
-            OTHER_LIST_SELECTED
+            OTHER_LIST_SELECTED,
         }
 
         public enum Stage {
             INIT,
-            CLICK_ON_ITEM_TO_CHECK,
-            SWIPE,
-            CLICK_ITEM_TO_UNCHECK,
-            SWIPE_TO_UNCHECKED,
+            TAP_ITEM_TO_CHECK,
+            SWIPE_TO_CHECKED_PAGE,
+            TAP_ITEM_TO_UNCHECK,
+            SWIPE_TO_UNCHECKED_PAGE,
             DONE,
-            SWIPE_BACK
         }
 
         private final MutableLiveData<Stage> mStage;
@@ -67,17 +66,16 @@ public class MainViewModel extends AndroidViewModel {
 
         // TODO: Use import com.google.common.collect.Table instead?
 
+        // TODO: HANDLE IF USER CREATES NEW LIST OR SELECTS A DIFFERENT LIST
+        // TODO: start at stage 0 unless we were done
         private static final Stage[][] STAGE_LOOKUP = {
-
-            /*                          ITEM_INSERTED                   ITEM_CLICKED                SWIPED_TO_CHECKED               SWIPED_TO_UNCHECKED             OTHER_LIST_SELECTED            */
-            /* INIT             */      {Stage.CLICK_ON_ITEM_TO_CHECK,  null,                       Stage.CLICK_ITEM_TO_UNCHECK,    null,                           Stage.INIT},
-            /* CLICK_ON_ITEM_TO_CHECK */{null,                          Stage.SWIPE,                Stage.SWIPE_BACK,               null,                           Stage.INIT},
-            /* SWIPE      */            {null,                          null,                       Stage.CLICK_ITEM_TO_UNCHECK,    null,                           Stage.INIT},
-            /* CLICK_ITEM_TO_UNCHECK */ {null,                          Stage.SWIPE_TO_UNCHECKED,   Stage.SWIPE_BACK,               Stage.SWIPE,                    Stage.INIT},
-            /* SWIPE_TO_UNCHECKED */    {null,                          null,                       null,                           Stage.DONE,                     Stage.INIT},
-            /* DONE */                  {null,                          null,                       null,                           null,                           null},
-            /* SWIPE_BACK      */       {null,                          null,                       null,                           Stage.CLICK_ON_ITEM_TO_CHECK,   Stage.INIT},
-
+            /*                          START_ONBOARDING            ITEM_TAPPED                    SWIPED_TO_CHECKED           SWIPED_TO_UNCHECKED  OTHER_LIST_SELECTED */
+            /* INIT */                  {Stage.TAP_ITEM_TO_CHECK,   null,                          null,                       null,                null},
+            /* TAP_ITEM_TO_CHECK */     {null,                      Stage.SWIPE_TO_CHECKED_PAGE,   Stage.TAP_ITEM_TO_UNCHECK,  null,                Stage.TAP_ITEM_TO_CHECK},
+            /* SWIPE_TO_CHECKED_PAGE */ {null,                      null,                          Stage.TAP_ITEM_TO_UNCHECK,  null,                Stage.TAP_ITEM_TO_CHECK},
+            /* TAP_ITEM_TO_UNCHECK */   {null,                      Stage.SWIPE_TO_UNCHECKED_PAGE, null,                       null,                Stage.TAP_ITEM_TO_CHECK},
+            /* SWIPE_TO_UNCHECKED_PAGE*/{null,                      null,                          null,                       Stage.DONE,          Stage.TAP_ITEM_TO_CHECK},
+            /* DONE */                  {null,                      null,                          null,                       null,                null},
         };
 
         private Onboarding(int initialStage) {

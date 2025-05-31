@@ -335,7 +335,6 @@ public class ChecklistPagerFragment extends Fragment {
             @Override
             public void onSuccess(Void result) {
                 mBinding.itemNameBox.setText("");
-                mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.ITEM_INSERTED);
             }
 
             @Override
