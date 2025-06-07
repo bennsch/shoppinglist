@@ -70,7 +70,7 @@ public class PreferencesRepository {
     private final String mKeyNightMode;
     private final String mKeyOrientation;
     private final String mKeyFirstStartup;
-    private final String mKeyOnboardingStage;
+    private final String mKeyOnboardingCompleted;
 
     // TODO: Why does using an instance variable not work in release build? Instance variables are strong references.
     //  Maybe try to keep SharedPreferences object as instance variable?
@@ -114,12 +114,12 @@ public class PreferencesRepository {
         mSharedPreferences.edit().putBoolean(mKeyFirstStartup, firstStartup).apply();
     }
 
-    public int getPrefOnboardingStage() {
-        return mSharedPreferences.getInt(mKeyOnboardingStage, 0);
+    public boolean getPrefOnboardingCompleted() {
+        return mSharedPreferences.getBoolean(mKeyOnboardingCompleted, false);
     }
 
-    public void setPrefOnboardingStage(int stage) {
-        mSharedPreferences.edit().putInt(mKeyOnboardingStage, stage).apply();
+    public void setPrefOnboardingCompleted(boolean completed) {
+        mSharedPreferences.edit().putBoolean(mKeyOnboardingCompleted, completed).apply();
     }
 
     private PreferencesRepository(@NonNull Context context) {
@@ -132,7 +132,7 @@ public class PreferencesRepository {
         mKeyNightMode = context.getResources().getString(R.string.key_night_mode);
         mKeyOrientation = context.getResources().getString(R.string.key_orientation);
         mKeyFirstStartup = context.getResources().getString(R.string.key_first_startup);
-        mKeyOnboardingStage = context.getResources().getString(R.string.key_onboarding_stage);
+        mKeyOnboardingCompleted = context.getResources().getString(R.string.key_onboarding_completed);
 
         // Apply the default values from the xml, because the SharedPreferences
         // won't be initialized until the SettingsActivity is started.

@@ -41,58 +41,75 @@ public class MainViewModel extends AndroidViewModel {
     // It's the interface between data and UI.
 
     public static class Onboarding {
+        // Show a hint to the user what he can do. Once the user performed
+        // an action, we don't need to show that anymore.
 
+        // User triggered events.
         public enum Event {
-            START_ONBOARDING,
-            ITEM_TAPPED,
-            SWIPED_TO_CHECKED,
-            SWIPED_TO_UNCHECKED,
-            OTHER_LIST_SELECTED,
+            ITEM_TAPPED,    // A list item has been tapped
+            SWIPED,         // The ViewPager has been swiped
+            LIST_EMPTY,     // The last item in a list got deleted, or an empty list has been selected
+            LIST_NOT_EMPTY, // The first item got added to a list, or a non-empty list has been selected
         }
 
+        // We progress through stages depending on user events.
         public enum Stage {
-            INIT,
-            TAP_ITEM_TO_CHECK,
-            SWIPE_TO_CHECKED_PAGE,
-            TAP_ITEM_TO_UNCHECK,
-            SWIPE_TO_UNCHECKED_PAGE,
-            DONE,
+            HIDE,       // Hide the onboarding message
+            TAP_ITEM,   // Let the user know items can be tapped
+            SWIPE,      // Let the user know the page can be swiped left or right
+            COMPLETED   // Onboarding complete
+        }
+
+        public interface CompletedListener {
+            void onCompleted();
         }
 
         private final MutableLiveData<Stage> mStage;
+        private final CompletedListener mCompletedListener;
+        private boolean mUserHasTapped;
+        private boolean mUserHasSwiped;
 
-        // Determine the next stage based on current stage and event. Null means remain
-        // in current stage.
-
-        // TODO: Use import com.google.common.collect.Table instead?
-
-        // TODO: HANDLE IF USER CREATES NEW LIST OR SELECTS A DIFFERENT LIST
-        // TODO: start at stage 0 unless we were done
-        private static final Stage[][] STAGE_LOOKUP = {
-            /*                          START_ONBOARDING            ITEM_TAPPED                    SWIPED_TO_CHECKED           SWIPED_TO_UNCHECKED  OTHER_LIST_SELECTED */
-            /* INIT */                  {Stage.TAP_ITEM_TO_CHECK,   null,                          null,                       null,                null},
-            /* TAP_ITEM_TO_CHECK */     {null,                      Stage.SWIPE_TO_CHECKED_PAGE,   Stage.TAP_ITEM_TO_UNCHECK,  null,                Stage.TAP_ITEM_TO_CHECK},
-            /* SWIPE_TO_CHECKED_PAGE */ {null,                      null,                          Stage.TAP_ITEM_TO_UNCHECK,  null,                Stage.TAP_ITEM_TO_CHECK},
-            /* TAP_ITEM_TO_UNCHECK */   {null,                      Stage.SWIPE_TO_UNCHECKED_PAGE, null,                       null,                Stage.TAP_ITEM_TO_CHECK},
-            /* SWIPE_TO_UNCHECKED_PAGE*/{null,                      null,                          null,                       Stage.DONE,          Stage.TAP_ITEM_TO_CHECK},
-            /* DONE */                  {null,                      null,                          null,                       null,                null},
-        };
-
-        private Onboarding(int initialStage) {
-            mStage = new MutableLiveData<>(Stage.values()[initialStage]);
+        private Onboarding(boolean isCompleted, @NonNull CompletedListener listener) {
+            mCompletedListener = listener;
+            if (isCompleted) {
+                mStage = new MutableLiveData<>(Stage.COMPLETED);
+            } else {
+                mStage = new MutableLiveData<>(Stage.HIDE);
+                mUserHasTapped = false;
+                mUserHasSwiped = false;
+            }
         }
 
         public LiveData<Stage> getStage() {
-            // Return immutable LiveData
-            return mStage;
+            return Transformations.distinctUntilChanged(mStage);
         }
 
         public void notify(Event event) {
-            // TODO: postValue?
-            Log.d(TAG, "notify: " + event.toString());
-            Stage nextStage = STAGE_LOOKUP[mStage.getValue().ordinal()][event.ordinal()];
-            if (nextStage != null) {
-                mStage.setValue(nextStage);
+            if (mStage.getValue() != Stage.COMPLETED) {
+                switch (event) {
+                    case LIST_EMPTY:
+                        mStage.setValue(Stage.HIDE);
+                        return;
+                    case ITEM_TAPPED:
+                        mUserHasTapped = true;
+                        break;
+                    case SWIPED:
+                        mUserHasSwiped = true;
+                        break;
+                    case LIST_NOT_EMPTY:
+                        break;
+                    default:
+                        assert false;
+                }
+                // Update Stage depending on what the user has done already:
+                if (mUserHasTapped && mUserHasSwiped) {
+                    mStage.setValue(Stage.COMPLETED);
+                    mCompletedListener.onCompleted();
+                } else if (mUserHasTapped) {
+                    mStage.setValue(Stage.SWIPE);
+                } else {
+                    mStage.setValue(Stage.TAP_ITEM);
+                }
             }
         }
     }
@@ -156,7 +173,6 @@ public class MainViewModel extends AndroidViewModel {
     // need to keep them when the app finishes.
     private final DeleteItemsMode mDeleteItemsMode;
     private final Onboarding mOnboarding;
-    private final Observer<Onboarding.Stage> mOnboardingStageObserver;
     private final MutableLiveData<Boolean> mAreItemsDragged;
 
 
@@ -171,16 +187,14 @@ public class MainViewModel extends AndroidViewModel {
                 getActiveChecklist(),
                 this::isChecklistEmpty);
         mAreItemsDragged = new MutableLiveData<>(false);
-
-        mOnboarding = new Onboarding(mPreferencesRepo.getPrefOnboardingStage());
-        mOnboardingStageObserver = stage -> mPreferencesRepo.setPrefOnboardingStage(stage.ordinal());
-        mOnboarding.getStage().observeForever(mOnboardingStageObserver);
+        mOnboarding = new Onboarding(
+                mPreferencesRepo.getPrefOnboardingCompleted(),
+                () -> mPreferencesRepo.setPrefOnboardingCompleted(true));
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        mOnboarding.getStage().removeObserver(mOnboardingStageObserver);
     }
 
     public void setItemsDragged(boolean dragged) {
@@ -198,7 +212,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     @NonNull
-    public Onboarding getOnboarding() {
+    public Onboarding getSimpleOnboarding() {
         return mOnboarding;
     }
 

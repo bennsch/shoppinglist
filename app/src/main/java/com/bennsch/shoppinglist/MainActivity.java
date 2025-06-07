@@ -37,6 +37,8 @@ import com.bennsch.shoppinglist.dialog.WelcomeDialog;
 import java.util.List;
 
 // TODO: PUBLISH:
+// TODO: Hide NavBar after new list was created
+// TODO: Use ThemeHelper for all occurrences of TypedValue etc...
 // TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 // TODO: Sign with release certificate
 // TODO: Fix Welcome screen
@@ -259,7 +261,6 @@ public class MainActivity
                 }
             }
             showChecklist(newActiveChecklist);
-            viewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.OTHER_LIST_SELECTED);
         }
     }
 
@@ -386,8 +387,6 @@ public class MainActivity
 
     private void showWelcomeDialog() {
         WelcomeDialog dialog = WelcomeDialog.newInstance();
-        dialog.setOnClickListener((dlg, which) ->
-                viewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.START_ONBOARDING));
         dialog.show(getSupportFragmentManager(), "WelcomeDialog");
     }
 

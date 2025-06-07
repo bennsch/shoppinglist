@@ -32,7 +32,6 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 
 import com.bennsch.shoppinglist.databinding.FragmentChecklistPagerBinding;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -53,7 +52,8 @@ public class ChecklistPagerFragment extends Fragment {
     private String mListTitle;
     private OnBackPressedCallback mOnBackPressedCallback;
     private IMEHelper mIMEHelper;
-    private Snackbar mOnboardingSnackbar;
+    private OnboardingPopup mOnboardingPopup;
+
 
 
     public ChecklistPagerFragment() {
@@ -92,30 +92,20 @@ public class ChecklistPagerFragment extends Fragment {
             }
         });
 
-        mViewModel.getOnboarding().getStage().observe(getViewLifecycleOwner(), stage -> {
-            if (stage == MainViewModel.Onboarding.Stage.INIT) {
-                if (mOnboardingSnackbar != null) {
-                    mOnboardingSnackbar.dismiss();
-                    mOnboardingSnackbar = null;
-                }
-            } else if (stage == MainViewModel.Onboarding.Stage.DONE){
-                if (mOnboardingSnackbar != null) {
-                    mOnboardingSnackbar = Snackbar.make(
-                            mBinding.getRoot().getRootView(),
-                            stage.toString(),
-                            Snackbar.LENGTH_SHORT);
-                    mOnboardingSnackbar.setAnchorView(mBinding.fab);
-                    mOnboardingSnackbar.setAnchorViewLayoutListenerEnabled(true);
-                    mOnboardingSnackbar.show();
-                }
-            } else {
-                mOnboardingSnackbar = Snackbar.make(
-                        mBinding.getRoot().getRootView(),
-                        stage.toString(),
-                        Snackbar.LENGTH_INDEFINITE);
-                mOnboardingSnackbar.setAnchorView(mBinding.fab);
-                mOnboardingSnackbar.setAnchorViewLayoutListenerEnabled(true);
-                mOnboardingSnackbar.show();
+        mViewModel.getSimpleOnboarding().getStage().observe(getViewLifecycleOwner(), stage -> {
+            switch (stage) {
+                case HIDE:
+                case COMPLETED:
+                    mOnboardingPopup.hide();
+                    break;
+                case TAP_ITEM:
+                    mOnboardingPopup.show("Tap items to check/uncheck");
+                    break;
+                case SWIPE:
+                    mOnboardingPopup.show("Swipe the screen left/right to switch between checked and unchecked items");
+                    break;
+                default:
+                    assert false;
             }
         });
 
@@ -140,6 +130,8 @@ public class ChecklistPagerFragment extends Fragment {
                 (tab, position) -> {})
                 .attach();
         setupItemNameBox(requireActivity(), requireContext(), this);
+        mOnboardingPopup = new OnboardingPopup(getContext(), mBinding.viewpager);
+
     }
 
     @Override
@@ -232,12 +224,12 @@ public class ChecklistPagerFragment extends Fragment {
                 Log.d(TAG, "onPageSelected: " + position);
                 super.onPageSelected(position);
                 mBinding.itemNameBox.dismissDropDown();
-                isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: or postValue()?
-                if (isCurrentPageChecked()) {
-                    mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.SWIPED_TO_CHECKED);
-                } else {
-                    mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.SWIPED_TO_UNCHECKED);
+
+                if (isCurrentPageChecked.getValue() != null
+                        && isCurrentPageChecked.getValue() != isCurrentPageChecked()) {
+                    mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.SWIPED);
                 }
+                isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: or postValue()?
             }
         });
 
@@ -307,9 +299,11 @@ public class ChecklistPagerFragment extends Fragment {
             // Change ViewPager page so that the first item will be added to "Unchecked".
             mBinding.viewpager.setCurrentItem(ViewPagerAdapter.POS_UNCHECKED);
             Log.d(TAG, "onChecklistEmptyChanged: " + isCurrentPageChecked());
+            mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.LIST_EMPTY);
         } else {
             mBinding.emptyListPlaceholderBoth.setVisibility(View.GONE);
             mBinding.viewpager.setVisibility(View.VISIBLE);
+            mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.LIST_NOT_EMPTY);
         }
     }
 

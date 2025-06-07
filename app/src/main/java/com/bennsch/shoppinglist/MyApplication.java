@@ -42,7 +42,7 @@ public class MyApplication extends Application {
 
         if (GlobalConfig.DBG_FIRST_STARTUP) {
 //            preferences.edit().clear().commit();
-            PreferencesRepository.getInstance(this).setPrefOnboardingStage(MainViewModel.Onboarding.Stage.INIT.ordinal());
+            PreferencesRepository.getInstance(this).setPrefOnboardingCompleted(false);
         }
     }
 
