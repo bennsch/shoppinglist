@@ -6,16 +6,14 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.TypedValue;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
+import com.bennsch.shoppinglist.ThemeHelper;
 import com.bennsch.shoppinglist.databinding.DialogEditListBinding;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.Objects;
 
@@ -130,10 +128,10 @@ public class EditListDialog extends DialogFragment {
                     .setOnClickListener(v ->
                             showConfirmationDialog(listTitle));
             // Change color of "Delete" button.
-            setButtonTextColor(
-                    dialog,
-                    AlertDialog.BUTTON_NEUTRAL,
-                    com.google.android.material.R.attr.colorError);
+            dialog.getButton(DialogInterface.BUTTON_NEUTRAL)
+                    .setTextColor(ThemeHelper.getColor(
+                            com.google.android.material.R.attr.colorError,
+                            getContext()));
         });
         // Focus on EditText and show IME.
         binding.listTitle.requestFocus();
@@ -154,20 +152,13 @@ public class EditListDialog extends DialogFragment {
                 });
         confirmationDialog = builder.create();
         // Change color of "Delete" button.
-        confirmationDialog.setOnShowListener(
-                d -> setButtonTextColor(
-                        confirmationDialog,
-                        AlertDialog.BUTTON_POSITIVE,
-                        com.google.android.material.R.attr.colorError));
+        confirmationDialog.setOnShowListener(dialog -> {
+            confirmationDialog
+                    .getButton(DialogInterface.BUTTON_POSITIVE)
+                    .setTextColor(ThemeHelper.getColor(
+                            com.google.android.material.R.attr.colorError,
+                            getContext()));
+        });
         confirmationDialog.show();
-    }
-
-    private void setButtonTextColor(AlertDialog dialog, int whichButton, int resId) {
-        TypedValue typedValue = new TypedValue();
-        getContext().getTheme().resolveAttribute(resId, typedValue, true);
-        dialog.getButton(whichButton)
-                .setTextColor(
-                        ContextCompat.getColor(
-                                getContext(), typedValue.resourceId));
     }
 }

@@ -20,7 +20,6 @@ import androidx.lifecycle.ViewModelProvider;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,7 +37,6 @@ import java.util.List;
 
 // TODO: PUBLISH:
 // TODO: Hide NavBar after new list was created
-// TODO: Use ThemeHelper for all occurrences of TypedValue etc...
 // TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 // TODO: Sign with release certificate
 // TODO: Fix Welcome screen
@@ -167,14 +165,16 @@ public class MainActivity
         if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.DISABLED) {
             menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_delete));
             menuItem.setEnabled(false);
-            menuItem.getIcon().setTint(getColorFromRes(com.google.android.material.R.attr.colorOutlineVariant));
+            menuItem.getIcon().setTint(ThemeHelper.getColor(
+                    com.google.android.material.R.attr.colorOutlineVariant, this));
         } else {
             int drawable = (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED)
                     ? R.drawable.ic_not_delete
                     : R.drawable.ic_delete;
             menuItem.setIcon(ContextCompat.getDrawable(this, drawable));
             menuItem.setEnabled(true);
-            menuItem.getIcon().setTint(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
+            menuItem.getIcon().setTint(ThemeHelper.getColor(
+                    com.google.android.material.R.attr.colorOnSurfaceVariant, this));
         }
 
         // Hide toolbar icons if no Checklist is active.
@@ -276,7 +276,8 @@ public class MainActivity
                 // Add ActionView.
                 AppCompatImageButton actionView = new AppCompatImageButton(this);
                 actionView.setImageResource(R.drawable.ic_edit);
-                actionView.setColorFilter(getColorFromRes(com.google.android.material.R.attr.colorOnSurfaceVariant));
+                actionView.setColorFilter(ThemeHelper.getColor(
+                        com.google.android.material.R.attr.colorOnSurfaceVariant, this));
                 actionView.setBackground(null);
                 actionView.setOnClickListener(v -> showEditListDialog());
                 menuItem.setActionView(actionView);
@@ -426,12 +427,5 @@ public class MainActivity
     @Override
     public void editListDialog_onDeleteClicked(String listTitle) {
         viewModel.moveChecklistToTrash(listTitle);
-    }
-
-    @ColorInt
-    private int getColorFromRes(int resId){
-        TypedValue typedValue = new TypedValue();
-        getTheme().resolveAttribute(resId, typedValue, true);
-        return ContextCompat.getColor(this, typedValue.resourceId);
     }
 }

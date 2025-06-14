@@ -18,9 +18,9 @@ public class ThemeHelper {
     }
 
     public static @ColorInt int getColor(int resId, @NonNull Context context) {
-        return ContextCompat.getColor(
-                context,
-                resolveAttribute(resId, context));
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(resId, typedValue, true);
+        return ContextCompat.getColor(context, typedValue.resourceId);
     }
 
     public static int DpToPx(int dp, Context context) {
