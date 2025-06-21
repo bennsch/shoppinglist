@@ -46,14 +46,16 @@ public class MainViewModel extends AndroidViewModel {
 
         // User triggered events.
         public enum Event {
-            ITEM_TAPPED,    // A list item has been tapped
-            SWIPED,         // The ViewPager has been swiped
-            LIST_EMPTY,     // The last item in a list got deleted, or an empty list has been selected
-            LIST_NOT_EMPTY, // The first item got added to a list, or a non-empty list has been selected
+            START_ONBOARDING,   // Start the onboarding process
+            ITEM_TAPPED,        // A list item has been tapped
+            SWIPED,             // The ViewPager has been swiped
+            LIST_EMPTY,         // The last item in a list got deleted, or an empty list has been selected
+            LIST_NOT_EMPTY,     // The first item got added to a list, or a non-empty list has been selected
         }
 
         // We progress through stages depending on user events.
         public enum Stage {
+            INIT,       // Onboarding has not started yet
             HIDE,       // Hide the onboarding message
             TAP_ITEM,   // Let the user know items can be tapped
             SWIPE,      // Let the user know the page can be swiped left or right
@@ -74,7 +76,7 @@ public class MainViewModel extends AndroidViewModel {
             if (isCompleted) {
                 mStage = new MutableLiveData<>(Stage.COMPLETED);
             } else {
-                mStage = new MutableLiveData<>(Stage.HIDE);
+                mStage = new MutableLiveData<>(Stage.INIT);
                 mUserHasTapped = false;
                 mUserHasSwiped = false;
             }
@@ -85,7 +87,13 @@ public class MainViewModel extends AndroidViewModel {
         }
 
         public void notify(Event event) {
-            if (mStage.getValue() != Stage.COMPLETED) {
+            if (mStage.getValue() == Stage.INIT) {
+                if (event == Event.START_ONBOARDING) {
+                    mStage.setValue(Stage.TAP_ITEM);
+                }
+            } else if (mStage.getValue() == Stage.COMPLETED) {
+                // Do nothing
+            } else {
                 switch (event) {
                     case LIST_EMPTY:
                         mStage.setValue(Stage.HIDE);

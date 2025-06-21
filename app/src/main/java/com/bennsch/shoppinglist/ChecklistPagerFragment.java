@@ -94,6 +94,7 @@ public class ChecklistPagerFragment extends Fragment {
 
         mViewModel.getSimpleOnboarding().getStage().observe(getViewLifecycleOwner(), stage -> {
             switch (stage) {
+                case INIT:
                 case HIDE:
                 case COMPLETED:
                     mOnboardingPopup.hide();
