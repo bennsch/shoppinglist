@@ -3,7 +3,7 @@
 
     <EditTextPreference
         app:key="@string/key_complete_msg"
-        app:title="List Completed Message"
+        app:title="Completion Message"
         app:defaultValue="You're all done!"
         app:useSimpleSummaryProvider="true" />
 
@@ -22,10 +22,5 @@
         android:entryValues="@array/pref_orientation_entry_values"
         app:defaultValue="@string/pref_orientation_entry_value_portrait"
         app:useSimpleSummaryProvider="true"/>
-
-    <Preference
-        app:key="@string/key_export_csv"
-        android:title="Export to CSV"
-        android:summary=""/>
 
 </PreferenceScreen>

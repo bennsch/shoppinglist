@@ -23,15 +23,15 @@
         app:defaultValue="@string/pref_orientation_entry_value_portrait"
         app:useSimpleSummaryProvider="true"/>
 
-    <Preference
-        app:key="@string/key_export_csv"
-        android:title="Export to CSV"
-        android:summary=""/>
-
 
     <PreferenceCategory
         app:title="Debug"
         app:isPreferenceVisible="true">
+
+        <Preference
+            app:key="@string/key_export_csv"
+            android:title="Export to CSV"
+            android:summary=""/>
 
         <SwitchPreferenceCompat
             app:key="@string/key_use_dynamic_colors"

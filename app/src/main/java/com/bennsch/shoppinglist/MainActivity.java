@@ -38,16 +38,14 @@ import java.util.List;
 // TODO: PUBLISH:
 // TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 // TODO: Sign with release certificate
-// TODO: Remove "Export to CSV"?
-// TODO: Rename "List Completed Message" preference
 // TODO: Disable logging of DEBUG level in release build
 // TODO: Set version label to "1.0"
 // TODO: Create promotional gif and screenshots
 // TODO: Update github README (description, screenshots, how to build)
-// TODO: Improve "About" dialog contents
 // TODO: Code cleanup
 
 // TODO: Add button to show Intro tutorial again
+// TODO: Add "Export to CSV" again?
 // TODO: Add guided tutorial how to use the app (try Focus libraries?)
 // TODO: Is auto backup working?
 // TODO: Apply debug settings without restarting app

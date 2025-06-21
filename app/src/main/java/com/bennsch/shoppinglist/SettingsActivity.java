@@ -55,13 +55,14 @@ public class SettingsActivity extends AppCompatActivity {
             setPreferencesFromResource(PreferencesRepository.PREF_RES, rootKey);
             // Register OnClickListener for "Export to CSV" preference.
             Preference prefExportCsv = findPreference(getString(R.string.key_export_csv));
-            assert prefExportCsv != null;
-            prefExportCsv.setOnPreferenceClickListener(preference -> {
-                SettingsActivity parent = (SettingsActivity)getActivity();
-                assert parent != null;
-                parent.onExportCsvClicked();
-                return true; // Return true if the click was handled.
-            });
+            if (prefExportCsv != null) {
+                prefExportCsv.setOnPreferenceClickListener(preference -> {
+                    SettingsActivity parent = (SettingsActivity)getActivity();
+                    assert parent != null;
+                    parent.onExportCsvClicked();
+                    return true; // Return true if the click was handled.
+                });
+            }
         }
     }
 

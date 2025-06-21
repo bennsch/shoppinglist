@@ -106,7 +106,7 @@ public class ChecklistPagerFragment extends Fragment {
                     mOnboardingPopup.show("Swipe the screen left/right to switch between checked and unchecked items");
                     break;
                 default:
-                    assert false;
+                    throw new AssertionError("Invalid stage " + stage);
             }
         });
 
