@@ -36,7 +36,6 @@ import com.bennsch.shoppinglist.dialog.WelcomeDialog;
 import java.util.List;
 
 // TODO: PUBLISH:
-// TODO: Hide NavBar after new list was created
 // TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 // TODO: Sign with release certificate
 // TODO: Fix Welcome screen
@@ -261,6 +260,7 @@ public class MainActivity
                 }
             }
             showChecklist(newActiveChecklist);
+            mBinding.drawerLayout.close();
         }
     }
 
@@ -325,6 +325,7 @@ public class MainActivity
                             ChecklistPagerFragment.makeArgs(listTitle))
                     .commit();
             mBinding.toolbar.setTitle(listTitle);
+
         }
     }
 
