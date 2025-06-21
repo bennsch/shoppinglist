@@ -38,7 +38,6 @@ import java.util.List;
 // TODO: PUBLISH:
 // TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 // TODO: Sign with release certificate
-// TODO: Fix Welcome screen
 // TODO: Remove "Export to CSV"?
 // TODO: Rename "List Completed Message" preference
 // TODO: Disable logging of DEBUG level in release build
@@ -148,7 +147,9 @@ public class MainActivity
 
         PreferencesRepository preferencesRepo = PreferencesRepository.getInstance(getApplication());
         if (preferencesRepo.getPrefFirstStartup() || GlobalConfig.DBG_FIRST_STARTUP) {
-            showWelcomeDialog();
+            // showWelcomeDialog();
+            viewModel.getSimpleOnboarding()
+                    .notify(MainViewModel.Onboarding.Event.START_ONBOARDING);
             preferencesRepo.setPrefFirstStartup(false);
         }
     }
