@@ -126,13 +126,13 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         Log.d(TAG, "Populating database");
         INSTANCE.clearAllTables();
         ItemDao dao = INSTANCE.itemDao();
-        DbChecklist shortList = new DbChecklist("Grocery List", true);
-        dao.insert(shortList);
-        dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Stump", true, 3, shortList.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Grass", true, 4, shortList.getChecklistTitle(), 0));
+        DbChecklist list = new DbChecklist("Groceries", true);
+        dao.insert(list);
+        dao.insert(new DbChecklistItem("Bacon", false, 0, list.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Eggs", false, 1, list.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Orange Juice", false, 2, list.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Butter", true, 3, list.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Avocados", true, 4, list.getChecklistTitle(), 0));
     };
 
     private static final Runnable populateDatabaseDebugRunnable = () -> {
