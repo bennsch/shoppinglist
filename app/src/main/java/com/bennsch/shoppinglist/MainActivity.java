@@ -2,7 +2,6 @@ package com.bennsch.shoppinglist;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -35,54 +34,6 @@ import com.bennsch.shoppinglist.dialog.WelcomeDialog;
 
 import java.util.List;
 
-// TODO: PUBLISH:
-// TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
-// TODO: Sign with release certificate
-// TODO: Disable logging of DEBUG level in release build
-// TODO: Set version label to "1.0"
-// TODO: Create promotional gif and screenshots
-// TODO: Update github README (description, screenshots, how to build)
-// TODO: Code cleanup
-
-// TODO: Add button to show Intro tutorial again
-// TODO: Add "Export to CSV" again?
-// TODO: Add guided tutorial how to use the app (try Focus libraries?)
-// TODO: Is auto backup working?
-// TODO: Apply debug settings without restarting app
-// TODO: Remove *.txt from exported CSV file
-// TODO: Show line between app bar and content when no item in list
-// TODO: Scroll faster to bottom of list if IME shows up (
-//        maybe fixed scrolling duration regardless of number of items)
-// TODO: Add undo functionality for deleted items
-// TODO: Add undo functionality if list got deleted
-// TODO: Save database backup to  shoppinglist/media/ folder
-// TODO: Add animation to DeleteItemsMode, FAB, ItemNameBox etc...
-// TODO: Handle integer overflow for incidence
-// TODO: Add description for each preference?
-// TODO: fix build warning: uses or overrides deprecated API
-// TODO: Update gradle packages
-// TODO: highlight action icon while delete mode is active?
-// TODO: Limit number of characters for every text input
-// TODO: Make all TextFields use textColor as highlight color
-// TODO: Put all hardcoded strings to strings.xml
-// TODO: Provide translations
-// TODO: Feature: Save reward cards (picture of bar code)
-// TODO: Add setting: ChecklistItem text size
-// TODO: Add setting: ChecklistItems condensed view (less top/bottom padding)
-// TODO: Add setting: Dynamic color seed
-// TODO: Add Checklist setting: Sort by incidence
-// TODO: Add Checklist setting: Hide title bar
-// TODO: Add Checklist setting: Show typing suggestions
-
-/*
-TESTS:
-    -Test on different screen sizes and API levels:
-        -Dialogs ("New List", "Edit List", "About" etc...) displayed properly?
-        -Is data being retained?
-        -Does CSV export work?
-        -Landscape displayed properly (in all possible views)?
-        -Night Mode displayed properly?
- */
 
 
 public class MainActivity
