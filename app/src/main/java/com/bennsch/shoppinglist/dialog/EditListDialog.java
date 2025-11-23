@@ -3,6 +3,7 @@ package com.bennsch.shoppinglist.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,6 +23,7 @@ public class EditListDialog extends DialogFragment {
 
     private static final String TAG = "EditListDialog";
     private static final String ARG_LIST_TITLE = "list_title";
+    private static final int COLOR_ERROR = Color.rgb(186, 26, 26);
 
     // Using interface, because we cannot override DialogFragment constructor
     // (Fragment gets recreated on e.g. screen rotation and arguments would be lost)
@@ -128,10 +130,9 @@ public class EditListDialog extends DialogFragment {
                     .setOnClickListener(v ->
                             showConfirmationDialog(listTitle));
             // Change color of "Delete" button.
-            dialog.getButton(DialogInterface.BUTTON_NEUTRAL)
-                    .setTextColor(ThemeHelper.getColor(
-                            com.google.android.material.R.attr.colorError,
-                            getContext()));
+            dialog
+                .getButton(DialogInterface.BUTTON_NEUTRAL)
+                .setTextColor(COLOR_ERROR); // android.R.attr.colorError requires minAPI >= 26
         });
         // Focus on EditText and show IME.
         binding.listTitle.requestFocus();
@@ -155,9 +156,7 @@ public class EditListDialog extends DialogFragment {
         confirmationDialog.setOnShowListener(dialog -> {
             confirmationDialog
                     .getButton(DialogInterface.BUTTON_POSITIVE)
-                    .setTextColor(ThemeHelper.getColor(
-                            com.google.android.material.R.attr.colorError,
-                            getContext()));
+                    .setTextColor(COLOR_ERROR); // android.R.attr.colorError requires minAPI >= 26
         });
         confirmationDialog.show();
     }
