@@ -17,6 +17,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,9 +44,9 @@ public class MainActivity extends AppCompatActivity
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private IMEHelper mIMEHelper;
     private MainViewModel mViewModel;
-    // Null if no checklist selected.
+    // Null if no Checklist selected.
     private LiveData<String> mActiveChecklist;
-    // Null if no checklist selected.
+    // Null if no Checklist selected.
     private MainViewModel.DeleteItemsMode mDeleteItemsMode;
 
     @Override
@@ -98,28 +99,32 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        // Setup "Delete Items" icon:
+        // Set the icon for the "Delete Items" toolbar item depending on
+        // on the current DeleteItemsMode:
         MenuItem menuItem = menu.findItem(R.id.clmenu_delete_items);
-        assert menuItem != null;
-
+        Drawable icon;
         if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.DISABLED) {
             menuItem.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_delete));
             menuItem.setEnabled(false);
-            menuItem.getIcon().setTint(ThemeHelper.getColor(
-                    com.google.android.material.R.attr.colorOutlineVariant, this));
+            icon = menuItem.getIcon();
+            if (icon != null) {
+                icon.setTint(ThemeHelper.getColor(
+                        com.google.android.material.R.attr.colorOutlineVariant, this));
+            }
         } else {
             int drawable = (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED)
                     ? R.drawable.ic_not_delete
                     : R.drawable.ic_delete;
             menuItem.setIcon(ContextCompat.getDrawable(this, drawable));
             menuItem.setEnabled(true);
-            menuItem.getIcon().setTint(ThemeHelper.getColor(
-                    com.google.android.material.R.attr.colorOnSurfaceVariant, this));
+            icon = menuItem.getIcon();
+            if (icon != null) {
+                icon.setTint(ThemeHelper.getColor(
+                        com.google.android.material.R.attr.colorOnSurfaceVariant, this));
+            }
         }
-
         // Hide toolbar icons if no Checklist is active.
         menu.setGroupVisible(0, mActiveChecklist.getValue() != null);
-
         // Return true for the menu to be displayed.
         return true;
     }
@@ -127,7 +132,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        // avoid starting with arrow in toolbar
+        // Prevent an arrow to be displayed when toolbar is created.
         this.mActionBarDrawerToggle.syncState();
     }
 
@@ -150,57 +155,68 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onBackButtonPressed() {
+        // Close the NavDrawer, deactivate DeleteItemsMode, or quit
+        // the application if the back button is pressed
         if (mBinding.drawerLayout.isOpen()) {
             mBinding.drawerLayout.close();
         } else if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED) {
             mDeleteItemsMode.toggle();
         } else {
-            // Only finish if neither the AppDrawer is open nor the DeleteItemsMode activated.
+            // Quit the application
             finish();
         }
     }
 
     private boolean onNavDrawerItemSelected(MenuItem item){
-        if (mBinding.navView.getCheckedItem() == item) {
-            // Item already selected.
-        } else if (item.getGroupId() == R.id.group_checklists) {
-            // A list has been selected
-            mViewModel.setActiveChecklist(item.getTitle().toString());
-            mBinding.drawerLayout.close();
-        } else if (item.getItemId() == R.id.nav_new_list) {
-            showNewListDialog();
-        } else if (item.getItemId() == R.id.nav_about) {
-            showAboutDialog();
-        } else if (item.getItemId() == R.id.nav_settings) {
-            showSettingsActivity();
-        } else {
-            assert false;
+        // Confirm the clicked item is not already selected.
+        if (mBinding.navView.getCheckedItem() != item) {
+            if (item.getGroupId() == R.id.group_checklists) {
+                // A Checklist has been selected, activate it.
+                CharSequence listTitle = item.getTitle();
+                assert listTitle != null: "item.getTitle() returned null";
+                mViewModel.setActiveChecklist(item.getTitle().toString());
+                mBinding.drawerLayout.close();
+            } else if (item.getItemId() == R.id.nav_new_list) {
+                showNewListDialog();
+            } else if (item.getItemId() == R.id.nav_about) {
+                showAboutDialog();
+            } else if (item.getItemId() == R.id.nav_settings) {
+                showSettingsActivity();
+            } else {
+                assert false: "Unexpected menu item: id = " + item.getItemId();
+            }
         }
-        // Return false to not display the item as checked
-        // (will be handled in onActiveChecklistChanged())
+        // Return false so that the selected menu item won't be highlighted
+        // (this will be handled in onActiveChecklistChanged()).
         return false;
     }
 
     private void onDeleteItemsModeChanged(Integer mode) {
-        // Will trigger onPrepareOptionsMenu() callback.
+        // Will trigger the onPrepareOptionsMenu() callback.
         invalidateMenu();
     }
 
     private void onActiveChecklistChanged(@Nullable String newActiveChecklist) {
         if (newActiveChecklist == null) {
-            // No item selected yet or no lists present.
+            // No item was selected yet, or no lists present at all.
             showChecklist(null);
         } else {
             Menu menu = mBinding.navView.getMenu();
             for (int i = 0; i < menu.size(); i++) {
                 MenuItem item = menu.getItem(i);
-                boolean active = item.getTitle().equals(newActiveChecklist);
-                item.setChecked(active);
+                CharSequence title = item.getTitle();
+                assert title != null: "item.getTitle() returned null";
+                boolean isActive = title.equals(newActiveChecklist);
                 View actionView = item.getActionView();
+                // Highlight the menu item if it's the currently
+                // selected Checklist.
+                item.setChecked(isActive);
+                // Check if this menu item has an ActionView (icon next to the item)
+                // assigned (only the Checklist items will have ActionViews).
                 if (actionView != null) {
-                    // Show ActionView only for selected checklist and hide
-                    // every other ActionView.
-                    actionView.setVisibility(active ? View.VISIBLE : View.INVISIBLE);
+                    // Show the ActionView only for the selected Checklist and hide every
+                    // other ActionView.
+                    actionView.setVisibility(isActive ? View.VISIBLE : View.INVISIBLE);
                 }
             }
             showChecklist(newActiveChecklist);
@@ -209,7 +225,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void onChecklistTitlesChanged(List<String> newChecklistTitles) {
-        // Remove entire group and populate again with current checklist titles.
+        // Remove entire group and populate again with current Checklist titles.
         mBinding.navView.getMenu().removeGroup(R.id.group_checklists);
         newChecklistTitles.forEach(title -> {
             // Create new MenuItem.
@@ -224,9 +240,9 @@ public class MainActivity extends AppCompatActivity
             actionView.setBackground(null);
             actionView.setOnClickListener(v -> showEditListDialog());
             menuItem.setActionView(actionView);
-            // Highlight the currently selected checklist and hide ActionViews
+            // Highlight the currently selected Checklist and hide ActionViews
             // from all other items.
-            if (mActiveChecklist.getValue() != null) { // null if no checklist selected yet.
+            if (mActiveChecklist.getValue() != null) { // null if no Checklist selected yet.
                 if (mActiveChecklist.getValue().equals(title)) {
                     menuItem.setChecked(true);
                 }else{

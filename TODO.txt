@@ -1,6 +1,7 @@
 
 
 PUBLISH:
+TODO: Add license comments on top of each source file
 TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 TODO: Sign with release certificate
 TODO: Disable logging of DEBUG level in release build
