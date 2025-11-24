@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity
                 onBackButtonPressed();
             }
         });
-        // FOR DEBUGGING ONLY:
         if (BuildConfig.DEBUG){
             mBinding.versionLabel.setText("v" + mViewModel.getVersionName());
             mBinding.versionLabel.setVisibility(View.VISIBLE);
@@ -202,6 +201,7 @@ public class MainActivity extends AppCompatActivity
             showChecklist(null);
         } else {
             Menu menu = mBinding.navView.getMenu();
+            // Iterate over all menu items:
             for (int i = 0; i < menu.size(); i++) {
                 MenuItem item = menu.getItem(i);
                 CharSequence title = item.getTitle();
@@ -242,12 +242,16 @@ public class MainActivity extends AppCompatActivity
             menuItem.setActionView(actionView);
             // Highlight the currently selected Checklist and hide ActionViews
             // from all other items.
-            if (mActiveChecklist.getValue() != null) { // null if no Checklist selected yet.
+            if (mActiveChecklist.getValue() != null) { // null if no Checklist selected.
+                // Highlight the menu item if it's the currently
+                // selected Checklist.
                 if (mActiveChecklist.getValue().equals(title)) {
                     menuItem.setChecked(true);
                 }else{
-                    View ac = menuItem.getActionView();
-                    if (ac != null) {
+                    View av = menuItem.getActionView();
+                    if (av != null) {
+                        // Show the ActionView only for the selected Checklist and hide every
+                        // other ActionView.
                         menuItem.getActionView().setVisibility(View.INVISIBLE);
                     }
                 }
@@ -256,9 +260,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showChecklist(@Nullable String listTitle) {
+        // Show the Checklist named "listTitle". If "listTitle" is null,
+        // show the NoListsFragment.
         // TODO: add animation for fragment transaction?
         if (listTitle == null) {
-            // No lists present
             getSupportFragmentManager()
                     .setFragmentResultListener(
                     NoListsFragment.REQ_KEY_NEW_LIST_BUTTON_CLICKED,
@@ -282,7 +287,6 @@ public class MainActivity extends AppCompatActivity
                             ChecklistPagerFragment.makeArgs(listTitle))
                     .commit();
             mBinding.toolbar.setTitle(listTitle);
-
         }
     }
 
@@ -293,8 +297,7 @@ public class MainActivity extends AppCompatActivity
 
     private void setupNavDrawer() {
         mBinding.navView.setNavigationItemSelectedListener(this::onNavDrawerItemSelected);
-        // drawer layout instance to toggle the menu icon to
-        // open drawer and back button to close drawer
+        // Make the menu icon open the NavDrawer (back button will close the NavDrawer)
         this.mActionBarDrawerToggle = new ActionBarDrawerToggle(
                 this,
                 mBinding.drawerLayout,
@@ -310,17 +313,16 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         };
-        // pass the Open and Close toggle for the drawer layout listener
-        // to toggle the button
         mBinding.drawerLayout.addDrawerListener(this.mActionBarDrawerToggle);
-        // to make the Navigation drawer icon always appear on the action bar
+        // Make the Navigation drawer icon always appear on the action bar
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
 
     private void addNavViewPadding() {
-        // To show version number above bottom navigation bar
+        // Add padding to the NavView matching the height of the bottom navigation bar
+        // (currently used to place the version number label).
         View view = mBinding.fragmentContainerView;
         ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
             @NonNull
@@ -329,7 +331,7 @@ public class MainActivity extends AppCompatActivity
                 Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
                 mBinding.navView.setPadding(0, 0, 0, insetsNormal.bottom);
                 return insets;
-//                 return WindowInsetsCompat.CONSUMED;
+                // return WindowInsetsCompat.CONSUMED;
             }
         });
     }
