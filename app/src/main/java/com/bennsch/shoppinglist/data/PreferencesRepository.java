@@ -10,12 +10,17 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.preference.PreferenceManager;
 
+import com.bennsch.shoppinglist.BuildConfig;
 import com.bennsch.shoppinglist.R;
 
 
 public class PreferencesRepository {
 
-    public static final int PREF_RES = R.xml.preference_screen;
+    public static final int PREFS_RES_ID = R.xml.preference_screen;
+    // Will be overwritten in debug build:
+    public static boolean DBG_PRETEND_FIRST_STARTUP = false;
+    public static boolean DBG_SHOW_INCIDENCE = false;
+    public static boolean DBG_SHOW_TRASH = false;
 
     // TODO: Find better solution. E.g. simply use integers instead of strings
     public enum NightMode {
@@ -123,8 +128,6 @@ public class PreferencesRepository {
     }
 
     private PreferencesRepository(@NonNull Context context) {
-        Log.d(TAG, "PreferencesRepository: Ctor " + context);
-
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         mKeyMessageListDeleted = context.getResources().getString(R.string.key_complete_msg);
@@ -140,7 +143,7 @@ public class PreferencesRepository {
         // even if this method has been called in the past (so that newly added preferences
         // will get their default value applied).
         // This won't override the preferences after the user changed them.
-        PreferenceManager.setDefaultValues(context, PREF_RES, true);
+        PreferenceManager.setDefaultValues(context, PREFS_RES_ID, true);
 
         // Initialize the LiveData.
         // TODO: use postValue()?
@@ -174,5 +177,11 @@ public class PreferencesRepository {
             }
         };
         mSharedPreferences.registerOnSharedPreferenceChangeListener(mPreferenceChangeListener);
+
+        if (BuildConfig.DEBUG) {
+            DBG_PRETEND_FIRST_STARTUP = mSharedPreferences.getBoolean("dbg_first_startup", false);
+            DBG_SHOW_INCIDENCE = mSharedPreferences.getBoolean("dbg_show_incidence", false);
+            DBG_SHOW_TRASH = mSharedPreferences.getBoolean("dbg_show_trash", false);
+        }
     }
 }

@@ -18,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -36,77 +35,69 @@ import java.util.List;
 
 
 
-public class MainActivity
-        extends AppCompatActivity
+public class MainActivity extends AppCompatActivity
         implements  NewListDialog.DialogListener,
                     EditListDialog.DialogListener{
 
-    private static final String TAG = "MainActivity";
-
     private ActivityMainBinding mBinding;
-    private ActionBarDrawerToggle actionBarDrawerToggle;
-    private MainViewModel viewModel;
-    // getValue() is null if no checklist selected yet
-    private LiveData<String> mActiveChecklist;
-    // Null if no Checklist selected.
-    private MainViewModel.DeleteItemsMode mDeleteItemsMode;
+    private ActionBarDrawerToggle mActionBarDrawerToggle;
     private IMEHelper mIMEHelper;
-
+    private MainViewModel mViewModel;
+    // Null if no checklist selected.
+    private LiveData<String> mActiveChecklist;
+    // Null if no checklist selected.
+    private MainViewModel.DeleteItemsMode mDeleteItemsMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Needs to be called before onCreate().
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
-
         mIMEHelper = new IMEHelper(this);
-
+        // Initialize view.
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
-
         setContentView(mBinding.getRoot());
-
+        setSupportActionBar(mBinding.toolbar);
+        setupNavDrawer();
+        addNavViewPadding();
+        // Retrieve global ViewModel instance.
+        mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mActiveChecklist = mViewModel.getActiveChecklist();
+        mDeleteItemsMode = mViewModel.getDeleteItemsMode();
+        // Register observers.
+        mActiveChecklist.observe(this,
+                this::onActiveChecklistChanged);
+        mDeleteItemsMode.observe(this,
+                this::onDeleteItemsModeChanged);
+        mViewModel.getAllChecklistTitles(PreferencesRepository.DBG_SHOW_TRASH).observe(this,
+                this::onChecklistTitlesChanged);
+        // Perform certain actions only the first time the app has been launched.
+        PreferencesRepository preferencesRepo = PreferencesRepository.getInstance(getApplication());
+        if (preferencesRepo.getPrefFirstStartup()) {
+            // showWelcomeDialog();
+            mViewModel.getSimpleOnboarding()
+                    .notify(MainViewModel.Onboarding.Event.START_ONBOARDING);
+            preferencesRepo.setPrefFirstStartup(false);
+        }
+        // Register callback for the  device's "back" button.
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 onBackButtonPressed();
             }
         });
-
-        this.viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-        viewModel.getAllChecklistTitles(GlobalConfig.DBG_SHOW_TRASH)
-                .observe(this, this::onChecklistTitlesChanged);
-
-        mBinding.versionLabel.setText("v" + viewModel.getVersionName());
-
-        mActiveChecklist = viewModel.getActiveChecklist();
-        mActiveChecklist.observe(this, this::onActiveChecklistChanged);
-
-        mDeleteItemsMode = viewModel.getDeleteItemsMode();
-        mDeleteItemsMode.observe(this, mode -> {
-            // Will trigger onPrepareOptionsMenu() callback.
-            invalidateMenu();
-        });
-
-        setSupportActionBar(mBinding.toolbar);
-        setupNavDrawer();
-        addNavViewPadding();
-
-        if (BuildConfig.DEBUG) {
+        // FOR DEBUGGING ONLY:
+        if (BuildConfig.DEBUG){
+            mBinding.versionLabel.setText("v" + mViewModel.getVersionName());
             mBinding.versionLabel.setVisibility(View.VISIBLE);
-        }
-
-        PreferencesRepository preferencesRepo = PreferencesRepository.getInstance(getApplication());
-        if (preferencesRepo.getPrefFirstStartup() || GlobalConfig.DBG_FIRST_STARTUP) {
-            // showWelcomeDialog();
-            viewModel.getSimpleOnboarding()
-                    .notify(MainViewModel.Onboarding.Event.START_ONBOARDING);
-            preferencesRepo.setPrefFirstStartup(false);
+            if (PreferencesRepository.DBG_PRETEND_FIRST_STARTUP){
+                mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.START_ONBOARDING);
+            }
         }
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        Log.d(TAG, "onPrepareOptionsMenu: ");
-
         // Setup "Delete Items" icon:
         MenuItem menuItem = menu.findItem(R.id.clmenu_delete_items);
         assert menuItem != null;
@@ -137,7 +128,7 @@ public class MainActivity
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // avoid starting with arrow in toolbar
-        this.actionBarDrawerToggle.syncState();
+        this.mActionBarDrawerToggle.syncState();
     }
 
     @Override
@@ -155,11 +146,10 @@ public class MainActivity
             mDeleteItemsMode.toggle();
         }
         // Open navigation drawer if toolbar icon is clicked.
-        return this.actionBarDrawerToggle.onOptionsItemSelected(item);
+        return this.mActionBarDrawerToggle.onOptionsItemSelected(item);
     }
 
     public void onBackButtonPressed() {
-        Log.d(TAG, "handleOnBackPressed: ");
         if (mBinding.drawerLayout.isOpen()) {
             mBinding.drawerLayout.close();
         } else if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED) {
@@ -175,7 +165,7 @@ public class MainActivity
             // Item already selected.
         } else if (item.getGroupId() == R.id.group_checklists) {
             // A list has been selected
-            viewModel.setActiveChecklist(item.getTitle().toString());
+            mViewModel.setActiveChecklist(item.getTitle().toString());
             mBinding.drawerLayout.close();
         } else if (item.getItemId() == R.id.nav_new_list) {
             showNewListDialog();
@@ -191,8 +181,12 @@ public class MainActivity
         return false;
     }
 
+    private void onDeleteItemsModeChanged(Integer mode) {
+        // Will trigger onPrepareOptionsMenu() callback.
+        invalidateMenu();
+    }
+
     private void onActiveChecklistChanged(@Nullable String newActiveChecklist) {
-        Log.d(TAG, "onActiveChecklistChanged: " + newActiveChecklist);
         if (newActiveChecklist == null) {
             // No item selected yet or no lists present.
             showChecklist(null);
@@ -222,25 +216,22 @@ public class MainActivity
             Menu menu = mBinding.navView.getMenu();
             MenuItem menuItem = menu.add(R.id.group_checklists, Menu.NONE, Menu.NONE, title);
             menuItem.setCheckable(true);
-            if (GlobalConfig.DBG_SHOW_NAVDRAWER_ACTIONVIEW) {
-                // Add ActionView.
-                AppCompatImageButton actionView = new AppCompatImageButton(this);
-                actionView.setImageResource(R.drawable.ic_edit);
-                actionView.setColorFilter(ThemeHelper.getColor(
-                        com.google.android.material.R.attr.colorOnSurfaceVariant, this));
-                actionView.setBackground(null);
-                actionView.setOnClickListener(v -> showEditListDialog());
-                menuItem.setActionView(actionView);
-            }
+            // Add ActionView (icon next to the item)
+            AppCompatImageButton actionView = new AppCompatImageButton(this);
+            actionView.setImageResource(R.drawable.ic_edit);
+            actionView.setColorFilter(ThemeHelper.getColor(
+                    com.google.android.material.R.attr.colorOnSurfaceVariant, this));
+            actionView.setBackground(null);
+            actionView.setOnClickListener(v -> showEditListDialog());
+            menuItem.setActionView(actionView);
             // Highlight the currently selected checklist and hide ActionViews
             // from all other items.
             if (mActiveChecklist.getValue() != null) { // null if no checklist selected yet.
                 if (mActiveChecklist.getValue().equals(title)) {
-                    Log.d(TAG, "onChecklistTitlesChanged: setChecked " + title);
                     menuItem.setChecked(true);
                 }else{
-                    View actionView = menuItem.getActionView();
-                    if (actionView != null) {
+                    View ac = menuItem.getActionView();
+                    if (ac != null) {
                         menuItem.getActionView().setVisibility(View.INVISIBLE);
                     }
                 }
@@ -288,7 +279,7 @@ public class MainActivity
         mBinding.navView.setNavigationItemSelectedListener(this::onNavDrawerItemSelected);
         // drawer layout instance to toggle the menu icon to
         // open drawer and back button to close drawer
-        this.actionBarDrawerToggle = new ActionBarDrawerToggle(
+        this.mActionBarDrawerToggle = new ActionBarDrawerToggle(
                 this,
                 mBinding.drawerLayout,
                 R.string.navdrawer_open,
@@ -305,7 +296,7 @@ public class MainActivity
         };
         // pass the Open and Close toggle for the drawer layout listener
         // to toggle the button
-        mBinding.drawerLayout.addDrawerListener(this.actionBarDrawerToggle);
+        mBinding.drawerLayout.addDrawerListener(this.mActionBarDrawerToggle);
         // to make the Navigation drawer icon always appear on the action bar
         if (getSupportActionBar() != null){
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -333,14 +324,14 @@ public class MainActivity
     }
 
     private void showAboutDialog() {
-        AboutDialog.newInstance(viewModel.getVersionName())
+        AboutDialog.newInstance(mViewModel.getVersionName())
                 .show(getSupportFragmentManager(), "AboutDialog");
     }
 
     private void showWelcomeDialog() {
         WelcomeDialog dialog = WelcomeDialog.newInstance();
         dialog.setOnClickListener(
-                (dialog1, which) -> viewModel.getSimpleOnboarding()
+                (dialog1, which) -> mViewModel.getSimpleOnboarding()
                         .notify(MainViewModel.Onboarding.Event.START_ONBOARDING));
         dialog.show(getSupportFragmentManager(), "WelcomeDialog");
     }
@@ -353,7 +344,7 @@ public class MainActivity
     @Override
     public void newListDialog_onCreateClicked(String title) {
         try {
-            viewModel.insertChecklist(title);
+            mViewModel.insertChecklist(title);
         } catch (IllegalArgumentException e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -361,13 +352,13 @@ public class MainActivity
 
     @Override
     public void newListDialog_onValidateTitle(String title) throws Exception{
-        viewModel.validateNewChecklistName(title);
+        mViewModel.validateNewChecklistName(title);
     }
 
     @Override
     public void editListDialog_onSafeClicked(String oldTitle, String newTitle) throws IllegalArgumentException{
         try {
-            viewModel.renameChecklist(oldTitle, newTitle);
+            mViewModel.renameChecklist(oldTitle, newTitle);
         } catch (IllegalArgumentException e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -375,11 +366,11 @@ public class MainActivity
 
     @Override
     public String editListDialog_onValidateTitle(String title) throws Exception{
-        return viewModel.validateNewChecklistName(title);
+        return mViewModel.validateNewChecklistName(title);
     }
 
     @Override
     public void editListDialog_onDeleteClicked(String listTitle) {
-        viewModel.moveChecklistToTrash(listTitle);
+        mViewModel.moveChecklistToTrash(listTitle);
     }
 }

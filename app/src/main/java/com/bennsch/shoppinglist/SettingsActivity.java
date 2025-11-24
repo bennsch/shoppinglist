@@ -52,7 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             // Populate preferences from xml.
-            setPreferencesFromResource(PreferencesRepository.PREF_RES, rootKey);
+            setPreferencesFromResource(PreferencesRepository.PREFS_RES_ID, rootKey);
             // Register OnClickListener for "Export to CSV" preference.
             Preference prefExportCsv = findPreference(getString(R.string.key_export_csv));
             if (prefExportCsv != null) {

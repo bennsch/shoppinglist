@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,27 +24,15 @@ import com.google.android.material.color.DynamicColorsOptions;
 public class MyApplication extends Application {
 
     private static final String TAG = "MyApplication";
+    private static final Integer DYNAMIC_COLOR_SEED = 0xFAD058;
 
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate: ");
         super.onCreate();
-
-        // TODO: Remove this debug code
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        GlobalConfig.DBG_SHOW_INCIDENCE = preferences.getBoolean("dbg_show_incidence", false);
-        GlobalConfig.DBG_SHOW_NAVDRAWER_ACTIONVIEW = preferences.getBoolean("dbg_show_navdrawer_actionview", true);
-        GlobalConfig.DBG_SHOW_TRASH = preferences.getBoolean("dbg_show_trash", false);
-        GlobalConfig.DBG_FIRST_STARTUP = preferences.getBoolean("dbg_first_startup", false);
-
         applyDynamicColors();
         observePrefNightMode();
         observePrefOrientation();
-
-        if (GlobalConfig.DBG_FIRST_STARTUP) {
-//            preferences.edit().clear().commit();
-            PreferencesRepository.getInstance(this).setPrefOnboardingCompleted(false);
-        }
     }
 
     private void applyDynamicColors() {
@@ -55,7 +44,7 @@ public class MyApplication extends Application {
                     this,
                     new DynamicColorsOptions.Builder()
                             .setOnAppliedCallback(activity -> Log.d(TAG, "DynamicColors applied"))
-                            .setContentBasedSource(GlobalConfig.DBG_DYNAMIC_COLOR_SEED)
+                            .setContentBasedSource(DYNAMIC_COLOR_SEED)
                             .build());
         }
     }

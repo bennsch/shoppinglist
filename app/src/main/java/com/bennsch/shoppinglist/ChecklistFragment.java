@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.bennsch.shoppinglist.data.PreferencesRepository;
 import com.bennsch.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.bennsch.shoppinglist.databinding.FragmentChecklistBinding;
 import com.google.android.material.divider.MaterialDividerItemDecoration;
@@ -197,7 +198,7 @@ public class ChecklistFragment extends Fragment {
             ChecklistItem item = mCachedItems.get(position);
             TextView textView = holder.getBinding().textView;
             textView.setText(item.getName());
-            if (GlobalConfig.DBG_SHOW_INCIDENCE) {
+            if (PreferencesRepository.DBG_SHOW_INCIDENCE) {
                 textView.setText(item.getIncidence() + "--" + item.getName());
             }
             if (mDisplayChecked) {
@@ -284,7 +285,7 @@ public class ChecklistFragment extends Fragment {
                     notifyItemRangeChanged(position, count, payload);
                 }
             });
-            if (GlobalConfig.DBG_SHOW_INCIDENCE) {
+            if (PreferencesRepository.DBG_SHOW_INCIDENCE) {
                 Log.w(TAG, "notifyDataSetChanged()");
                 notifyDataSetChanged();
             }

@@ -1,7 +1,6 @@
 package com.bennsch.shoppinglist.data;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,7 +17,6 @@ import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.bennsch.shoppinglist.BuildConfig;
-import com.bennsch.shoppinglist.GlobalConfig;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -34,7 +32,6 @@ import java.util.concurrent.Executors;
          /*exportSchema = false*/)
 public abstract class ChecklistDatabase extends RoomDatabase {
 
-    private static final String TAG = "ChecklistDatabase";
 
     @Dao
     interface ItemDao {
@@ -123,7 +120,6 @@ public abstract class ChecklistDatabase extends RoomDatabase {
     abstract ItemDao itemDao();
 
     private static final Runnable populateDatabaseRunnable = () -> {
-        Log.d(TAG, "Populating database");
         INSTANCE.clearAllTables();
         ItemDao dao = INSTANCE.itemDao();
         DbChecklist list = new DbChecklist("Groceries", true);
@@ -136,7 +132,6 @@ public abstract class ChecklistDatabase extends RoomDatabase {
     };
 
     private static final Runnable populateDatabaseDebugRunnable = () -> {
-        Log.d(TAG, "Populating debug database");
         INSTANCE.clearAllTables();
         ItemDao dao = INSTANCE.itemDao();
         DbChecklist shortList = new DbChecklist("Short List", false);
@@ -161,7 +156,6 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
             super.onCreate(db);
-            Log.d(TAG, "onCreateCallback()");
             executor.execute(populateDatabaseRunnable);
         }
     };
@@ -170,8 +164,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
-            Log.d(TAG, "onOpenCallback()");
-            if (GlobalConfig.DBG_FIRST_STARTUP) {
+            if (PreferencesRepository.DBG_PRETEND_FIRST_STARTUP) {
                 executor.execute(populateDatabaseRunnable);
             }
         }
