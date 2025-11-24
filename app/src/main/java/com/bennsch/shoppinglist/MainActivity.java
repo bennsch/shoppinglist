@@ -367,7 +367,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void newListDialog_onValidateTitle(String title) throws Exception{
+    public void newListDialog_onValidateTitle(String title) throws IllegalArgumentException{
         mViewModel.validateNewChecklistName(title);
     }
 
@@ -381,8 +381,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public String editListDialog_onValidateTitle(String title) throws Exception{
-        return mViewModel.validateNewChecklistName(title);
+    public void editListDialog_onValidateTitle(String title) throws IllegalArgumentException{
+        mViewModel.validateNewChecklistName(title);
     }
 
     @Override

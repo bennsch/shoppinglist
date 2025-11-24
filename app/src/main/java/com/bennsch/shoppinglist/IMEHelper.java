@@ -1,10 +1,14 @@
 package com.bennsch.shoppinglist;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsAnimationCompat;
@@ -40,6 +44,12 @@ public class IMEHelper {
         } else {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    public static void showIME(AppCompatDialog dialog) {
+        Window window = dialog.getWindow();
+        assert window != null : "dialog.getWindow() returned null";
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
     }
 
     public void setOnIMEToggledListener(View view, @NonNull OnIMEToggledListener listener) {
