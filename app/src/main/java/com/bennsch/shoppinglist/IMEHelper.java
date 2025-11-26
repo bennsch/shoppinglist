@@ -1,7 +1,6 @@
 package com.bennsch.shoppinglist;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -18,6 +17,9 @@ import java.util.List;
 
 
 public class IMEHelper {
+    /*
+    *  Helper class to to handle the virtual keyboard (IME).
+    */
 
     public interface OnIMEToggledListener {
         void onIMEToggled(View view, boolean imeVisible, int imeHeight);
@@ -39,7 +41,8 @@ public class IMEHelper {
     public void showIME(View view, boolean show) {
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (show) {
-            // Need to use SHOW_FORCED in landscape mode if EditText is not using imeOptions="flagNoFullscreen"
+            // We need to use SHOW_FORCED in landscape mode, unless EditText
+            // is using imeOptions="flagNoFullscreen"
             imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
         } else {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -54,7 +57,7 @@ public class IMEHelper {
 
     public void setOnIMEToggledListener(View view, @NonNull OnIMEToggledListener listener) {
         ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
-            private boolean wasIMEVisible = false; // isIMEVisible(view);
+            private boolean wasIMEVisible = false;
 
             @NonNull
             @Override
