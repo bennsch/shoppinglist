@@ -3,18 +3,14 @@ package com.bennsch.shoppinglist;
 import android.app.Activity;
 import android.app.Application;
 import android.app.UiModeManager;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.preference.PreferenceManager;
 
 import com.bennsch.shoppinglist.data.PreferencesRepository;
 import com.google.android.material.color.DynamicColors;
@@ -22,13 +18,14 @@ import com.google.android.material.color.DynamicColorsOptions;
 
 
 public class MyApplication extends Application {
+    /*
+    *   Base class for maintaining global application state (supersedes activities)
+    */
 
-    private static final String TAG = "MyApplication";
     private static final Integer DYNAMIC_COLOR_SEED = 0xFAD058;
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate: ");
         super.onCreate();
         applyDynamicColors();
         observePrefNightMode();
@@ -43,19 +40,18 @@ public class MyApplication extends Application {
             DynamicColors.applyToActivitiesIfAvailable(
                     this,
                     new DynamicColorsOptions.Builder()
-                            .setOnAppliedCallback(activity -> Log.d(TAG, "DynamicColors applied"))
+                            //.setOnAppliedCallback(activity -> Log.d("MyApplication", "DynamicColors applied"))
                             .setContentBasedSource(DYNAMIC_COLOR_SEED)
                             .build());
         }
     }
 
     private void observePrefNightMode() {
-        // No need to remove observer, because all resources will be freed when
-        // Application finishes.
+        // No need to remove observer, because all resources will be freed when the
+        // application finishes.
         PreferencesRepository.getInstance(this)
                 .getPrefNightMode()
                 .observeForever(nightMode -> {
-                    Log.d(TAG, "Setting Night-Mode to " + nightMode);
                     if (Build.VERSION.SDK_INT >= 31) {
                         UiModeManager uim = (UiModeManager) getSystemService(UI_MODE_SERVICE);
                         switch (nightMode) {
@@ -91,13 +87,13 @@ public class MyApplication extends Application {
 
     private void observePrefOrientation() {
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
                 PreferencesRepository.getInstance(activity.getApplication())
                         .getPrefOrientation()
                         .observe((AppCompatActivity)activity, orientation -> {
                             // TODO: When returning to MainActivity, the old orientation is still
                             //  visible briefly before it rotates.
-                            Log.d(TAG, activity.getClass().getSimpleName() + ": Setting orientation to " + orientation);
                             switch (orientation) {
                                 case PORTRAIT:
                                     activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); break;

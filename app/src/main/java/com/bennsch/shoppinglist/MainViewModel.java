@@ -106,8 +106,6 @@ public class MainViewModel extends AndroidViewModel {
                         break;
                     case LIST_NOT_EMPTY:
                         break;
-                    default:
-                        assert false;
                 }
                 // Update Stage depending on what the user has done already:
                 if (mUserHasTapped && mUserHasSwiped) {
