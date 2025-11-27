@@ -39,6 +39,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements  NewListDialog.DialogListener,
                     EditListDialog.DialogListener{
+    /*
+     *  The MainActivity.
+     */
 
     private ActivityMainBinding mBinding;
     private ActionBarDrawerToggle mActionBarDrawerToggle;

@@ -19,7 +19,7 @@ import com.google.android.material.color.DynamicColorsOptions;
 
 public class MyApplication extends Application {
     /*
-    *   Base class for maintaining global application state (supersedes activities)
+    *   Base class for maintaining global application state (supersedes activities).
     */
 
     private static final Integer DYNAMIC_COLOR_SEED = 0xFAD058;

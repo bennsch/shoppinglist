@@ -1,8 +1,12 @@
 package com.bennsch.shoppinglist;
 
 public class ChecklistItem {
-    private String mName;
-    private long mIncidence;
+    /*
+     *  Represents a Checklist-Item in the GUI, as opposed to the database.
+     */
+
+    private final String mName;
+    private final long mIncidence;
 
     public ChecklistItem(String name, long incidence) {
         mName = name;

@@ -13,6 +13,9 @@ import com.bennsch.shoppinglist.databinding.FragmentNoListsBinding;
 
 
 public class NoListsFragment extends Fragment {
+    /*
+     *  Fragment to be displayed when no Checklist is present.
+     */
 
     public static final String REQ_KEY_NEW_LIST_BUTTON_CLICKED = "NoListsFragment_new_list_button_clicked";
 

@@ -10,6 +10,9 @@ import androidx.core.content.ContextCompat;
 
 
 public class ThemeHelper {
+    /*
+     *  Helper class to perform common theme related tasks.
+     */
 
     public static @AnyRes int resolveAttribute(int resId, @NonNull Context context) {
         TypedValue typedValue = new TypedValue();
@@ -23,11 +26,10 @@ public class ThemeHelper {
         return ContextCompat.getColor(context, typedValue.resourceId);
     }
 
-    public static int DpToPx(int dp, Context context) {
+    public static int dpToTx(int dp, Context context) {
         return (int)TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 (float)dp,
                 context.getResources().getDisplayMetrics());
     }
-
 }

@@ -39,8 +39,10 @@ import java.util.concurrent.Executors;
 
 
 public class SettingsActivity extends AppCompatActivity {
+    /*
+     *  Dedicated activity to display and modify app settings.
+     */
 
-    public static final String TAG = "SettingsActivity";
     private SettingsActivityBinding mBinding;
     private ActivityResultLauncher<Intent> mCsvFileLauncher;
 
@@ -66,27 +68,22 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mBinding = SettingsActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
-
-        // LifecycleOwners must call register before they are STARTED (e.g. during onCreate()).
+        // LifecycleOwners must call register*() before they are STARTED (e.g. during onCreate()).
         mCsvFileLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 this::onCsvFileResult
         );
-
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.settings_fragment_container, new SettingsFragment())
                     .commit();
         }
-
         setupActionBar();
         setupEdgeToEdge();
     }
@@ -105,8 +102,6 @@ public class SettingsActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_TITLE, "shopping_list.csv");
-        // Optionally, specify a URI for the directory that should be opened in
-        // the system file picker when your app creates the document.
         // intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
         mCsvFileLauncher.launch(intent);
     }
@@ -140,7 +135,6 @@ public class SettingsActivity extends AppCompatActivity {
                     new OutputStreamWriter(
                             getContentResolver()
                                     .openOutputStream(csvFileUri)))) {
-
                 ChecklistRepository repo = ChecklistRepository.getInstance(getApplication());
                 List<DbChecklistItem> items = repo.getAllItemsFromAllLists();
                 writer.write("List;Name;Incidence;Checked"); writer.newLine();
@@ -159,7 +153,7 @@ public class SettingsActivity extends AppCompatActivity {
         Futures.addCallback(result, new FutureCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Toast.makeText(getApplicationContext(), "File successfully written ", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "File written successfully", Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -179,15 +173,13 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void setupEdgeToEdge() {
         EdgeToEdge.enable(this);
-        ViewCompat.setOnApplyWindowInsetsListener(mBinding.settingsFragmentContainer, new OnApplyWindowInsetsListener() {
-            @NonNull
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
-                Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
-                mBinding.getRoot().setPadding(0, insetsNormal.top, 0, insetsNormal.bottom);
-                return insets;
-                // return WindowInsetsCompat.CONSUMED;
-            }
-        });
+        ViewCompat.setOnApplyWindowInsetsListener(
+                mBinding.settingsFragmentContainer,
+                (v, insets) -> {
+                    Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
+                    mBinding.getRoot().setPadding(0, insetsNormal.top, 0, insetsNormal.bottom);
+                    return insets;
+                    // return WindowInsetsCompat.CONSUMED;
+                });
     }
 }

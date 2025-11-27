@@ -23,7 +23,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Vibrator;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,10 +40,16 @@ import java.util.List;
 
 
 public class ChecklistPagerFragment extends Fragment {
+    /*
+     * This fragment is the container which contains the FAB, the input
+     * box to create new items and the ViewPager to swipe between the two
+     * ChecklistFragments (checked, unchecked items).
+     */
 
-    private static final String TAG = "ChecklistPagerFragment";
-    private static final int OFFSCREEN_PAGE_LIMIT = 1;
     public static final String ARG_LIST_TITLE = "list_title";
+
+    private static final int OFFSCREEN_PAGE_LIMIT = 1; // Only one page will ever be offscreen.
+    private static final int VIBRATE_DURATION_MS = 125;
 
     private FragmentChecklistPagerBinding mBinding;
     private ViewPagerAdapter mViewPagerAdapter;
@@ -55,14 +60,12 @@ public class ChecklistPagerFragment extends Fragment {
     private OnboardingPopup mOnboardingPopup;
 
 
-
     public ChecklistPagerFragment() {
-        Log.d(TAG, "ChecklistPagerFragment: Ctor");
+        // Required empty public constructor.
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: " + mListTitle);
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
@@ -73,25 +76,23 @@ public class ChecklistPagerFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: ");
         mBinding = FragmentChecklistPagerBinding.inflate(inflater, container, false);
         mBinding.viewpager.setAdapter(mViewPagerAdapter);
         mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
-//        mBinding.viewpager.setPageTransformer(new FanTransformer());
+        // mBinding.viewpager.setPageTransformer(new FanTransformer());
         mBinding.fab.setOnClickListener(view -> this.onFabClicked());
-
         mViewModel.isChecklistEmpty(mListTitle)
-                .observe(getViewLifecycleOwner(), this::onChecklistEmptyChanged);
-
-        mViewModel.getDeleteItemsMode().observe(getViewLifecycleOwner(), deleteItemsMode -> {
-            // hide() and show() will animate the transition.
-            if (deleteItemsMode == MainViewModel.DeleteItemsMode.ACTIVATED) {
-                mBinding.fab.hide();
-            } else {
-                mBinding.fab.show();
-            }
+                .observe(getViewLifecycleOwner(),
+                        this::onChecklistEmptyChanged);
+        mViewModel.getDeleteItemsMode()
+                .observe(getViewLifecycleOwner(), deleteItemsMode -> {
+                    // hide() and show() will animate the transition.
+                    if (deleteItemsMode == MainViewModel.DeleteItemsMode.ACTIVATED) {
+                        mBinding.fab.hide();
+                    } else {
+                        mBinding.fab.show();
+                    }
         });
-
         mViewModel.getSimpleOnboarding().getStage().observe(getViewLifecycleOwner(), stage -> {
             switch (stage) {
                 case INIT:
@@ -103,13 +104,14 @@ public class ChecklistPagerFragment extends Fragment {
                     mOnboardingPopup.show("Tap items to check/uncheck");
                     break;
                 case SWIPE:
-                    mOnboardingPopup.show("Swipe the screen left/right to switch between checked and unchecked items");
+                    mOnboardingPopup.show(
+                            "Swipe the screen left/right to switch" +
+                            " between checked and unchecked items");
                     break;
                 default:
                     throw new AssertionError("Invalid stage " + stage);
             }
         });
-
         mViewModel.areItemsDragged().observe(getViewLifecycleOwner(), itemDragged -> {
             if (itemDragged) {
                 mBinding.fab.hide();
@@ -117,13 +119,11 @@ public class ChecklistPagerFragment extends Fragment {
                 mBinding.fab.show();
             }
         });
-
         return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onViewCreated: ");
         super.onViewCreated(view, savedInstanceState);
         new TabLayoutMediator(
                 mBinding.tablayout,
@@ -131,8 +131,9 @@ public class ChecklistPagerFragment extends Fragment {
                 (tab, position) -> {})
                 .attach();
         setupItemNameBox(requireActivity(), requireContext(), this);
-        mOnboardingPopup = new OnboardingPopup(getContext(), mBinding.viewpager);
-
+        Context context = getContext();
+        assert context != null: "getContext() returned null";
+        mOnboardingPopup = new OnboardingPopup(context, mBinding.viewpager);
     }
 
     @Override
@@ -146,16 +147,13 @@ public class ChecklistPagerFragment extends Fragment {
         return bundle;
     }
 
-    // TODO: Put all ItemNameBox related stuff into separate class.
-    //  Or extend custom EditText class
-
     private void setupItemNameBox(@NonNull ComponentActivity activity,
                                   @NonNull Context context,
                                   @NonNull LifecycleOwner lifecycleOwner) {
         mIMEHelper = new IMEHelper(context);
         mIMEHelper.setOnIMEToggledListener(mBinding.itemNameBox, this::onIMEToggled);
-        // TODO: animation looks weird. Wrap constrainedlayout in another layout?
-//        mIMEHelper.enableIMETransitionAnimation(mBinding.getRoot());
+        // TODO: animation looks weird. Maybe wrap ConstrainedLayout in another layout?
+        // mIMEHelper.enableIMETransitionAnimation(mBinding.getRoot());
 
         mOnBackPressedCallback = new OnBackPressedCallback(false) {
             @Override
@@ -164,7 +162,6 @@ public class ChecklistPagerFragment extends Fragment {
             }
         };
         activity.getOnBackPressedDispatcher().addCallback(lifecycleOwner, mOnBackPressedCallback);
-
         int itemActionId = EditorInfo.IME_ACTION_DONE;
         mBinding.itemNameBox.setImeOptions(itemActionId);
         mBinding.itemNameBox.setOnEditorActionListener((v, actionId, event) -> {
@@ -175,20 +172,17 @@ public class ChecklistPagerFragment extends Fragment {
                 return false;
             }
         });
-
         mBinding.itemNameBox.setInputType(
                 InputType.TYPE_CLASS_TEXT |
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-
         // The outline provider determines where to draw the shadow (elevation).
         // A custom outline is required to allow rounded corners.
         mBinding.itemNameBox.setOutlineProvider(new ViewOutlineProvider() {
             @Override
             public void getOutline(View view, Outline outline) {
-                // Since the item_name_box has no margin to the left of the screen
-                // we need to define the start of the outline "outside" of the screen
-                // (negative value) so that the shadow of rounded corners on the left
-                // is not visible.
+                // Since the item_name_box has no margin to the left of the screen, we need to
+                // define the start of the outline "outside" of the screen (negative value) so that
+                // the shadow of rounded corners on the left is not visible.
                 outline.setRoundRect(
                         -getResources().getDimensionPixelSize(R.dimen.fab_radius),
                         0,
@@ -197,16 +191,13 @@ public class ChecklistPagerFragment extends Fragment {
                         getResources().getDimensionPixelSize(R.dimen.fab_radius));
             }
         });
-
-        ArrayAdapter<String> autoComplAdapter = new ArrayAdapter<>(
+        ArrayAdapter<String> autoCompleteAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line);
-
-        // The content of the auto complete popup depends on which
-        // page is currently visible (checked or unchecked).
-        // Whenever isCurrentPageChecked changes its value, Transformations.switchMap()
-        // will replace autoCompleteItems so that the observer is be triggered with
-        // the correct data.
+        // The content of the auto-complete popup depends on which page is currently visible
+        // (checked or unchecked). Whenever "isCurrentPageChecked" changes its value,
+        // Transformations.switchMap() will replace autoCompleteItems so that the observer is
+        // triggered with the correct data.
         MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>(null);
         LiveData<List<String>> autoCompleteItems = Transformations.switchMap(
                 isCurrentPageChecked,
@@ -215,32 +206,29 @@ public class ChecklistPagerFragment extends Fragment {
         autoCompleteItems.observe(
                 getViewLifecycleOwner(),
                 strings -> {
-                    autoComplAdapter.clear();
-                    autoComplAdapter.addAll(strings);
+                    autoCompleteAdapter.clear();
+                    autoCompleteAdapter.addAll(strings);
                 });
-        // Update isCurrentPageChecked whenever the user changes the page.
+        // Update "isCurrentPageChecked" whenever the user changes the page.
         mBinding.viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                Log.d(TAG, "onPageSelected: " + position);
                 super.onPageSelected(position);
                 mBinding.itemNameBox.dismissDropDown();
-
                 if (isCurrentPageChecked.getValue() != null
                         && isCurrentPageChecked.getValue() != isCurrentPageChecked()) {
                     mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.SWIPED);
                 }
-                isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: or postValue()?
+                isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: postValue()?
             }
         });
-
         mBinding.itemNameBox.setOnItemClickListener((parent, view, position, id) -> {
             insertNewItem((String) parent.getItemAtPosition(position));
-            // TODO: Race condition (will sometimes not scroll to last item).
-            //  The scroll should be triggered after the list has been updated
+            // TODO: Race condition: The scroll should be triggered after the list has been updated.
+            //  (sometimes it won't scroll to the very last item).
             scrollCurrentChecklist();
         });
-        mBinding.itemNameBox.setAdapter(autoComplAdapter);
+        mBinding.itemNameBox.setAdapter(autoCompleteAdapter);
         mBinding.itemNameBox.setThreshold(MainViewModel.AUTOCOMPLETE_THRESHOLD);
     }
 
@@ -248,7 +236,7 @@ public class ChecklistPagerFragment extends Fragment {
         if (show) {
             mOnBackPressedCallback.setEnabled(true);
             mBinding.itemNameBox.setVisibility(View.VISIBLE);
-            // Set constraint to expand to top of item_name_box.
+            // Set constraint to expand to top of "item_name_box".
             updateConstraint(
                     mBinding.checklistPagerRoot,
                     R.id.viewpager, ConstraintSet.BOTTOM, R.id.item_name_box, ConstraintSet.TOP);
@@ -283,7 +271,7 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void onFabClicked() {
-        // TODO: fix landscape layout for FAB and EditText
+        // TODO: Fix landscape layout for FAB and EditText
         if (isItemNameBoxVisible()) {
             insertNewItem(mBinding.itemNameBox.getText().toString());
         } else {
@@ -294,12 +282,11 @@ public class ChecklistPagerFragment extends Fragment {
     private void onChecklistEmptyChanged(boolean empty) {
         if (empty) {
             mBinding.emptyListPlaceholderBoth.setVisibility(View.VISIBLE);
-            // Need to hide the ViewPager, because it's possible to change
-            // the current page by swiping, even if the placeholder is visible.
+            // We need to hide the ViewPager, because it's possible to change the current page by
+            // swiping, even if the list is empty and the placeholder is visible.
             mBinding.viewpager.setVisibility(View.GONE);
-            // Change ViewPager page so that the first item will be added to "Unchecked".
+            // Change ViewPager page, so that the first item will be added to "unchecked" items.
             mBinding.viewpager.setCurrentItem(ViewPagerAdapter.POS_UNCHECKED);
-            Log.d(TAG, "onChecklistEmptyChanged: " + isCurrentPageChecked());
             mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.LIST_EMPTY);
         } else {
             mBinding.emptyListPlaceholderBoth.setVisibility(View.GONE);
@@ -309,13 +296,10 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void scrollCurrentChecklist() {
-        // retrieve from global settings?
         ChecklistFragment fragment = mViewPagerAdapter.getFragment(
                 mBinding.viewpager.getCurrentItem());
         if (fragment != null) {
             fragment.scrollTo(true);
-        } else {
-            Log.e(TAG, "scrollCurrentChecklist: current fragment == null");
         }
     }
 
@@ -326,18 +310,21 @@ public class ChecklistPagerFragment extends Fragment {
                 mListTitle,
                 currentChecked,
                 name);
-        Futures.addCallback(result, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                mBinding.itemNameBox.setText("");
-            }
+        Futures.addCallback(
+                result,
+                new FutureCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        // Clear the prompt.
+                        mBinding.itemNameBox.setText("");
+                    }
 
-            @Override
-            public void onFailure(@NonNull Throwable t) {
-//                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
-                vibrate();
-            }
-        }, ContextCompat.getMainExecutor(requireContext()));
+                    @Override
+                    public void onFailure(@NonNull Throwable t) {
+                        vibrate();
+                    }
+                },
+                ContextCompat.getMainExecutor(requireContext()));
     }
 
     @Nullable Boolean isCurrentPageChecked() {
@@ -347,7 +334,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private void vibrate() {
         Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
-        vibrator.vibrate(125);
+        vibrator.vibrate(VIBRATE_DURATION_MS);
     }
 
     private static void updateConstraint(ConstraintLayout parent, int startID, int startSide, int endID, int endSide) {
@@ -368,9 +355,8 @@ public class ChecklistPagerFragment extends Fragment {
 
         private final ChecklistFragment[] mCachedFragments = new ChecklistFragment[2];
 
-        // Use this constructor if ViewPager2 lives directly in a Fragment.
-        // Otherwise the child fragments of ViewPager2 will not be destroyed
-        // when this fragment is being destroyed.
+        // Use this constructor if ViewPager2 lives directly in a Fragment. Otherwise the child
+        // fragments of ViewPager2 will not be destroyed when this fragment is being destroyed.
         public ViewPagerAdapter(@NonNull Fragment fragment) {
             super(fragment);
         }

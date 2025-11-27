@@ -11,13 +11,16 @@ import com.google.android.material.snackbar.Snackbar;
 
 
 public class OnboardingPopup {
-    // Wrapper for a popup.  Using a Snackbar is just one possible implementation
+    /*
+    *  Wrapper for a popup.  Using a Snackbar is just one possible
+    *  implementation.
+    */
+
     private final Snackbar mSnackbar;
     private final TextView mTextView;
     private final int mAnimDuration;
 
     public OnboardingPopup(Context context, View root) {
-        // Get animation duration from context.
         mAnimDuration = context.getResources().getInteger(android.R.integer.config_shortAnimTime);
         mSnackbar= Snackbar.make(root, "", Snackbar.LENGTH_INDEFINITE);
         mSnackbar.setAction("Dismiss", v -> {});

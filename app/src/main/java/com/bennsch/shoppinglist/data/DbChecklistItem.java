@@ -23,6 +23,9 @@ import androidx.room.PrimaryKey;
                 onUpdate = ForeignKey.CASCADE)}
 )
 public class DbChecklistItem {
+    /*
+     *  Represents a Checklist-Item in the database.
+     */
 
     // autoGenerate: null is treated as "non-set".
     @PrimaryKey(autoGenerate = true)

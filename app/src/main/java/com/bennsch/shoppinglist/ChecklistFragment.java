@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.ListUpdateCallback;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,8 +30,10 @@ import java.util.List;
 
 
 public class ChecklistFragment extends Fragment {
+    /*
+     *  Fragment to display a single Checklist page (checked or unchecked items)
+     */
 
-    private static final String TAG = "ChecklistFragment";
     private static final String ARG_LIST_TITLE = "list_title";
     private static final String ARG_DISPLAY_CHECKED = "display_checked";
 
@@ -44,7 +45,7 @@ public class ChecklistFragment extends Fragment {
     private MainViewModel.DeleteItemsMode mDeleteItemsMode;
 
     public ChecklistFragment() {
-        // Required empty public constructor
+        // Required empty public constructor.
     }
 
     public static ChecklistFragment newInstance(String listTitle, boolean displayChecked) {
@@ -67,40 +68,32 @@ public class ChecklistFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
         mBinding = FragmentChecklistBinding.inflate(inflater, container, false);
-
         MaterialDividerItemDecoration decor = new MaterialDividerItemDecoration(
                 requireContext(), MaterialDividerItemDecoration.VERTICAL);
-//        decor.setLastItemDecorated(false);
+        // decor.setLastItemDecorated(false);
         mBinding.recyclerView.addItemDecoration(decor);
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked)
                 .observe(getViewLifecycleOwner(), this::onItemsChanged);
-
-        mViewModel.getPrefMessageListDeleted().observe(getViewLifecycleOwner(), s -> {
-            Log.d(TAG, "set text" + s);
-            mBinding.emptyListPlaceholderUnchecked.setText(s);
-        });
-
+        mViewModel.getPrefMessageListDeleted()
+                .observe(
+                        getViewLifecycleOwner(),
+                        s -> mBinding.emptyListPlaceholderUnchecked.setText(s));
         mDeleteItemsMode = mViewModel.getDeleteItemsMode();
         mDeleteItemsMode.observe(
                 getViewLifecycleOwner(),
                 mode -> mRecyclerViewAdapter.notifyDataSetChanged());
-
         return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
-
-    public boolean isDisplayChecked() {
-        return mDisplayChecked;
     }
 
     public void scrollTo(boolean bottom) {
@@ -120,7 +113,6 @@ public class ChecklistFragment extends Fragment {
     }
 
     protected void onItemsChanged(List<ChecklistItem> newItemsSorted) {
-        Log.d(TAG, "onItemsChanged: " + mListTitle + "(" + (mDisplayChecked ? "Checked Items" : "Unchecked Items" + ")"));
         mRecyclerViewAdapter.updateItems(newItemsSorted);
         showEmptyListPlaceholder(newItemsSorted.isEmpty());
     }
@@ -140,7 +132,6 @@ public class ChecklistFragment extends Fragment {
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
-        Log.d(TAG, "onItemsMoved: " + (mDisplayChecked ? "Checked," : "Unchecked,"));
         mViewModel.itemsHaveBeenMoved(mListTitle, mDisplayChecked, itemsSortedByPosition);
     }
 
@@ -164,23 +155,12 @@ public class ChecklistFragment extends Fragment {
                     .setDuration(animDuration)
                     .setListener(null); // Clear any animation listener
         } else {
-            // Don't animate the disappearance, because it this page
-            // is shown briefly before first item is added to checklist
-            // and looks weird when empty_list_placeholder_both is being hidden
+            // Don't animate, because this page is shown briefly before first item is added to
+            // checklist, and looks weird when empty_list_placeholder_both is being hidden.
             placeholder.setVisibility(View.GONE);
-//            placeholder.animate()
-//                    .alpha(0f)
-//                    .setDuration(animDuration)
-//                    .setListener(new AnimatorListenerAdapter() {
-//                        @Override
-//                        public void onAnimationEnd(Animator animation) {
-//                            placeholder.setVisibility(View.GONE);
-//                        }
-//                    });
         }
     }
 
-    // TODO: move to separate file?
     class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
         private List<ChecklistItem> mCachedItems = new ArrayList<>();
@@ -223,29 +203,33 @@ public class ChecklistFragment extends Fragment {
             mItemTouchHelper = new ItemTouchHelper(
                     new ItemTouchHelper.SimpleCallback(
                             ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
-                @Override
-                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                    return onItemMove(viewHolder, target);
-                }
+                        @Override
+                        public boolean onMove(@NonNull RecyclerView recyclerView,
+                                              @NonNull RecyclerView.ViewHolder viewHolder,
+                                              @NonNull RecyclerView.ViewHolder target) {
+                            return onItemMove(viewHolder, target);
+                        }
 
-                @Override
-                public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
-                    super.onSelectedChanged(viewHolder, actionState);
-                    if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-                        onDragStart();
-                    } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
-                        onDragFinished();
-                    }
-                }
+                        @Override
+                        public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder,
+                                                      int actionState) {
+                            super.onSelectedChanged(viewHolder, actionState);
+                            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                                onDragStart();
+                            } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
+                                onDragFinished();
+                            }
+                        }
 
-                @Override
-                public boolean isLongPressDragEnabled() {
-                    return false;
-                }
+                        @Override
+                        public boolean isLongPressDragEnabled() {
+                            return false;
+                        }
 
-                @Override
-                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {}
-            });
+                        @Override
+                        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder,
+                                             int direction) {}
+                    });
             mItemTouchHelper.attachToRecyclerView(recyclerView);
         }
 
@@ -258,7 +242,7 @@ public class ChecklistFragment extends Fragment {
             final DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
                     new DiffCallback(getCachedItems(), newItems));
             mCachedItems = newItems;
-            // will trigger the appropriate animations
+            // This will trigger the appropriate animation.
             diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
                 @Override
                 public void onInserted(int position, int count) {
@@ -286,29 +270,26 @@ public class ChecklistFragment extends Fragment {
                 }
             });
             if (PreferencesRepository.DBG_SHOW_INCIDENCE) {
-                Log.w(TAG, "notifyDataSetChanged()");
                 notifyDataSetChanged();
             }
         }
 
         public boolean onItemMove(@NonNull RecyclerView.ViewHolder itemFrom,
                                   @NonNull RecyclerView.ViewHolder itemTo) {
-            int from = itemFrom.getAdapterPosition();
-            int to = itemTo.getAdapterPosition();
+            int from = itemFrom.getBindingAdapterPosition();
+            int to = itemTo.getBindingAdapterPosition();
 
-            if ((from == RecyclerView.NO_POSITION) ||
-                    (to == RecyclerView.NO_POSITION)) {
-                Log.w(TAG, "Item move ignored");
+            if ((from == RecyclerView.NO_POSITION) || (to == RecyclerView.NO_POSITION)) {
                 return false;
             } else {
+                // We need to update cachedItems, or otherwise DiffUtil.calculateDiff() in update()
+                // won't work properly. The "newItems" will already match the cachedItems
+                // when the ViewModel has updated the database and calls the callback. However,
+                // updating the cachedItems ensures that the RecyclerView visually matches it's
+                // underlying data (cachedItems). So any subsequent moves will result in correct
+                // calls to update the ViewModel.
 
-                // We need to update cachedItems, otherwise DiffUtil.calculateDiff in update()
-                // would not work properly.
-                // Basically, the newItems will already match the cachedItems when the
-                // ViewModel has updated the database and calls the callback, so it is
-                // redundant. But updating the cachedItems ensures that the RecyclerView
-                // visually matches it's underlying data (cachedItems). So any subsequent
-                // moves will result in correct calls to  update the ViewModel.
+                // Swap two adjacent items as many times as the item has been moved.
                 if (from < to) {
                     for (int i = from; i < to; i++) {
                         Collections.swap(mCachedItems, i, i + 1);
@@ -318,7 +299,7 @@ public class ChecklistFragment extends Fragment {
                         Collections.swap(mCachedItems, i, i - 1);
                     }
                 }
-                // Animate the move (visually move the items)
+                // Animate the move visually.
                 notifyItemMoved(from, to);
                 return true;
             }
@@ -360,21 +341,22 @@ public class ChecklistFragment extends Fragment {
                 mBinding.dragHandle.setOnTouchListener((view, motionEvent) -> onDragHandleTouch(this));
             }
 
+            public ChecklistItemViewholderBinding getBinding() {
+                return mBinding;
+            }
+
             @Override
             public void onClick(View view) {
-                int pos = getAdapterPosition();
-                if (pos == RecyclerView.NO_POSITION) {
-                    Log.w(TAG, "Clicked item doesn't exist anymore in adapter. Click ignored");
-                } else {
+                int pos = getBindingAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
                     onItemClicked(getCachedItem(pos), pos);
                 }
             }
 
             @Override
             public boolean onLongClick(View v) {
-                int pos = getAdapterPosition();
+                int pos = getBindingAdapterPosition();
                 if (pos == RecyclerView.NO_POSITION) {
-                    Log.w(TAG, "Clicked item doesn't exist anymore in adapter. Long click ignored");
                     return false;
                 } else {
                     onItemLongClicked(getCachedItem(pos), pos);
@@ -383,19 +365,12 @@ public class ChecklistFragment extends Fragment {
             }
 
             public void onDeleteIconClick(View view) {
-                int pos = getAdapterPosition();
-                if (pos == RecyclerView.NO_POSITION) {
-                    Log.w(TAG, "Clicked item doesn't exist anymore in adapter. Click ignored");
-                } else {
+                int pos = getBindingAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
                     onDeleteIconClicked(getCachedItem(pos), pos);
                 }
             }
-
-            public ChecklistItemViewholderBinding getBinding() {
-                return mBinding;
-            }
         }
-
 
         class DiffCallback extends DiffUtil.Callback {
 
@@ -425,7 +400,7 @@ public class ChecklistFragment extends Fragment {
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                //Called to check whether two objects represent the same item.
+                // Whether two objects represent the same item.
                 final ChecklistItem oldItem = mOldList.get(oldItemPosition);
                 final ChecklistItem newItem = mNewList.get(newItemPosition);
                 return oldItem.getName().equals(newItem.getName());
@@ -433,11 +408,12 @@ public class ChecklistFragment extends Fragment {
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                // If visual representation is same
-                // This method is called only if areItemsTheSame returns true for these items.
+                // Whether the visual representation is the same.
+                // This method is called only if areItemsTheSame() returned true for these items.
                 final ChecklistItem oldItem = mOldList.get(oldItemPosition);
                 final ChecklistItem newItem = mNewList.get(newItemPosition);
-                // TODO: 1/15/2024 more than name required here? IsChecked is part of visual representation
+                // TODO: More than name required here? E.g. "isChecked"
+                //  attribute is part of visual representation
                 return oldItem.getName().equals(newItem.getName());
             }
         }
