@@ -172,9 +172,12 @@ public class ChecklistPagerFragment extends Fragment {
                 return false;
             }
         });
+
+        // Setup the text input style:
         mBinding.itemNameBox.setInputType(
                 InputType.TYPE_CLASS_TEXT |
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
         // The outline provider determines where to draw the shadow (elevation).
         // A custom outline is required to allow rounded corners.
         mBinding.itemNameBox.setOutlineProvider(new ViewOutlineProvider() {
@@ -191,18 +194,24 @@ public class ChecklistPagerFragment extends Fragment {
                         getResources().getDimensionPixelSize(R.dimen.fab_radius));
             }
         });
+
+        // Scroll to the bottom of the list whenever a new items is added:
+        mBinding.itemNameBox.setOnItemClickListener((parent, view, position, id) -> {
+            insertNewItem((String) parent.getItemAtPosition(position));
+            // TODO: Race condition: The scroll should be triggered after the list has been updated.
+            //  (sometimes it won't scroll to the very last item).
+            scrollCurrentChecklist();
+        });
+
+        // Provide an adapter to enable auto-complete suggestions:
         ArrayAdapter<String> autoCompleteAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line);
-        // The content of the auto-complete popup depends on which page is currently visible
-        // (checked or unchecked). Whenever "isCurrentPageChecked" changes its value,
-        // Transformations.switchMap() will replace autoCompleteItems so that the observer is
-        // triggered with the correct data.
-        MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>(null);
+        MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>(true);
         LiveData<List<String>> autoCompleteItems = Transformations.switchMap(
                 isCurrentPageChecked,
                 currPageChecked ->
-                        mViewModel.getAutoCompleteItems(mListTitle, currPageChecked));
+                        mViewModel.getAutoCompleteDataset(mListTitle, currPageChecked));
         autoCompleteItems.observe(
                 getViewLifecycleOwner(),
                 strings -> {
@@ -221,12 +230,6 @@ public class ChecklistPagerFragment extends Fragment {
                 }
                 isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: postValue()?
             }
-        });
-        mBinding.itemNameBox.setOnItemClickListener((parent, view, position, id) -> {
-            insertNewItem((String) parent.getItemAtPosition(position));
-            // TODO: Race condition: The scroll should be triggered after the list has been updated.
-            //  (sometimes it won't scroll to the very last item).
-            scrollCurrentChecklist();
         });
         mBinding.itemNameBox.setAdapter(autoCompleteAdapter);
         mBinding.itemNameBox.setThreshold(MainViewModel.AUTOCOMPLETE_THRESHOLD);

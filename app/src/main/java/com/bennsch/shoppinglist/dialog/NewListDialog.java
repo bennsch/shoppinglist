@@ -27,7 +27,7 @@ public class NewListDialog extends DialogFragment {
     // Using "onAttach()" recommended by API doc.
     public interface DialogListener{
         void newListDialog_onCreateClicked(String title);
-        void newListDialog_onValidateTitle(String title) throws Exception;
+        String newListDialog_onValidateTitle(String title);
     }
 
     DialogListener listener;
@@ -78,12 +78,12 @@ public class NewListDialog extends DialogFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                try {
-                    listener.newListDialog_onValidateTitle(s.toString());
+                String validationFailedReason = listener.newListDialog_onValidateTitle(s.toString());
+                if (validationFailedReason == null) {
                     binding.listTitle.setError(null);
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                }catch (Exception e){
-                    binding.listTitle.setError(e.getMessage());
+                } else {
+                    binding.listTitle.setError(validationFailedReason);
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                 }
             }

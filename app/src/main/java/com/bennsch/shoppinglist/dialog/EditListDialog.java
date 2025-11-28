@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.bennsch.shoppinglist.IMEHelper;
+import com.bennsch.shoppinglist.MainViewModel;
 import com.bennsch.shoppinglist.ThemeHelper;
 import com.bennsch.shoppinglist.databinding.DialogEditListBinding;
 
@@ -28,7 +29,7 @@ public class EditListDialog extends DialogFragment {
     public interface DialogListener{
         void editListDialog_onSafeClicked(String oldTitle, String newTitle);
         void editListDialog_onDeleteClicked(String listTitle);
-        void editListDialog_onValidateTitle(String title) throws Exception;
+        String editListDialog_onValidateTitle(String title);
     }
 
     private DialogListener mListener;
@@ -96,12 +97,12 @@ public class EditListDialog extends DialogFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                try {
-                    mListener.editListDialog_onValidateTitle(s.toString());
+                String validationFailedReason = mListener.editListDialog_onValidateTitle(s.toString());
+                if (validationFailedReason == null) {
                     binding.listTitle.setError(null);
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                }catch (Exception e){
-                    binding.listTitle.setError(e.getMessage());
+                } else {
+                    binding.listTitle.setError(validationFailedReason);
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                 }
             }

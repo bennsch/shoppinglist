@@ -363,36 +363,52 @@ public class MainActivity extends AppCompatActivity
                 .show(getSupportFragmentManager(), "EditListDialog");
     }
 
+    // NewListDialog.DialogListener:
     @Override
     public void newListDialog_onCreateClicked(String title) {
         try {
             mViewModel.insertChecklist(title);
-        } catch (IllegalArgumentException e) {
+        } catch (MainViewModel.InvalidChecklistTitleException e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public void newListDialog_onValidateTitle(String title) throws IllegalArgumentException{
-        mViewModel.validateNewChecklistName(title);
+    public String newListDialog_onValidateTitle(String title) {
+        try {
+            mViewModel.validateChecklistTitle(title);
+            return null;
+        } catch (MainViewModel.InvalidChecklistTitleException e) {
+            return e.getMessage();
+        }
     }
 
     @Override
-    public void editListDialog_onSafeClicked(String oldTitle, String newTitle) throws IllegalArgumentException{
+    public void editListDialog_onSafeClicked(String oldTitle, String newTitle){
         try {
             mViewModel.renameChecklist(oldTitle, newTitle);
-        } catch (IllegalArgumentException e) {
+        } catch (MainViewModel.InvalidChecklistTitleException e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
+    // EditListDialog.DialogListener:
     @Override
-    public void editListDialog_onValidateTitle(String title) throws IllegalArgumentException{
-        mViewModel.validateNewChecklistName(title);
+    public String editListDialog_onValidateTitle(String title) {
+        try {
+            mViewModel.validateChecklistTitle(title);
+            return null;
+        } catch (MainViewModel.InvalidChecklistTitleException e) {
+            return e.getMessage();
+        }
     }
 
     @Override
     public void editListDialog_onDeleteClicked(String listTitle) {
-        mViewModel.moveChecklistToTrash(listTitle);
+        try {
+            mViewModel.moveChecklistToTrash(listTitle);
+        } catch (MainViewModel.InvalidChecklistTitleException e) {
+            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

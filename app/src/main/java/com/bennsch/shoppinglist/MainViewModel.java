@@ -55,6 +55,12 @@ public class MainViewModel extends AndroidViewModel {
      */
 
 
+    public static class InvalidChecklistTitleException extends Exception {
+        public InvalidChecklistTitleException(String reason){
+            super(reason);
+        }
+    }
+
     public static class Onboarding {
         /*
          * This class encapsulates all the logic related to the onboarding process.
@@ -288,14 +294,18 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public LiveData<List<String>> getAutoCompleteItems(@NonNull String listTitle, @Nullable Boolean isChecked) {
-        if (isChecked == null || isChecked) {
-            // If the user is currently looking at "checked" items, then
-            // we don't show any auto complete suggestions.
+    public LiveData<List<String>> getAutoCompleteDataset(@NonNull String listTitle, boolean isCheckedVisible) {
+        // Return a list of strings that should be used as the dataset for the adapter of an
+        // AutoCompleteTextView. Which of those suggestions will actually be displayed to the user
+        // depends on the user input and is handled in the AutoCompleteTextView.
+        // It's the names of all the items (both checked and unchecked) in the Checklist titled
+        // "listTitle".
+        if (isCheckedVisible) {
+            // If the user is currently looking at checked items, then we won't show any
+            // suggestions, because in this use case the user probably wants to only add new items anyway.
             return new MutableLiveData<>(new ArrayList<>(0));
         } else {
-            // TODO: map runs on UI-thread!
-            // Show all items (both checked and unchecked) as auto complete suggestions
+            // TODO: map() runs on UI-thread!
             return Transformations.map(
                     mChecklistRepo.getAllItemsLiveData(listTitle),
                     dbChecklistItems
@@ -307,35 +317,35 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public String validateNewChecklistName(String newTitle) throws IllegalArgumentException{
-        String newTitleStripped = stripWhitespace(newTitle);
+    public String validateChecklistTitle(String listTitle) throws InvalidChecklistTitleException {
+        // Strip white spaces, validate it can be used for a new Checklist and return the stripped
+        // title.
+        String listTitleStripped = stripWhitespace(listTitle);
         List<String> currentTitles = mChecklistTitles.getValue();
         assert currentTitles != null;
-        // TODO: replace with appropriate exception
-        if (currentTitles.contains(newTitleStripped)) {
-            throw new IllegalArgumentException("Name already in use");
-        } else if (newTitleStripped.length() > LIST_TITLE_MAX_LENGTH) {
-            throw new IllegalArgumentException("Name is too long");
-        } else if (newTitleStripped.isEmpty()) {
-            throw new IllegalArgumentException("Name is empty");
+        if (currentTitles.contains(listTitleStripped)) {
+            throw new InvalidChecklistTitleException("Name already in use");
+        } else if (listTitleStripped.length() > LIST_TITLE_MAX_LENGTH) {
+            throw new InvalidChecklistTitleException("Name exceeds max. length");
+        } else if (listTitleStripped.isEmpty()) {
+            throw new InvalidChecklistTitleException("Name is empty");
         } else {
-            return newTitleStripped;
+            return listTitleStripped;
         }
     }
 
-    public void insertChecklist(String listTitle) throws IllegalArgumentException{
-        String listTitleValidated = validateNewChecklistName(listTitle);
+    public void insertChecklist(String listTitle) throws InvalidChecklistTitleException{
+        String listTitleValidated = validateChecklistTitle(listTitle);
         mExecutor.execute(() -> {
             mChecklistRepo.insertChecklist(listTitleValidated);
             mChecklistRepo.setActiveChecklist(listTitleValidated);
         });
     }
 
-    public void moveChecklistToTrash(String checklistTitle) {
+    public void moveChecklistToTrash(String checklistTitle) throws InvalidChecklistTitleException{
         assert mChecklistTitles.getValue() != null;
         if (!mChecklistTitles.getValue().contains(checklistTitle)) {
-            // TODO: replace with appropriate exception
-            throw new IllegalArgumentException("List with title \"" + checklistTitle +  "\" does not exists");
+            throw new InvalidChecklistTitleException("List with title \"" + checklistTitle +  "\" does not exists");
         }
         mExecutor.execute(() -> {
             String trashed_title = TRASH_LABEL + checklistTitle + "(" + Calendar.getInstance().getTime() + ")";
@@ -352,15 +362,15 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    public void renameChecklist(@NonNull final String title, @NonNull final String newTitle) throws IllegalArgumentException{
+    public void renameChecklist(@NonNull final String title, @NonNull final String newTitle) throws InvalidChecklistTitleException{
         assert mChecklistTitles.getValue() != null;
         if (mChecklistTitles.getValue().contains(title)) {
-            String newTitleValidated = validateNewChecklistName(newTitle);
+            String newTitleValidated = validateChecklistTitle(newTitle);
             mExecutor.execute(() -> {
                 mChecklistRepo.updateChecklistName(title, newTitleValidated);
             });
         } else {
-            throw new IllegalArgumentException("List \"" + title + "\" doesn't exist" );
+            throw new InvalidChecklistTitleException("List \"" + title + "\" doesn't exist" );
         }
     }
 
