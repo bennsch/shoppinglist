@@ -135,7 +135,7 @@ public class SettingsActivity extends AppCompatActivity {
                     new OutputStreamWriter(
                             getContentResolver()
                                     .openOutputStream(csvFileUri)))) {
-                ChecklistRepository repo = ChecklistRepository.getInstance(getApplication());
+                ChecklistRepository repo = ChecklistRepository.getInstance(getApplicationContext());
                 List<DbChecklistItem> items = repo.getAllItemsFromAllLists();
                 writer.write("List;Name;Incidence;Checked"); writer.newLine();
                 for (DbChecklistItem item : items) {

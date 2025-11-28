@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist.data;
 
 import android.app.Application;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,15 +22,15 @@ public class ChecklistRepository {
     private final ChecklistDatabase.ItemDao mItemDao;
 
 
-    private ChecklistRepository(@NonNull Application application) {
-        ChecklistDatabase db = ChecklistDatabase.getInstance(application);
+    private ChecklistRepository(@NonNull Context applicationContext) {
+        ChecklistDatabase db = ChecklistDatabase.getInstance(applicationContext);
         mItemDao = db.itemDao();
     }
 
     // TODO: Singleton cannot have argument!!
-    public static synchronized ChecklistRepository getInstance(@NonNull final Application application) {
+    public static synchronized ChecklistRepository getInstance(@NonNull final Context applicationContext) {
         if (INSTANCE == null) {
-            INSTANCE = new ChecklistRepository(application);
+            INSTANCE = new ChecklistRepository(applicationContext);
         }
         return INSTANCE;
     }

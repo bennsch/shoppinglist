@@ -88,9 +88,9 @@ public class PreferencesRepository {
     private final MutableLiveData<Orientation> mPrefOrientation = new MutableLiveData<>();
 
 
-    public static synchronized PreferencesRepository getInstance(@NonNull Application application) {
+    public static synchronized PreferencesRepository getInstance(@NonNull Context applicationContext) {
         if (INSTANCE == null) {
-            INSTANCE = new PreferencesRepository(application);
+            INSTANCE = new PreferencesRepository(applicationContext);
         }
         return INSTANCE;
     }

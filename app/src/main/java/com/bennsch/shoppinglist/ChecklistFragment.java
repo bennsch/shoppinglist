@@ -80,14 +80,17 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked)
                 .observe(getViewLifecycleOwner(), this::onItemsChanged);
-        mViewModel.getPrefMessageListDeleted()
-                .observe(
-                        getViewLifecycleOwner(),
-                        s -> mBinding.emptyListPlaceholderUnchecked.setText(s));
         mDeleteItemsMode = mViewModel.getDeleteItemsMode();
         mDeleteItemsMode.observe(
                 getViewLifecycleOwner(),
                 mode -> mRecyclerViewAdapter.notifyDataSetChanged());
+        // Update the placeholder text if the preference changes.
+        PreferencesRepository
+                .getInstance(requireContext().getApplicationContext())
+                .getPrefMessageListDeleted()
+                .observe(
+                        getViewLifecycleOwner(),
+                        s -> mBinding.emptyListPlaceholderUnchecked.setText(s));
         return mBinding.getRoot();
     }
 

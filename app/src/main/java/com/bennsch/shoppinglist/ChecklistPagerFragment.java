@@ -93,7 +93,7 @@ public class ChecklistPagerFragment extends Fragment {
                         mBinding.fab.show();
                     }
         });
-        mViewModel.getSimpleOnboarding().getStage().observe(getViewLifecycleOwner(), stage -> {
+        mViewModel.getSimpleOnboarding().getState().observe(getViewLifecycleOwner(), stage -> {
             switch (stage) {
                 case INIT:
                 case HIDE:

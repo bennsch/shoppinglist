@@ -1,8 +1,6 @@
 package com.bennsch.shoppinglist;
 
 import android.app.Application;
-import android.content.pm.PackageManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,28 +31,47 @@ import kotlin.jvm.functions.Function1;
 
 
 public class MainViewModel extends AndroidViewModel {
+    /*
+     * The ViewModel is the interface between the UI-layer (Activities, Fragments etc.) and the
+     * data-layer (databases, repositories etc.). All the application's business logic should be
+     * handled here. The ViewModel should be unaware of any UI implementation details. A single
+     * instance of the MainViewModel is used for the entire app.
+     *
+     * Note: The UI-layer components (Activities, Fragments etc.) should not perform any logic or
+     * modify data. Their sole purpose is to display the data provided by the ViewModel, and to
+     * notify the ViewModel about external events (e.g user inputs).
+     *
+     * Example: User presses a button to add a new item:
+     *
+     *    1) User presses button
+     *
+     *    2) UI-layer (e.g. MainActivity) notifies the ViewModel that a new item needs to be added
+     *
+     *    3) ViewModel performs some logic related to adding a new item (e.g. check item contents)
+     *       and adds a new item to the data repository
+     *
+     *    4) UI-layer, which is observing the items (LiveData objects retrieved from the ViewModel),
+     *       gets notified that the items have changed and updates the UI accordingly.
+     */
 
-    // TODO: Remove all logic from GUI. The ViewModel should contain all logic.
-    //  (e.g. onAddButtonClicked()...also, config values should be defined here(e.g. autocompl threshold).
-
-    // All the app's business logic should be handled in the ViewModel.
-    // It's the interface between data and UI.
 
     public static class Onboarding {
-        // Show a hint to the user what he can do. Once the user performed
-        // an action, we don't need to show that anymore.
+        /*
+         * This class encapsulates all the logic related to the onboarding process.
+         * When the app is launched for the first time, a series of hints are displayed introducing
+         * the user how to use the app. It's implemented as a state machine, that advances depending
+         * on the user's actions.
+         */
 
-        // User triggered events.
         public enum Event {
-            START_ONBOARDING,   // Start the onboarding process
-            ITEM_TAPPED,        // A list item has been tapped
-            SWIPED,             // The ViewPager has been swiped
-            LIST_EMPTY,         // The last item in a list got deleted, or an empty list has been selected
-            LIST_NOT_EMPTY,     // The first item got added to a list, or a non-empty list has been selected
+            START_ONBOARDING, // Start the onboarding process
+            ITEM_TAPPED,      // A list item has been tapped
+            SWIPED,           // The ViewPager has been swiped
+            LIST_EMPTY,       // The last item in a list got deleted, or an empty list has been selected
+            LIST_NOT_EMPTY,   // The first item got added to a list, or a non-empty list has been selected
         }
 
-        // We progress through stages depending on user events.
-        public enum Stage {
+        public enum State {
             INIT,       // Onboarding has not started yet
             HIDE,       // Hide the onboarding message
             TAP_ITEM,   // Let the user know items can be tapped
@@ -66,7 +83,7 @@ public class MainViewModel extends AndroidViewModel {
             void onCompleted();
         }
 
-        private final MutableLiveData<Stage> mStage;
+        private final MutableLiveData<State> mStage;
         private final CompletedListener mCompletedListener;
         private boolean mUserHasTapped;
         private boolean mUserHasSwiped;
@@ -74,29 +91,29 @@ public class MainViewModel extends AndroidViewModel {
         private Onboarding(boolean isCompleted, @NonNull CompletedListener listener) {
             mCompletedListener = listener;
             if (isCompleted) {
-                mStage = new MutableLiveData<>(Stage.COMPLETED);
+                mStage = new MutableLiveData<>(State.COMPLETED);
             } else {
-                mStage = new MutableLiveData<>(Stage.INIT);
+                mStage = new MutableLiveData<>(State.INIT);
                 mUserHasTapped = false;
                 mUserHasSwiped = false;
             }
         }
 
-        public LiveData<Stage> getStage() {
+        public LiveData<State> getState() {
             return Transformations.distinctUntilChanged(mStage);
         }
 
         public void notify(Event event) {
-            if (mStage.getValue() == Stage.INIT) {
+            if (mStage.getValue() == State.INIT) {
                 if (event == Event.START_ONBOARDING) {
-                    mStage.setValue(Stage.TAP_ITEM);
+                    mStage.setValue(State.TAP_ITEM);
                 }
-            } else if (mStage.getValue() == Stage.COMPLETED) {
+            } else if (mStage.getValue() == State.COMPLETED) {
                 // Do nothing
             } else {
                 switch (event) {
                     case LIST_EMPTY:
-                        mStage.setValue(Stage.HIDE);
+                        mStage.setValue(State.HIDE);
                         return;
                     case ITEM_TAPPED:
                         mUserHasTapped = true;
@@ -109,32 +126,38 @@ public class MainViewModel extends AndroidViewModel {
                 }
                 // Update Stage depending on what the user has done already:
                 if (mUserHasTapped && mUserHasSwiped) {
-                    mStage.setValue(Stage.COMPLETED);
+                    mStage.setValue(State.COMPLETED);
                     mCompletedListener.onCompleted();
                 } else if (mUserHasTapped) {
-                    mStage.setValue(Stage.SWIPE);
+                    mStage.setValue(State.SWIPE);
                 } else {
-                    mStage.setValue(Stage.TAP_ITEM);
+                    mStage.setValue(State.TAP_ITEM);
                 }
             }
         }
     }
 
     public static class DeleteItemsMode {
-        // Convenience class to handle all logic related to DeleteItemsMode.
+        /*
+         *  This class encapsulates all the logic related to the "Delete Items" mode.
+         *  When the mode is enabled, the user can click items to delete them.
+         */
 
-        public static final int DISABLED = 0; // Mode cannot be activated
-        public static final int ACTIVATED = 1; // Items can be deleted
-        public static final int DEACTIVATED = 2; // Items cannot be deleted
+        // DeleteItemsMode cannot be activated (i.e. the active Checklist is empty).
+        public static final int DISABLED = 0;
+        // DeleteItemsMode is activated. Items can now be deleted.
+        public static final int ACTIVATED = 1;
+        // DeleteItemsMode is deactivated. Items cannot be deleted currently.
+        public static final int DEACTIVATED = 2;
 
         private final MediatorLiveData<Integer> mValue;
 
         public DeleteItemsMode(int initValue,
                                @NonNull LiveData<String> activeChecklist,
                                @NonNull Function1<String, LiveData<Boolean>> isChecklistEmpty) {
-            // Disable DeleteItemsMode if the active Checklist is or becomes empty.
-            // Set it to DEACTIVATED once items have been added again.
             mValue = new MediatorLiveData<>(initValue);
+            // Disable DeleteItemsMode if the active Checklist is or becomes empty. Set it to
+            // DEACTIVATED once items have been added again (list not empty anymore).
             mValue.addSource(
                     Transformations.switchMap(activeChecklist, isChecklistEmpty),
                     isActiveChecklistEmpty -> mValue.setValue(
@@ -152,12 +175,18 @@ public class MainViewModel extends AndroidViewModel {
         }
 
         public void toggle() {
-            if (getValue() == ACTIVATED) {
-                mValue.setValue(DEACTIVATED);
-            } else if (getValue() == DEACTIVATED) {
-                mValue.setValue(ACTIVATED);
-            } else {
-                // Cannot toggle if disabled.
+            // Toggle DeleteItemsMode, unless it's DISABLED.
+            switch (getValue()) {
+                case ACTIVATED:
+                    mValue.setValue(DEACTIVATED);
+                    break;
+                case DEACTIVATED:
+                    mValue.setValue(ACTIVATED);
+                    break;
+                case DISABLED:
+                    break;
+                default:
+                    assert false: "Invalid value: " + getValue();
             }
         }
     }
@@ -166,17 +195,18 @@ public class MainViewModel extends AndroidViewModel {
     public static final int AUTOCOMPLETE_THRESHOLD = 0;
     public static final int LIST_TITLE_MAX_LENGTH = 50;
 
-    private static final String TAG = "AppViewModel";
     private static final String TRASH_LABEL = "__TRASH__";
-    private static final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
-    private static final ListeningExecutorService mListeningExecutor = MoreExecutors.listeningDecorator(mExecutor);
+    private static final ExecutorService mExecutor =
+            Executors.newSingleThreadExecutor();
+    private static final ListeningExecutorService mListeningExecutor =
+            MoreExecutors.listeningDecorator(mExecutor);
 
     private final ChecklistRepository mChecklistRepo;
     private final PreferencesRepository mPreferencesRepo;
     private final LiveData<List<String>> mChecklistTitles;
 
-    // Store in the ViewModel (instead of database) because we don't
-    // need to keep them when the app finishes.
+    // We can store the below data in the MainViewModel itself (instead of repositories), because
+    // we don't need to keep it when the app finishes:
     private final DeleteItemsMode mDeleteItemsMode;
     private final Onboarding mOnboarding;
     private final MutableLiveData<Boolean> mAreItemsDragged;
@@ -184,9 +214,8 @@ public class MainViewModel extends AndroidViewModel {
 
     public MainViewModel(@NonNull Application application) {
         super(application);
-        Log.d(TAG, "AppViewModel: CTOR");
-        mChecklistRepo = ChecklistRepository.getInstance(application);
-        mPreferencesRepo = PreferencesRepository.getInstance(application);
+        mChecklistRepo = ChecklistRepository.getInstance(application.getApplicationContext());
+        mPreferencesRepo = PreferencesRepository.getInstance(application.getApplicationContext());
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
         mDeleteItemsMode = new DeleteItemsMode(
                 DeleteItemsMode.DISABLED,
@@ -208,7 +237,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     @NonNull
-    public LiveData<Boolean> areItemsDragged() { // Expose only immutable LiveData
+    public LiveData<Boolean> areItemsDragged() { // Casting to immutable LiveData for public API
         return mAreItemsDragged;
     }
 
@@ -224,25 +253,11 @@ public class MainViewModel extends AndroidViewModel {
 
     @NonNull
     public String getVersionName() {
-        try {
-            return getApplication()
-                    .getPackageManager()
-                    .getPackageInfo(getApplication().getPackageName(), 0)
-                    .versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "getVersionName: ", e);
-            return "?.?";
-        }
-    }
-
-    public LiveData<String> getPrefMessageListDeleted() {
-        return mPreferencesRepo.getPrefMessageListDeleted();
+        return BuildConfig.VERSION_NAME;
     }
 
     public void setActiveChecklist(String checklistTitle) {
-        mExecutor.execute(() -> {
-            mChecklistRepo.setActiveChecklist(checklistTitle);
-        });
+        mExecutor.execute(() -> mChecklistRepo.setActiveChecklist(checklistTitle));
     }
 
     public LiveData<Boolean> isChecklistEmpty(String listTitle) {
@@ -385,7 +400,6 @@ public class MainViewModel extends AndroidViewModel {
                     }
                     updatePositionByOrder(dbItems);
 
-                    Log.d(TAG, "insertItem: \"" + newDbItem.getName() + "\"");
                     mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
                 } else {
                     // Item already exists in database.

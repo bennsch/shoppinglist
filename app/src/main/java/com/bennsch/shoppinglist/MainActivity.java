@@ -76,7 +76,8 @@ public class MainActivity extends AppCompatActivity
         mViewModel.getAllChecklistTitles(PreferencesRepository.DBG_SHOW_TRASH).observe(this,
                 this::onChecklistTitlesChanged);
         // Perform certain actions only the first time the app has been launched.
-        PreferencesRepository preferencesRepo = PreferencesRepository.getInstance(getApplication());
+        PreferencesRepository preferencesRepo = PreferencesRepository
+                .getInstance(getApplicationContext());
         if (preferencesRepo.getPrefFirstStartup()) {
             // showWelcomeDialog();
             mViewModel.getSimpleOnboarding()

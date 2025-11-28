@@ -1,6 +1,7 @@
 
 
 PUBLISH:
+TODO: Remove all logic from GUI. The ViewModel should contain all logic.
 TODO: Add license comments on top of each source file
 TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 TODO: Sign with release certificate

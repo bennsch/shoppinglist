@@ -33,7 +33,7 @@ public class MyApplication extends Application {
     }
 
     private void applyDynamicColors() {
-        Boolean useDynamicColors = PreferencesRepository.getInstance(this)
+        Boolean useDynamicColors = PreferencesRepository.getInstance(getApplicationContext())
                 .getPrefUseDynamicColors()
                 .getValue();
         if (Boolean.TRUE.equals(useDynamicColors)) {
@@ -49,7 +49,7 @@ public class MyApplication extends Application {
     private void observePrefNightMode() {
         // No need to remove observer, because all resources will be freed when the
         // application finishes.
-        PreferencesRepository.getInstance(this)
+        PreferencesRepository.getInstance(getApplicationContext())
                 .getPrefNightMode()
                 .observeForever(nightMode -> {
                     if (Build.VERSION.SDK_INT >= 31) {
@@ -89,7 +89,7 @@ public class MyApplication extends Application {
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
             public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-                PreferencesRepository.getInstance(activity.getApplication())
+                PreferencesRepository.getInstance(activity.getApplicationContext())
                         .getPrefOrientation()
                         .observe((AppCompatActivity)activity, orientation -> {
                             // TODO: When returning to MainActivity, the old orientation is still
