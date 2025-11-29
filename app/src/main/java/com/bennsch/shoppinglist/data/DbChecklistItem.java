@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist.data;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -37,7 +38,7 @@ public class DbChecklistItem {
     // Item is checked or not.
     private boolean isChecked;
     // Position in relation to other items with same "isChecked".
-    private long position;
+    private Integer position;
 
     // TODO: remove default value for actual release?
     // How often the user used this item. Incremented whenever the user
@@ -49,7 +50,7 @@ public class DbChecklistItem {
 
     public DbChecklistItem(@NonNull String name,
                            boolean isChecked,
-                           long position,
+                           Integer position,
                            @NonNull String belongsToChecklist,
                            long incidence) {
         // Only the database should generate a unique "itemId".
@@ -77,7 +78,7 @@ public class DbChecklistItem {
         return belongsToChecklist;
     }
 
-    public void setPosition(long position) {
+    public void setPosition(Integer position) {
         this.position = position;
     }
 
@@ -106,7 +107,8 @@ public class DbChecklistItem {
         isChecked = checked;
     }
 
-    public long getPosition() {
+    @Nullable
+    public Integer getPosition() {
         return position;
     }
 }

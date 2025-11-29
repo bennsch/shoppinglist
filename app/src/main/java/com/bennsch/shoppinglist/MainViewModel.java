@@ -55,8 +55,8 @@ public class MainViewModel extends AndroidViewModel {
      */
 
 
-    public static class InvalidChecklistTitleException extends Exception {
-        public InvalidChecklistTitleException(String reason){
+    public static class InvalidNameException extends Exception {
+        public InvalidNameException(String reason){
             super(reason);
         }
     }
@@ -202,8 +202,13 @@ public class MainViewModel extends AndroidViewModel {
     public static final int LIST_TITLE_MAX_LENGTH = 50;
 
     private static final String TRASH_LABEL = "__TRASH__";
+
+    // Room-Database queries must be executed on a separate thread.
+    // NOTE: Each time an executor is called, it should only perform a single Room-database
+    // transaction, to avoid concurrent LiveData updates!
     private static final ExecutorService mExecutor =
             Executors.newSingleThreadExecutor();
+    // Executor that can throw an exception.
     private static final ListeningExecutorService mListeningExecutor =
             MoreExecutors.listeningDecorator(mExecutor);
 
@@ -296,13 +301,12 @@ public class MainViewModel extends AndroidViewModel {
 
     public LiveData<List<String>> getAutoCompleteDataset(@NonNull String listTitle, boolean isCheckedVisible) {
         // Return a list of strings that should be used as the dataset for the adapter of an
-        // AutoCompleteTextView. Which of those suggestions will actually be displayed to the user
-        // depends on the user input and is handled in the AutoCompleteTextView.
-        // It's the names of all the items (both checked and unchecked) in the Checklist titled
-        // "listTitle".
+        // AutoCompleteTextView. It's the names of all the items (both checked and unchecked) in the
+        // Checklist titled "listTitle". Which of those suggestions will actually be displayed to
+        // the user depends on the user input and is handled in the AutoCompleteTextView.
         if (isCheckedVisible) {
             // If the user is currently looking at checked items, then we won't show any
-            // suggestions, because in this use case the user probably wants to only add new items anyway.
+            // suggestions, because the user probably wants to only add new items anyway.
             return new MutableLiveData<>(new ArrayList<>(0));
         } else {
             // TODO: map() runs on UI-thread!
@@ -317,24 +321,24 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public String validateChecklistTitle(String listTitle) throws InvalidChecklistTitleException {
+    public String validateChecklistTitle(String listTitle) throws InvalidNameException {
         // Strip white spaces, validate it can be used for a new Checklist and return the stripped
         // title.
         String listTitleStripped = stripWhitespace(listTitle);
         List<String> currentTitles = mChecklistTitles.getValue();
         assert currentTitles != null;
         if (currentTitles.contains(listTitleStripped)) {
-            throw new InvalidChecklistTitleException("Name already in use");
+            throw new InvalidNameException("Name already in use");
         } else if (listTitleStripped.length() > LIST_TITLE_MAX_LENGTH) {
-            throw new InvalidChecklistTitleException("Name exceeds max. length");
+            throw new InvalidNameException("Name exceeds max. length");
         } else if (listTitleStripped.isEmpty()) {
-            throw new InvalidChecklistTitleException("Name is empty");
+            throw new InvalidNameException("Name is empty");
         } else {
             return listTitleStripped;
         }
     }
 
-    public void insertChecklist(String listTitle) throws InvalidChecklistTitleException{
+    public void insertChecklist(String listTitle) throws InvalidNameException {
         String listTitleValidated = validateChecklistTitle(listTitle);
         mExecutor.execute(() -> {
             mChecklistRepo.insertChecklist(listTitleValidated);
@@ -342,16 +346,18 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    public void moveChecklistToTrash(String checklistTitle) throws InvalidChecklistTitleException{
+    public void moveChecklistToTrash(String checklistTitle) throws InvalidNameException {
+        // Moving a Checklist to the trash means prefixing its title with TRASH_LABEL.
+        // Those Checklists won't be displayed in the NavDrawer.
         assert mChecklistTitles.getValue() != null;
         if (!mChecklistTitles.getValue().contains(checklistTitle)) {
-            throw new InvalidChecklistTitleException("List with title \"" + checklistTitle +  "\" does not exists");
+            throw new InvalidNameException("List \"" + checklistTitle +  "\" does not exists");
         }
         mExecutor.execute(() -> {
             String trashed_title = TRASH_LABEL + checklistTitle + "(" + Calendar.getInstance().getTime() + ")";
             mChecklistRepo.updateChecklistName(checklistTitle, trashed_title);
             assert mChecklistTitles.getValue() != null;
-            String ac =                     mChecklistTitles.getValue().stream()
+            String ac = mChecklistTitles.getValue().stream()
                     .filter(listTitle ->
                             !listTitle.contains(TRASH_LABEL) &&
                             // Required because old list title is still present at this point (why?)
@@ -362,7 +368,7 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    public void renameChecklist(@NonNull final String title, @NonNull final String newTitle) throws InvalidChecklistTitleException{
+    public void renameChecklist(@NonNull final String title, @NonNull final String newTitle) throws InvalidNameException {
         assert mChecklistTitles.getValue() != null;
         if (mChecklistTitles.getValue().contains(title)) {
             String newTitleValidated = validateChecklistTitle(newTitle);
@@ -370,7 +376,7 @@ public class MainViewModel extends AndroidViewModel {
                 mChecklistRepo.updateChecklistName(title, newTitleValidated);
             });
         } else {
-            throw new InvalidChecklistTitleException("List \"" + title + "\" doesn't exist" );
+            throw new InvalidNameException("List \"" + title + "\" doesn't exist" );
         }
     }
 
@@ -383,55 +389,55 @@ public class MainViewModel extends AndroidViewModel {
     public ListenableFuture<Void> insertItem(final @NonNull String listTitle,
                                              final boolean isChecked,
                                              final @NonNull String name) {
+        // Insert a new item named "name" to Checklist "listTitle".
+        // If an item with the same name already exists, then either move it to the bottom of the
+        // list (if "isChecked" equals the existing item's "isChecked"), or flip it (if "isChecked"
+        // differs).
         return mListeningExecutor.submit(() -> {
-            // Remove leading and trailing spaces, and replace all multi-spaces with single
-            // spaces.
             String strippedName = stripWhitespace(name);
-
             if (strippedName.isEmpty()) {
-                throw new Exception("Empty");
-            } else {
-                DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), strippedName);
-                if (dbItem == null){
-                    // Item does not exist in database. Insert a new item.
-
-                    // A new item will have the lowest incidence.
-                    long incidence = mChecklistRepo.getMinIncidence(listTitle) - 1;
-                    // TODO: maybe don't use integral type for 'position', so that undefined position is allowed
-                    DbChecklistItem newDbItem = new DbChecklistItem(
-                            strippedName, isChecked, 0, listTitle, incidence);
-
-                    List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
-                    dbItems.add(newDbItem);
-
-                    // TODO: is this really necessary?
-                    if (isChecked) {
-                        sortByIncidenceDescending(dbItems);
-                    }
-                    updatePositionByOrder(dbItems);
-
-                    mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
-                } else {
-                    // Item already exists in database.
-                    if (dbItem.isChecked() == isChecked) {
-                        // The existing item is of the same category as the user tries to add to,
-                        // so just move it to the bottom.
-                        List<DbChecklistItem> items = mChecklistRepo.getItemsSortedByPosition(listTitle, dbItem.isChecked());
-                        items.remove((int)dbItem.getPosition());
-                        items.add(dbItem);
-                        updatePositionByOrder(items);
-                        mChecklistRepo.update(items);
-                    } else {
-                        // The item is of the other category, so flip it.
-                        flipItem(listTitle, dbItem.isChecked(), new ChecklistItem(dbItem.getName(), dbItem.getIncidence()));
-                    }
-                }
-                return null;
+                throw new InvalidNameException("Name is empty");
             }
+            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), strippedName);
+            if (dbItem == null){
+                // Item does not exist in database. Insert a new item.
+                // The new item will have the lowest incidence.
+                long incidence = mChecklistRepo.getMinIncidence(listTitle) - 1;
+                DbChecklistItem newDbItem = new DbChecklistItem(
+                        strippedName, isChecked, null, listTitle, incidence);
+
+                List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
+                dbItems.add(newDbItem);
+
+                // TODO: is this really necessary?
+                if (isChecked) {
+                    sortByIncidenceDescending(dbItems);
+                }
+                updatePositionByOrder(dbItems);
+
+                mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
+            } else {
+                // Item already exists in database.
+                if (dbItem.isChecked() == isChecked) {
+                    // The existing item is of the same category as the user tries to add to,
+                    // so just move it to the bottom.
+                    List<DbChecklistItem> items = mChecklistRepo.getItemsSortedByPosition(listTitle, dbItem.isChecked());
+                    assert dbItem.getPosition() != null: "dbItem.getPosition() returned null";
+                    items.remove((int)dbItem.getPosition());
+                    items.add(dbItem);
+                    updatePositionByOrder(items);
+                    mChecklistRepo.update(items);
+                } else {
+                    // The item is of the other category, so flip it.
+                    flipItem(listTitle, dbItem.isChecked(), new ChecklistItem(dbItem.getName(), dbItem.getIncidence()));
+                }
+            }
+            return null;
         });
     }
 
     public void flipItem(String listTitle, boolean isChecked, ChecklistItem clItem) {
+        // Move an item from "checked" to "unchecked" and vice versa.
         mExecutor.execute(() -> {
             // TODO: 3/26/2024 Redo the whole thing
             //  (we don't need to worry about white spaces, since this function
@@ -507,6 +513,8 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     private static String stripWhitespace(@NonNull final String s) {
+        // Remove leading and trailing spaces, and replace all multi-spaces with single
+        // spaces.
         return s.strip().replaceAll(" +", " ");
     }
 

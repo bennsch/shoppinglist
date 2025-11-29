@@ -368,7 +368,7 @@ public class MainActivity extends AppCompatActivity
     public void newListDialog_onCreateClicked(String title) {
         try {
             mViewModel.insertChecklist(title);
-        } catch (MainViewModel.InvalidChecklistTitleException e) {
+        } catch (MainViewModel.InvalidNameException e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -378,7 +378,7 @@ public class MainActivity extends AppCompatActivity
         try {
             mViewModel.validateChecklistTitle(title);
             return null;
-        } catch (MainViewModel.InvalidChecklistTitleException e) {
+        } catch (MainViewModel.InvalidNameException e) {
             return e.getMessage();
         }
     }
@@ -387,7 +387,7 @@ public class MainActivity extends AppCompatActivity
     public void editListDialog_onSafeClicked(String oldTitle, String newTitle){
         try {
             mViewModel.renameChecklist(oldTitle, newTitle);
-        } catch (MainViewModel.InvalidChecklistTitleException e) {
+        } catch (MainViewModel.InvalidNameException e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -398,7 +398,7 @@ public class MainActivity extends AppCompatActivity
         try {
             mViewModel.validateChecklistTitle(title);
             return null;
-        } catch (MainViewModel.InvalidChecklistTitleException e) {
+        } catch (MainViewModel.InvalidNameException e) {
             return e.getMessage();
         }
     }
@@ -407,7 +407,7 @@ public class MainActivity extends AppCompatActivity
     public void editListDialog_onDeleteClicked(String listTitle) {
         try {
             mViewModel.moveChecklistToTrash(listTitle);
-        } catch (MainViewModel.InvalidChecklistTitleException e) {
+        } catch (MainViewModel.InvalidNameException e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
