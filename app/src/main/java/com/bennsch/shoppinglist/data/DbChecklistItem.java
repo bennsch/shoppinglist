@@ -30,14 +30,17 @@ public class DbChecklistItem {
 
     // autoGenerate: null is treated as "non-set".
     @PrimaryKey(autoGenerate = true)
-    private Long itemId;
+    private Integer itemId;
     // Items can have duplicate names, since itemId is unique.
     @NonNull private String name;
     // Link this item to a checklist.
     @NonNull private final String belongsToChecklist;
     // Item is checked or not.
     private boolean isChecked;
-    // Position in relation to other items with same "isChecked".
+    // Position in relation to other items with the same "isChecked". Two items in a Checklist can
+    // have the same "position" as long as "isChecked" differs. We need to keep track of the
+    // position separately like this, because checked and unchecked items will be displayed as
+    // separate lists and we need the flexibility to control their positions independently.
     private Integer position;
 
     // TODO: remove default value for actual release?
@@ -63,13 +66,12 @@ public class DbChecklistItem {
         this.belongsToChecklist = belongsToChecklist;
     }
 
-    public Long getItemId() {
+    public Integer getItemId() {
         return itemId;
     }
 
-    public void setItemId(Long itemId) {
-        // Needs to be publicly available so that auto generated Room
-        // code can access it
+    public void setItemId(Integer itemId) {
+        // Needs to be publicly available so that auto generated Room code can access it.
         this.itemId = itemId;
     }
 

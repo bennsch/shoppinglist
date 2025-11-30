@@ -1,6 +1,8 @@
 
 
 PUBLISH:
+TODO: find better words for "checked" and "unchecked"
+TODO: Rename to "SimpleShoppingList", or "BasicShoppingList"...?
 TODO: Deactivate DeleteItemsMode if the last item in the current page was deleted
 TODO: Remove all logic from GUI. The ViewModel should contain all logic.
 TODO: Add license comments on top of each source file

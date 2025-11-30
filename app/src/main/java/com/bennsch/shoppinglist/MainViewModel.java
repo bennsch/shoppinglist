@@ -386,6 +386,14 @@ public class MainViewModel extends AndroidViewModel {
                 MainViewModel::toChecklistItems);
     }
 
+    public void deleteItem(@NonNull String listTitle, @NonNull ChecklistItem clItem) {
+        mExecutor.execute(() -> {
+            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), clItem.getName());
+            assert dbItem != null;
+            mChecklistRepo.deleteItem(dbItem);
+        });
+    }
+
     public ListenableFuture<Void> insertItem(final @NonNull String listTitle,
                                              final boolean isChecked,
                                              final @NonNull String name) {
@@ -400,117 +408,108 @@ public class MainViewModel extends AndroidViewModel {
             }
             DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), strippedName);
             if (dbItem == null){
-                // Item does not exist in database. Insert a new item.
+                // Item does not exist in database, so insert a new item.
                 // The new item will have the lowest incidence.
                 long incidence = mChecklistRepo.getMinIncidence(listTitle) - 1;
                 DbChecklistItem newDbItem = new DbChecklistItem(
                         strippedName, isChecked, null, listTitle, incidence);
-
-                List<DbChecklistItem> dbItems = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
+                // Within each executor runnable we must only perform a single database transaction
+                // to avoid multiple LiveData updates. So we need to get a copy the list, modify
+                // the copy and then update the database using that copy.
+                List<DbChecklistItem> dbItems =
+                        mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
                 dbItems.add(newDbItem);
-
-                // TODO: is this really necessary?
-                if (isChecked) {
-                    sortByIncidenceDescending(dbItems);
-                }
+                // This function updates all positions, but we only care about the newDbItem's position.
                 updatePositionByOrder(dbItems);
-
+                // Single database transaction
                 mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
             } else {
                 // Item already exists in database.
                 if (dbItem.isChecked() == isChecked) {
-                    // The existing item is of the same category as the user tries to add to,
-                    // so just move it to the bottom.
-                    List<DbChecklistItem> items = mChecklistRepo.getItemsSortedByPosition(listTitle, dbItem.isChecked());
+                    // The user tries to add an item with the same "isChecked" as the existing item,
+                    // so just move it to the bottom of the list (as a visual feedback).
+                    List<DbChecklistItem> items = mChecklistRepo
+                            .getItemsSortedByPosition(listTitle, dbItem.isChecked());
                     assert dbItem.getPosition() != null: "dbItem.getPosition() returned null";
+                    // Remove and add the same item to move it to the end of the list.
                     items.remove((int)dbItem.getPosition());
                     items.add(dbItem);
                     updatePositionByOrder(items);
                     mChecklistRepo.update(items);
                 } else {
-                    // The item is of the other category, so flip it.
-                    flipItem(listTitle, dbItem.isChecked(), new ChecklistItem(dbItem.getName(), dbItem.getIncidence()));
+                    // The user tries to add an item with the opposite "isChecked", so we can simply
+                    // flip the existing item (to make it appear in the list that the user is trying
+                    // to add it to).
+                    flipItem(listTitle, dbItem.getName());
                 }
             }
             return null;
         });
     }
 
-    public void flipItem(String listTitle, boolean isChecked, ChecklistItem clItem) {
-        // Move an item from "checked" to "unchecked" and vice versa.
+    public void flipItem(String listTitle, String name) {
+        // Move an item from "checked" to "unchecked" and vice versa, and increment the
+        // item's incidence.
         mExecutor.execute(() -> {
-            // TODO: 3/26/2024 Redo the whole thing
-            //  (we don't need to worry about white spaces, since this function
-            //   is only for "moving" items, not changing their names)
-            // TODO: don't use "isChecked" as argument. Get that info from dbItem (findDbItem)
-            // TODO: use String name instead of CHeckListItem argument
-            List<DbChecklistItem> dbMirrorRemovedFrom = mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
-            DbChecklistItem repoItem = findDbItem(dbMirrorRemovedFrom, clItem.getName());
-            assert repoItem != null;
-
-            boolean removed = dbMirrorRemovedFrom.remove(repoItem);
-            assert removed;
-
-            List<DbChecklistItem> dbMirrorAddTo = mChecklistRepo.getItemsSortedByPosition(listTitle, !isChecked);
-            repoItem.setChecked(!repoItem.isChecked());
-
-            repoItem.setIncidence(repoItem.getIncidence() + 1);
-            dbMirrorAddTo.add(repoItem);
-            if (repoItem.isChecked()) {
-                sortByIncidenceDescending(dbMirrorAddTo);
+            // Get a copy of the list in the database, so that we can apply several modifications
+            // but only perform a single database transaction at the end.
+            List<DbChecklistItem> allItems = mChecklistRepo.getAllItems(listTitle);
+            DbChecklistItem itemToFlip = findDbItem(allItems, name);
+            assert itemToFlip != null: "findDbItem() returned null for name == " + name;
+            // If an item is flipped from "checked" to "unchecked", we want it to be placed at
+            // the end of the list.
+            if (itemToFlip.isChecked()) {
+                itemToFlip.setPosition(Integer.MAX_VALUE);
             }
-
-            updatePositionByOrder(dbMirrorRemovedFrom);
-            updatePositionByOrder(dbMirrorAddTo);
-
-            List<DbChecklistItem> dbMirrorCombined = new ArrayList<>();
-            dbMirrorCombined.addAll(dbMirrorRemovedFrom);
-            dbMirrorCombined.addAll(dbMirrorAddTo);
-            // Make sure that only a single repo function is called (only single database update)
-            mChecklistRepo.update(dbMirrorCombined);
-        });
-    }
-
-    public void deleteItem(@NonNull String listTitle, @NonNull ChecklistItem clItem) {
-        mExecutor.execute(() -> {
-            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), clItem.getName());
-            assert dbItem != null;
-            mChecklistRepo.deleteItem(dbItem);
+            // Increment the incidence every time an item is flipped.
+            itemToFlip.setIncidence(itemToFlip.getIncidence() + 1);
+            // Invert "isChecked", i.e. flip it.
+            itemToFlip.setChecked(!itemToFlip.isChecked());
+            // After the item has been flipped, we need to update the positions of all items.
+            // Items are sorted differently depending on whether they are "checked" or "unchecked",
+            // so we need to filter them first:
+            List<DbChecklistItem> uncheckedItems = filterByChecked(allItems, false);
+            sortByPositionAscending(uncheckedItems);
+            updatePositionByOrder(uncheckedItems);
+            List<DbChecklistItem> checkedItems = filterByChecked(allItems, true);
+            sortByIncidenceDescending(checkedItems); // Only "checked" items are sorted by incidence
+            updatePositionByOrder(checkedItems);
+            // Commit the local changes in a single database transaction
+            mChecklistRepo.update(allItems);
         });
     }
 
     public void itemsHaveBeenMoved(String listTitle,
-                                   boolean isChecked,
-                                   final List<ChecklistItem> itemsSortedByPos) {
+                                   boolean areChecked,
+                                   final List<ChecklistItem> items) {
+        // Update the database's item positions to match the order as they are in "items". If
+        // "checked" items have been moved, update the their incidences accordingly.
         mExecutor.execute(() -> {
-            // TODO: Redo properly
-            // Update the database items (position) to match the current visual order
-            // in RecyclerView and modify the incidence accordingly.
-            // This is performed only when "checked" items have been moved.
-            List<DbChecklistItem> dbMirror = mChecklistRepo.getItems(listTitle, isChecked);
-            long prev_incidence = 0;
-            for (int i = 0; i < itemsSortedByPos.size(); i++) {
-                // Find the corresponding database item.
-                String name = itemsSortedByPos.get(i).getName();
-                // TODO: does it matter if we search dbMirror or use findDbItem()?
-                //  (we don't need to worry about white spaces, since this function
-                //   is only for "moving" items, not changing their names)
-                DbChecklistItem found = findDbItem(dbMirror, name);
-                assert found != null;
-                // Update incidence so that it less than the previous incidence.
-                long current_incidence = itemsSortedByPos.get(i).getIncidence();
-                if (isChecked && (i > 0)){ // Update incidence only for checked items.
-                    if (current_incidence >= prev_incidence) {
-                        found.setIncidence(prev_incidence - 1);
+            // Get a copy of the list in the database, so that we can apply several modifications
+            // but only perform a single database transaction at the end.
+            List<DbChecklistItem> dbItems = mChecklistRepo.getItems(listTitle, areChecked);
+            // Number of items should match the database.
+            assert items.size() == dbItems.size(): "Unexpected number of items";
+            long prevIncidence = 0;
+            for (int i = 0; i < items.size(); i++) {
+                ChecklistItem item = items.get(i);
+                DbChecklistItem dbItem = findDbItem(dbItems, item.getName());
+                assert dbItem != null: "Could not find item with name = " + item.getName();
+                dbItem.setPosition(i);
+                if (areChecked && (i > 0)) {
+                    if (item.getIncidence() >= prevIncidence) {
+                        // Note: Incidences may become negative to maintain existing order.
+                        dbItem.setIncidence(prevIncidence - 1);
                     }
                 }
-                prev_incidence = found.getIncidence();
-                // Update position of database item.
-                found.setPosition(i);
+                prevIncidence = dbItem.getIncidence();
             }
-            mChecklistRepo.update(dbMirror);
+            // Commit the local changes in a single database transaction
+            mChecklistRepo.update(dbItems);
         });
     }
+
+    // Helper functions:
 
     private static String stripWhitespace(@NonNull final String s) {
         // Remove leading and trailing spaces, and replace all multi-spaces with single
@@ -518,19 +517,8 @@ public class MainViewModel extends AndroidViewModel {
         return s.strip().replaceAll(" +", " ");
     }
 
-    @Nullable
-    private DbChecklistItem findDbItem(List<DbChecklistItem> dbItems, @NonNull String name) {
-        // This function should always be used if an item needs to be found
-        // in the database from its name.
-        // An item can be unambiguously identified by its list title and name
-        // (no duplicate items allowed in a list).
-        return dbItems
-                .stream()
-                .filter(item -> item.getName().equalsIgnoreCase(name))
-                .findFirst().orElse(null);
-    }
-
     private static List<ChecklistItem> toChecklistItems(List<DbChecklistItem> dbItems) {
+        // Convert DbChecklistItems to ChecklistItems.
         return dbItems.stream()
                 .map(dbChecklistItem -> new ChecklistItem(
                         dbChecklistItem.getName(),
@@ -538,13 +526,48 @@ public class MainViewModel extends AndroidViewModel {
                 .collect(Collectors.toList());
     }
 
-    private static void updatePositionByOrder(List<DbChecklistItem> repoItems) {
-        for (int i = 0; i < repoItems.size(); i++) {
-            repoItems.get(i).setPosition(i);
+    @Nullable
+    private DbChecklistItem findDbItem(List<DbChecklistItem> dbItems, @NonNull String name) {
+        List<DbChecklistItem> found = dbItems
+                .stream()
+                .filter(item -> item.getName().equalsIgnoreCase(name))
+                .collect(Collectors.toList());
+        assert found.size() <= 1 : "More than one item found with name = " + name;
+        if (found.isEmpty()) {
+            return null;
+        } else {
+            return found.get(0);
         }
     }
 
-    private static void sortByIncidenceDescending(List<DbChecklistItem> repoItems) {
-        repoItems.sort(Comparator.comparingLong(DbChecklistItem::getIncidence).reversed());
+    private static List<DbChecklistItem> filterByChecked(List<DbChecklistItem> items,
+                                                         boolean isChecked) {
+        return items.stream()
+                .filter(item -> item.isChecked() == isChecked)
+                .collect(Collectors.toList());
+    }
+
+    private static void updatePositionByOrder(List<DbChecklistItem> dbItems) {
+        // Update the "position" field of each item based on its position in the list starting
+        // with 0. List is modified in place.
+        for (int i = 0; i < dbItems.size(); i++) {
+            dbItems.get(i).setPosition(i);
+        }
+    }
+
+    private static void sortByPositionAscending(List<DbChecklistItem> dbItems) {
+        // List is modified in place.
+        dbItems.sort(
+                Comparator.comparing(
+                        DbChecklistItem::getPosition,
+                        Comparator.nullsFirst(Comparator.naturalOrder())));
+    }
+
+    private static void sortByIncidenceDescending(List<DbChecklistItem> dbItems) {
+        // List is modified in place.
+        dbItems.sort(
+                Comparator.comparingLong(
+                        DbChecklistItem::getIncidence)
+                .reversed());
     }
 }

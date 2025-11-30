@@ -127,8 +127,8 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         dao.insert(new DbChecklistItem("Bacon", false, 0, list.getChecklistTitle(), 0));
         dao.insert(new DbChecklistItem("Eggs", false, 1, list.getChecklistTitle(), 0));
         dao.insert(new DbChecklistItem("Orange Juice", false, 2, list.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Butter", true, 3, list.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Avocados", true, 4, list.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Butter", true, 0, list.getChecklistTitle(), 0));
+        dao.insert(new DbChecklistItem("Avocados", true, 1, list.getChecklistTitle(), 0));
     };
 
     private static final Runnable populateDatabaseDebugRunnable = () -> {

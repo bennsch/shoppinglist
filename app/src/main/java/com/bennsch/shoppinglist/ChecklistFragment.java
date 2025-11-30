@@ -125,7 +125,7 @@ public class ChecklistFragment extends Fragment {
             // User cannot flip items while "DeleteItems" is active.
             vibrate();
         } else {
-            mViewModel.flipItem(mListTitle, mDisplayChecked, item);
+            mViewModel.flipItem(mListTitle, item.getName());
             mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.ITEM_TAPPED);
         }
     }
