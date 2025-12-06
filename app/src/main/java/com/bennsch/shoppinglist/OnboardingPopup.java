@@ -12,9 +12,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 public class OnboardingPopup {
     /*
-    *  Wrapper for a popup.  Using a Snackbar is just one possible
-    *  implementation.
-    */
+     *  Wrapper for a popup.  Using a Snackbar is just one possible
+     *  implementation.
+     */
 
     private final Snackbar mSnackbar;
     private final TextView mTextView;

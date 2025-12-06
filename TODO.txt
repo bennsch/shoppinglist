@@ -3,18 +3,14 @@
 PUBLISH:
 TODO: find better words for "checked" and "unchecked"
 TODO: Rename to "SimpleShoppingList", or "BasicShoppingList"...?
-TODO: Deactivate DeleteItemsMode if the last item in the current page was deleted
-TODO: Remove all logic from GUI. The ViewModel should contain all logic.
-TODO: Add license comments on top of each source file
-TODO: Support only certain screen sizes, e.g. no tablet, no wear (Manifest)
 TODO: Sign with release certificate
-TODO: Disable logging of DEBUG level in release build
 TODO: Set version label to "1.0"
 TODO: Create promotional gif and screenshots
 TODO: Update github README (description, screenshots, how to build)
-TODO: Code cleanup
 TODO: fix compiler warnings
 
+TODO: Remove all logic from GUI. The ViewModel should contain all logic.
+TODO: Deactivate DeleteItemsMode if the last item in the current page was deleted
 TODO: Add button to show Intro tutorial again
 TODO: Add "Export to CSV" again?
 TODO: Is auto backup working?

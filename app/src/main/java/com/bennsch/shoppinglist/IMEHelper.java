@@ -18,8 +18,8 @@ import java.util.List;
 
 public class IMEHelper {
     /*
-    *  Helper class to to handle the virtual keyboard (IME).
-    */
+     *  Helper class to to handle the virtual keyboard (IME).
+     */
 
     public interface OnIMEToggledListener {
         void onIMEToggled(View view, boolean imeVisible, int imeHeight);

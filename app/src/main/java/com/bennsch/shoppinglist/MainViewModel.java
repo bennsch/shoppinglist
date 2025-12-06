@@ -32,26 +32,26 @@ import kotlin.jvm.functions.Function1;
 
 public class MainViewModel extends AndroidViewModel {
     /*
-     * The ViewModel is the interface between the UI-layer (Activities, Fragments etc.) and the
-     * data-layer (databases, repositories etc.). All the application's business logic should be
-     * handled here. The ViewModel should be unaware of any UI implementation details. A single
-     * instance of the MainViewModel is used for the entire app.
+     *  The ViewModel is the interface between the UI-layer (Activities, Fragments etc.) and the
+     *  data-layer (databases, repositories etc.). All the application's business logic should be
+     *  handled here. The ViewModel should be unaware of any UI implementation details. A single
+     *  instance of the MainViewModel is used for the entire app.
      *
-     * Note: The UI-layer components (Activities, Fragments etc.) should not perform any logic or
-     * modify data. Their sole purpose is to display the data provided by the ViewModel, and to
-     * notify the ViewModel about external events (e.g user inputs).
+     *  Note: The UI-layer components (Activities, Fragments etc.) should not perform any logic or
+     *  modify data. Their sole purpose is to display the data provided by the ViewModel, and to
+     *  notify the ViewModel about external events (e.g user inputs).
      *
-     * Example: User presses a button to add a new item:
+     *  Example: User presses a button to add a new item:
      *
-     *    1) User presses button
+     *     1) User presses button
      *
-     *    2) UI-layer (e.g. MainActivity) notifies the ViewModel that a new item needs to be added
+     *     2) UI-layer (e.g. MainActivity) notifies the ViewModel that a new item needs to be added
      *
-     *    3) ViewModel performs some logic related to adding a new item (e.g. check item contents)
-     *       and adds a new item to the data repository
+     *     3) ViewModel performs some logic related to adding a new item (e.g. check item contents)
+     *        and adds a new item to the data repository
      *
-     *    4) UI-layer, which is observing the items (LiveData objects retrieved from the ViewModel),
-     *       gets notified that the items have changed and updates the UI accordingly.
+     *     4) UI-layer, which is observing the items (LiveData objects retrieved from the ViewModel),
+     *        gets notified that the items have changed and updates the UI accordingly.
      */
 
 
@@ -63,10 +63,10 @@ public class MainViewModel extends AndroidViewModel {
 
     public static class Onboarding {
         /*
-         * This class encapsulates all the logic related to the onboarding process.
-         * When the app is launched for the first time, a series of hints are displayed introducing
-         * the user how to use the app. It's implemented as a state machine, that advances depending
-         * on the user's actions.
+         *  This class encapsulates all the logic related to the onboarding process.
+         *  When the app is launched for the first time, a series of hints are displayed introducing
+         *  the user how to use the app. It's implemented as a state machine, that advances depending
+         *  on the user's actions.
          */
 
         public enum Event {

@@ -41,9 +41,9 @@ import java.util.List;
 
 public class ChecklistPagerFragment extends Fragment {
     /*
-     * This fragment is the container which contains the FAB, the input
-     * box to create new items and the ViewPager to swipe between the two
-     * ChecklistFragments (checked, unchecked items).
+     *  This fragment is the container which contains the FAB, the input
+     *  box to create new items and the ViewPager to swipe between the two
+     *  ChecklistFragments (checked, unchecked items).
      */
 
     public static final String ARG_LIST_TITLE = "list_title";

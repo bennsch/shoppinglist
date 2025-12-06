@@ -19,8 +19,8 @@ import com.google.android.material.color.DynamicColorsOptions;
 
 public class MyApplication extends Application {
     /*
-    *   Base class for maintaining global application state (supersedes activities).
-    */
+     *  Base class for maintaining global application state (supersedes activities).
+     */
 
     private static final Integer DYNAMIC_COLOR_SEED = 0xFAD058;
 
@@ -40,15 +40,15 @@ public class MyApplication extends Application {
             DynamicColors.applyToActivitiesIfAvailable(
                     this,
                     new DynamicColorsOptions.Builder()
-                            //.setOnAppliedCallback(activity -> Log.d("MyApplication", "DynamicColors applied"))
+                         // .setOnAppliedCallback(activity -> Log.d("MyApplication", "DynamicColors applied"))
                             .setContentBasedSource(DYNAMIC_COLOR_SEED)
                             .build());
         }
     }
 
     private void observePrefNightMode() {
-        // No need to remove observer, because all resources will be freed when the
-        // application finishes.
+        // No need to remove observer, because all resources will be freed when the application
+        // finishes.
         PreferencesRepository.getInstance(getApplicationContext())
                 .getPrefNightMode()
                 .observeForever(nightMode -> {
@@ -56,13 +56,16 @@ public class MyApplication extends Application {
                         UiModeManager uim = (UiModeManager) getSystemService(UI_MODE_SERVICE);
                         switch (nightMode) {
                             case ENABLED:
-                                uim.setApplicationNightMode(UiModeManager.MODE_NIGHT_YES);
+                                uim.setApplicationNightMode(
+                                        UiModeManager.MODE_NIGHT_YES);
                                 break;
                             case DISABLED:
-                                uim.setApplicationNightMode(UiModeManager.MODE_NIGHT_NO);
+                                uim.setApplicationNightMode(
+                                        UiModeManager.MODE_NIGHT_NO);
                                 break;
                             case FOLLOW_SYSTEM:
-                                uim.setApplicationNightMode(UiModeManager.MODE_NIGHT_AUTO);
+                                uim.setApplicationNightMode(
+                                        UiModeManager.MODE_NIGHT_AUTO);
                                 break;
                             default:
                                 assert false;
@@ -70,13 +73,16 @@ public class MyApplication extends Application {
                     }else {
                         switch (nightMode) {
                             case ENABLED:
-                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                                AppCompatDelegate.setDefaultNightMode(
+                                        AppCompatDelegate.MODE_NIGHT_YES);
                                 break;
                             case DISABLED:
-                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                                AppCompatDelegate.setDefaultNightMode(
+                                        AppCompatDelegate.MODE_NIGHT_NO);
                                 break;
                             case FOLLOW_SYSTEM:
-                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                                AppCompatDelegate.setDefaultNightMode(
+                                        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                                 break;
                             default:
                                 assert false;
@@ -88,7 +94,8 @@ public class MyApplication extends Application {
     private void observePrefOrientation() {
         registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             @Override
-            public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+            public void onActivityCreated(@NonNull Activity activity,
+                                          @Nullable Bundle savedInstanceState) {
                 PreferencesRepository.getInstance(activity.getApplicationContext())
                         .getPrefOrientation()
                         .observe((AppCompatActivity)activity, orientation -> {
@@ -96,11 +103,14 @@ public class MyApplication extends Application {
                             //  visible briefly before it rotates.
                             switch (orientation) {
                                 case PORTRAIT:
-                                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); break;
+                                    activity.setRequestedOrientation(
+                                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); break;
                                 case LANDSCAPE:
-                                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); break;
+                                    activity.setRequestedOrientation(
+                                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); break;
                                 case AUTO:
-                                    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); break;
+                                    activity.setRequestedOrientation(
+                                            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); break;
                             }
                         });
             }
@@ -114,7 +124,8 @@ public class MyApplication extends Application {
             @Override
             public void onActivityStopped(@NonNull Activity activity) {}
             @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {}
+            public void onActivitySaveInstanceState(@NonNull Activity activity,
+                                                    @NonNull Bundle outState) {}
             @Override
             public void onActivityDestroyed(@NonNull Activity activity) {}
         });
