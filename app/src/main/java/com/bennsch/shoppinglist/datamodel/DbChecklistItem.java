@@ -9,10 +9,9 @@ import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 
-// Using Foreign Key to enforce a relationship between DbChecklist and
-// the DbChecklistItems which belong to it.
-// ForeignKey.CASCADE will make sure that if a DbChecklist is deleted/updated,
-// so are its DbChecklistItems
+// ForeignKey enforces a relationship between DbChecklist and the DbChecklistItems that belong to
+// it. ForeignKey.CASCADE causes all items that belong to a checklist to be deleted/updated if that
+// list is deleted/updated.
 @Entity(indices = {
             @Index("belongsToChecklist")},
         foreignKeys = {
@@ -25,39 +24,40 @@ import androidx.room.PrimaryKey;
 )
 public class DbChecklistItem {
     /*
-     *  Represents a Checklist-Item in the database.
+     *  Represents a single item in a checklist.
      */
 
     // autoGenerate: null is treated as "non-set".
     @PrimaryKey(autoGenerate = true)
     private Integer itemId;
+
     // Items can have duplicate names, since itemId is unique.
     @NonNull private String name;
+
     // Link this item to a checklist.
     @NonNull private final String belongsToChecklist;
+
     // Item is checked or not.
     private boolean isChecked;
+
     // Position in relation to other items with the same "isChecked". Two items in a Checklist can
     // have the same "position" as long as "isChecked" differs. We need to keep track of the
     // position separately like this, because checked and unchecked items will be displayed as
     // separate lists and we need the flexibility to control their positions independently.
     private Integer position;
 
-    // TODO: remove default value for actual release?
-    // How often the user used this item. Incremented whenever the user
-    // ?ed this item.
+    // How often the user has "touched" this item. Incremented whenever the user checks or unchecks
+    // the item.
     @ColumnInfo(defaultValue = "0") // Default value required for automatic database migration.
     private long incidence;
-
-    // private date_created (e.g. UUID)
 
     public DbChecklistItem(@NonNull String name,
                            boolean isChecked,
                            Integer position,
                            @NonNull String belongsToChecklist,
                            long incidence) {
-        // Only the database should generate a unique "itemId".
-        // "null" means "generate new ID".
+        // Only the database should generate an "itemId" to ensure uniqueness!
+        // "null" means "generate a new id".
         this.itemId = null;
         this.name = name;
         this.isChecked = isChecked;

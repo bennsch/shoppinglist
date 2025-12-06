@@ -2,7 +2,6 @@ package com.bennsch.shoppinglist.datamodel;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -14,12 +13,18 @@ import com.bennsch.shoppinglist.R;
 
 
 public class PreferencesRepository {
+    /*
+     *  A Repository class abstracts access to multiple data sources. Currently only one data source
+     *  is implemented (SharedPreferences).
+     */
 
     public static final int PREFS_RES_ID = R.xml.preference_screen;
+
     // Will be overwritten in debug build:
     public static boolean DBG_PRETEND_FIRST_STARTUP = false;
     public static boolean DBG_SHOW_INCIDENCE = false;
     public static boolean DBG_SHOW_TRASH = false;
+
 
     // TODO: Find better solution. E.g. simply use integers instead of strings
     public enum NightMode {
@@ -43,6 +48,7 @@ public class PreferencesRepository {
         }
     }
 
+    // TODO: Find better solution. E.g. simply use integers instead of strings
     public enum Orientation {
         PORTRAIT,
         LANDSCAPE,
@@ -65,10 +71,7 @@ public class PreferencesRepository {
     }
 
     private static PreferencesRepository INSTANCE;
-    private static final String TAG = "PreferencesRepository";
-
     private final SharedPreferences mSharedPreferences;
-
     private final String mKeyMessageListDeleted;
     private final String mKeyUseDynamicColors;
     private final String mKeyNightMode;
@@ -76,20 +79,21 @@ public class PreferencesRepository {
     private final String mKeyFirstStartup;
     private final String mKeyOnboardingCompleted;
 
-    // TODO: Why does using an instance variable not work in release build? Instance variables are strong references.
-    //  Maybe try to keep SharedPreferences object as instance variable?
-    private static SharedPreferences.OnSharedPreferenceChangeListener mPreferenceChangeListener = null;
+    // TODO: Why does using an instance variable won't work in release build? Instance variables are
+    //  strong references. Maybe try to keep SharedPreferences object as instance variable?
+    private static SharedPreferences.OnSharedPreferenceChangeListener
+            mPreferenceChangeListener = null;
 
-    // Create LiveData objects for preferences displayed on the PreferenceScreen:
+    // Create LiveData objects for preferences that are displayed on the PreferenceScreen:
     private final MutableLiveData<String> mPrefMessageListCompleted = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefUseDynamicColors = new MutableLiveData<>();
     private final MutableLiveData<NightMode> mPrefNightMode = new MutableLiveData<>();
     private final MutableLiveData<Orientation> mPrefOrientation = new MutableLiveData<>();
 
-
-    public static synchronized PreferencesRepository getInstance(@NonNull Context applicationContext) {
+    public static synchronized PreferencesRepository getInstance(
+            @NonNull Context context) {
         if (INSTANCE == null) {
-            INSTANCE = new PreferencesRepository(applicationContext);
+            INSTANCE = new PreferencesRepository(context);
         }
         return INSTANCE;
     }
@@ -136,43 +140,48 @@ public class PreferencesRepository {
         mKeyFirstStartup = context.getResources().getString(R.string.key_first_startup);
         mKeyOnboardingCompleted = context.getResources().getString(R.string.key_onboarding_completed);
 
-        // Apply the default values from the xml, because the SharedPreferences
-        // won't be initialized until the SettingsActivity is started.
-        // Parameter "readAgain" is set to "true", so that default values will be applied
-        // even if this method has been called in the past (so that newly added preferences
-        // will get their default value applied).
-        // This won't override the preferences after the user changed them.
+        // Apply the default values from the xml, because the SharedPreferences won't be initialized
+        // until the SettingsActivity is started. Parameter "readAgain" is set to "true", so that
+        // default values will be applied even if this method has been called in the past (so that
+        // newly added preferences will get their default value applied). This won't override the
+        // preferences after the user changed them.
         PreferenceManager.setDefaultValues(context, PREFS_RES_ID, true);
 
-        // Initialize the LiveData.
+        // We don't need to worry about the default values, because
+        // PreferenceManager.setDefaultValues() has been called already.
         // TODO: use postValue()?
-        // We don't need to worry about the default values, because PreferenceManager.setDefaultValues()
-        // has been called already.
-        mPrefMessageListCompleted.setValue(mSharedPreferences.getString(mKeyMessageListDeleted, null));
-        mPrefUseDynamicColors.setValue(mSharedPreferences.getBoolean(mKeyUseDynamicColors, false));
-        mPrefNightMode.setValue(NightMode.fromPrefEntryValue(mSharedPreferences.getString(mKeyNightMode, "")));
-        mPrefOrientation.setValue(Orientation.fromPrefEntryValue(mSharedPreferences.getString(mKeyOrientation, "")));
+        mPrefMessageListCompleted.setValue(
+                mSharedPreferences.getString(mKeyMessageListDeleted, null));
+        mPrefUseDynamicColors.setValue(
+                mSharedPreferences.getBoolean(mKeyUseDynamicColors, false));
+        mPrefNightMode.setValue(
+                NightMode.fromPrefEntryValue(mSharedPreferences.getString(mKeyNightMode, "")));
+        mPrefOrientation.setValue(
+                Orientation.fromPrefEntryValue(mSharedPreferences.getString(mKeyOrientation, "")));
 
-        // Register a change listener.
-        // Cannot use anonymous inner class, because the PreferenceManager
-        // does not store a strong reference to the listener and it
-        // would be garbage collected.
+        // We cannot use anonymous inner class, because the PreferenceManager does not store a
+        // strong reference to the listener and it would be destroyed by the garbage collector.
         if (mPreferenceChangeListener != null) {
             throw new RuntimeException("mPreferenceChangeListener != null");
         }
+
         mPreferenceChangeListener = (sharedPreferences, key) -> {
-            // TODO: use postValue()?
-            Log.d(TAG, "PreferencesRepository: onChangeListener " + key);
-            if (key == null) {
-                Log.w(TAG, "key == null");
-            } else if (key.contentEquals(mKeyMessageListDeleted)) {
-                mPrefMessageListCompleted.setValue(sharedPreferences.getString(key, null));
-            } else if (key.contentEquals(mKeyUseDynamicColors)) {
-                mPrefUseDynamicColors.setValue(sharedPreferences.getBoolean(key, false));
-            } else if (key.contentEquals(mKeyNightMode)) {
-                mPrefNightMode.setValue(NightMode.fromPrefEntryValue(sharedPreferences.getString(key, "")));
-            } else if (key.contentEquals(mKeyOrientation)) {
-                mPrefOrientation.setValue(Orientation.fromPrefEntryValue(sharedPreferences.getString(key, "")));
+            if (key != null)
+            {
+                // TODO: use postValue()?
+                if (key.contentEquals(mKeyMessageListDeleted)) {
+                    mPrefMessageListCompleted.setValue(
+                            sharedPreferences.getString(key, null));
+                } else if (key.contentEquals(mKeyUseDynamicColors)) {
+                    mPrefUseDynamicColors.setValue(
+                            sharedPreferences.getBoolean(key, false));
+                } else if (key.contentEquals(mKeyNightMode)) {
+                    mPrefNightMode.setValue(
+                            NightMode.fromPrefEntryValue(sharedPreferences.getString(key, "")));
+                } else if (key.contentEquals(mKeyOrientation)) {
+                    mPrefOrientation.setValue(
+                            Orientation.fromPrefEntryValue(sharedPreferences.getString(key, "")));
+                }
             }
         };
         mSharedPreferences.registerOnSharedPreferenceChangeListener(mPreferenceChangeListener);
