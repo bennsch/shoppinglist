@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Outline;
 import android.os.Bundle;
 
-
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -21,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -49,7 +49,6 @@ public class ChecklistPagerFragment extends Fragment {
     public static final String ARG_LIST_TITLE = "list_title";
 
     private static final int OFFSCREEN_PAGE_LIMIT = 1; // Only one page will ever be offscreen.
-    private static final int VIBRATE_DURATION_MS = 125;
 
     private FragmentChecklistPagerBinding mBinding;
     private ViewPagerAdapter mViewPagerAdapter;
@@ -337,7 +336,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private void vibrate() {
         Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
-        vibrator.vibrate(VIBRATE_DURATION_MS);
+        vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
     }
 
     private static void updateConstraint(ConstraintLayout parent, int startID, int startSide, int endID, int endSide) {
