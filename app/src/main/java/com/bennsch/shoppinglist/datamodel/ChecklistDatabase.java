@@ -1,4 +1,4 @@
-package com.bennsch.shoppinglist.data;
+package com.bennsch.shoppinglist.datamodel;
 
 import android.content.Context;
 

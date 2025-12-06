@@ -19,7 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bennsch.shoppinglist.data.PreferencesRepository;
+import com.bennsch.shoppinglist.datamodel.PreferencesRepository;
 import com.bennsch.shoppinglist.databinding.ChecklistItemViewholderBinding;
 import com.bennsch.shoppinglist.databinding.FragmentChecklistBinding;
 import com.google.android.material.divider.MaterialDividerItemDecoration;

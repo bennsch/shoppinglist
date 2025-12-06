@@ -1,6 +1,5 @@
-package com.bennsch.shoppinglist.data;
+package com.bennsch.shoppinglist.datamodel;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;

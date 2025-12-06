@@ -12,9 +12,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
-import com.bennsch.shoppinglist.data.ChecklistRepository;
-import com.bennsch.shoppinglist.data.DbChecklistItem;
-import com.bennsch.shoppinglist.data.PreferencesRepository;
+import com.bennsch.shoppinglist.datamodel.ChecklistRepository;
+import com.bennsch.shoppinglist.datamodel.DbChecklistItem;
+import com.bennsch.shoppinglist.datamodel.PreferencesRepository;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;

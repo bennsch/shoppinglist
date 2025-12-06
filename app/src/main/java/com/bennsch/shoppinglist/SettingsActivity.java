@@ -20,9 +20,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.bennsch.shoppinglist.data.ChecklistRepository;
-import com.bennsch.shoppinglist.data.DbChecklistItem;
-import com.bennsch.shoppinglist.data.PreferencesRepository;
+import com.bennsch.shoppinglist.datamodel.ChecklistRepository;
+import com.bennsch.shoppinglist.datamodel.DbChecklistItem;
+import com.bennsch.shoppinglist.datamodel.PreferencesRepository;
 import com.bennsch.shoppinglist.databinding.SettingsActivityBinding;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;

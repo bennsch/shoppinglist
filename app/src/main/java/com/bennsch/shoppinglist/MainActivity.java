@@ -25,7 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bennsch.shoppinglist.data.PreferencesRepository;
+import com.bennsch.shoppinglist.datamodel.PreferencesRepository;
 import com.bennsch.shoppinglist.databinding.ActivityMainBinding;
 import com.bennsch.shoppinglist.dialog.AboutDialog;
 import com.bennsch.shoppinglist.dialog.EditListDialog;
