@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -16,7 +15,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
-import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.Preference;
@@ -136,7 +134,7 @@ public class SettingsActivity extends AppCompatActivity {
                             getContentResolver()
                                     .openOutputStream(csvFileUri)))) {
                 ChecklistRepository repo = ChecklistRepository.getInstance(getApplicationContext());
-                List<DbChecklistItem> items = repo.getAllItemsFromAllLists();
+                List<DbChecklistItem> items = repo.getAllItems();
                 writer.write("List;Name;Incidence;Checked"); writer.newLine();
                 for (DbChecklistItem item : items) {
                     writer.write(

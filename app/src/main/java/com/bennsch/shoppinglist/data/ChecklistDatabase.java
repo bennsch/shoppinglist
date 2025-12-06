@@ -16,8 +16,6 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.bennsch.shoppinglist.BuildConfig;
-
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,21 +24,22 @@ import java.util.concurrent.Executors;
 @Database(
         entities = {DbChecklist.class, DbChecklistItem.class},
         version = 1,
-        autoMigrations = {
-//                @AutoMigration(from = 1, to = 2)
-        }
-         /*exportSchema = false*/)
+        autoMigrations = {/* @AutoMigration(from = 1, to = 2) */}
+        /*exportSchema = false*/ )
 public abstract class ChecklistDatabase extends RoomDatabase {
-
+    /*
+     *  Persistent data storage based on SQLite.
+     *  This database should only be accessed via the "ChecklistRepository".
+     */
 
     @Dao
     interface ItemDao {
-
-        // DAO (Data Access Object) validates SQL at compile-time and associates
-        // it with a method. Annotations (@Insert, @Update etc..) will generate
-        // common SQL queries.
-        // For methods which return LiveData, Room will generate all the necessary
-        // code to update LiveData if the database is updated.
+        /*
+         *  Doc: DAO (Data Access Object) validates SQL at compile-time and associates it with a
+         *  method. Annotations (@Insert, @Update etc..) will generate common SQL queries. For
+         *  methods which return LiveData, Room will generate all the necessary code to update
+         *  LiveData if the database is updated.
+         */
 
         @Insert
         void insert(DbChecklist checklist);
@@ -54,107 +53,88 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         @Update
         void update(List<DbChecklistItem> items);
 
-        @Query("UPDATE Dbchecklist SET checklistTitle = :newChecklistName WHERE checklistTitle LIKE :checklistName")
-        void update(String checklistName, String newChecklistName);
+        @Query("UPDATE Dbchecklist SET listTitle = :newChecklistName WHERE listTitle LIKE :listTitle")
+        void update(String listTitle, String newChecklistName);
 
-        @Query("DELETE FROM dbchecklist WHERE checklistTitle LIKE :checklistTitle")
+        @Query("DELETE FROM dbchecklist WHERE listTitle LIKE :checklistTitle")
         void delete(String checklistTitle);
 
-        @Query("UPDATE DbChecklist SET active = 1 WHERE checklistTitle LIKE :checklistName")
-        void setChecklistActive(String checklistName);
+        @Query("UPDATE DbChecklist SET active = 1 WHERE listTitle LIKE :listTitle")
+        void setChecklistActive(String listTitle);
 
         @Query("UPDATE DbChecklist SET active = 0")
         void setAllChecklistsInactive();
 
         @Query("SELECT * FROM DbChecklistItem")
-        List<DbChecklistItem> getAllItemsFromAllLists();
+        List<DbChecklistItem> getAllItems();
 
         @Query("SELECT * FROM DbChecklist")
         LiveData<List<DbChecklist>> getAllChecklists();
 
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked")
-        List<DbChecklistItem> getItems(String listTitle, Boolean isChecked);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND " +
+                "isChecked == :isChecked ORDER BY position ASC")
+        List<DbChecklistItem> getItemSubsetSorted(@NonNull String listTitle,
+                                                  @NonNull Boolean isChecked);
 
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked ORDER BY position ASC")
-        List<DbChecklistItem> getItemsSortedByPosition(String listTitle, Boolean isChecked);
-
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND isChecked == :isChecked ORDER BY position ASC")
-        LiveData<List<DbChecklistItem>> getItemsSortedByPositionLiveData(String listTitle, Boolean isChecked);
-
-        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
-        List<DbChecklistItem> getItemsFromChecklist(@NonNull final String listTitle);
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle AND " +
+                "isChecked == :isChecked ORDER BY position ASC")
+        LiveData<List<DbChecklistItem>> getItemSubsetSortedLiveData(@NonNull String listTitle,
+                                                                    @NonNull Boolean isChecked);
 
         @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
-        LiveData<List<DbChecklistItem>> getItemsFromChecklistLiveData(@NonNull final String listTitle);
+        List<DbChecklistItem> getItems(@NonNull String listTitle);
+
+        @Query("SELECT * FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
+        LiveData<List<DbChecklistItem>> getItemsLiveData(@NonNull String listTitle);
 
         @Query("SELECT * FROM DbChecklist WHERE active == 1")
         LiveData<DbChecklist> getActiveChecklist();
 
-        @Query("SELECT COUNT(*) FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
-        LiveData<Integer> getItemsFromChecklistCount(@NonNull final String listTitle);
-
-        // Returns 0 if list is empty
         @Query("SELECT MIN(incidence) FROM DbChecklistItem WHERE belongsToChecklist LIKE :listTitle")
-        long getMinIncidence(@NonNull final String listTitle);
+        long getMinIncidence(@NonNull String listTitle); // Returns 0 if list is empty.
 
+        // Use "Transaction" so that multiple Queries will result in only one LiveData event:
         @Transaction
-        default void insertAndUpdate(DbChecklistItem itemToInsert, List<DbChecklistItem> itemsToUpdate) {
-            // Use Transaction so that multiple Queries will result in only one LiveData event.
+        default void insertAndUpdate(@NonNull DbChecklistItem itemToInsert,
+                                     @NonNull List<DbChecklistItem> itemsToUpdate) {
             insert(itemToInsert);
             update(itemsToUpdate);
         }
 
         @Transaction
-        default void setActiveChecklist(@Nullable String checklistName) {
-            // Use Transaction so that multiple Queries will result in only one LiveData event.
-            // Only activate a single checklist and make every other inactive.
+        default void setActiveChecklist(@Nullable String listTitle) {
+            // Set the checklist "listTitle" active, set all other checklists "inactive". If title
+            // is null, set all checklists inactive.
             setAllChecklistsInactive();
-            setChecklistActive(checklistName);
+            setChecklistActive(listTitle);
         }
     }
 
 
     private static volatile ChecklistDatabase INSTANCE;
     private static final ExecutorService executor = Executors.newFixedThreadPool(1);
+    private static final String DATABASE_NAME = "checklist_database";
 
     abstract ItemDao itemDao();
 
     private static final Runnable populateDatabaseRunnable = () -> {
+        // Create an initial list for demonstration purposes.
         INSTANCE.clearAllTables();
         ItemDao dao = INSTANCE.itemDao();
         DbChecklist list = new DbChecklist("Groceries", true);
         dao.insert(list);
-        dao.insert(new DbChecklistItem("Bacon", false, 0, list.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Eggs", false, 1, list.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Orange Juice", false, 2, list.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Butter", true, 0, list.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Avocados", true, 1, list.getChecklistTitle(), 0));
-    };
-
-    private static final Runnable populateDatabaseDebugRunnable = () -> {
-        INSTANCE.clearAllTables();
-        ItemDao dao = INSTANCE.itemDao();
-        DbChecklist shortList = new DbChecklist("Short List", false);
-        dao.insert(shortList);
-        dao.insert(new DbChecklistItem("Wood", false, 0, shortList.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Timber", false, 1, shortList.getChecklistTitle(), 0));
-        dao.insert(new DbChecklistItem("Tree", false, 2, shortList.getChecklistTitle(), 0));
-        DbChecklist emptyList = new DbChecklist("Empty List", false);
-        dao.insert(emptyList);
-        DbChecklist longList = new DbChecklist("Long", true);
-        dao.insert(longList);
-        int sizeUnchecked = 20;
-        for (int i = 0; i < sizeUnchecked; i++) {
-            dao.insert(new DbChecklistItem("Item " + i, false, i, longList.getChecklistTitle(), 0));
-        }
-        for (int i = 0; i < 10; i++) {
-            dao.insert(new DbChecklistItem("Item " + (i + sizeUnchecked), true, i, longList.getChecklistTitle(), 0));
-        }
+        dao.insert(new DbChecklistItem("Bacon", false, 0, list.getListTitle(), 0));
+        dao.insert(new DbChecklistItem("Eggs", false, 1, list.getListTitle(), 0));
+        dao.insert(new DbChecklistItem("Orange Juice", false, 2, list.getListTitle(), 0));
+        dao.insert(new DbChecklistItem("Butter", true, 0, list.getListTitle(), 0));
+        dao.insert(new DbChecklistItem("Avocados", true, 1, list.getListTitle(), 0));
     };
 
     private static final RoomDatabase.Callback onCreateCallback = new RoomDatabase.Callback() {
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            // Called only if no data is present yet (after app got installed or user deleted app
+            // storage)
             super.onCreate(db);
             executor.execute(populateDatabaseRunnable);
         }
@@ -163,6 +143,7 @@ public abstract class ChecklistDatabase extends RoomDatabase {
     private static final RoomDatabase.Callback onOpenCallback = new Callback() {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            // Called everytime the database is opened.
             super.onOpen(db);
             if (PreferencesRepository.DBG_PRETEND_FIRST_STARTUP) {
                 executor.execute(populateDatabaseRunnable);
@@ -170,15 +151,12 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         }
     };
 
-    // TODO: Singleton cannot have argument!! (maybe store one instance per context (map)?)
-    static ChecklistDatabase getInstance(final Context context) {
+    static ChecklistDatabase getInstance(@NonNull Context context) {
         if (INSTANCE == null) {
             synchronized (ChecklistDatabase.class) {
                 if (INSTANCE == null) {
-                    // Create the database if and call "initialCallback" no data is present yet.
-                    // (e.g. app just got installed or user deleted app storage).
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                                    ChecklistDatabase.class, "checklist_database")
+                    INSTANCE = Room.databaseBuilder(
+                            context, ChecklistDatabase.class, DATABASE_NAME)
                             .addCallback(onCreateCallback)
                             .addCallback(onOpenCallback)
                             .build();

@@ -2,15 +2,15 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "c5cf4bfb494c214361a1356f92561ba8",
+    "identityHash": "317f90b7e2a3df4e5b642a21672645f5",
     "entities": [
       {
         "tableName": "DbChecklist",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`checklistTitle` TEXT NOT NULL, `active` INTEGER NOT NULL, PRIMARY KEY(`checklistTitle`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`listTitle` TEXT NOT NULL, `active` INTEGER NOT NULL, PRIMARY KEY(`listTitle`))",
         "fields": [
           {
-            "fieldPath": "checklistTitle",
-            "columnName": "checklistTitle",
+            "fieldPath": "listTitle",
+            "columnName": "listTitle",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -24,13 +24,13 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "checklistTitle"
+            "listTitle"
           ]
         }
       },
       {
         "tableName": "DbChecklistItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `belongsToChecklist` TEXT NOT NULL, `isChecked` INTEGER NOT NULL, `position` INTEGER, `incidence` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`belongsToChecklist`) REFERENCES `DbChecklist`(`checklistTitle`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`itemId` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `belongsToChecklist` TEXT NOT NULL, `isChecked` INTEGER NOT NULL, `position` INTEGER, `incidence` INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(`belongsToChecklist`) REFERENCES `DbChecklist`(`listTitle`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "itemId",
@@ -94,7 +94,7 @@
               "belongsToChecklist"
             ],
             "referencedColumns": [
-              "checklistTitle"
+              "listTitle"
             ]
           }
         ]
@@ -102,7 +102,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c5cf4bfb494c214361a1356f92561ba8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '317f90b7e2a3df4e5b642a21672645f5')"
     ]
   }
 }

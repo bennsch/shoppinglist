@@ -1,6 +1,5 @@
 package com.bennsch.shoppinglist.data;
 
-import android.app.Application;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -13,80 +12,107 @@ import java.util.stream.Collectors;
 
 
 public class ChecklistRepository {
-
-    // A Repository class abstracts access to multiple data sources.
-    // Currently only one data source is implemented (Room database).
-
-    private static final String TAG = "ChecklistRepository";
+    /*
+     *  A Repository class abstracts access to multiple data sources. Currently only one data source
+     *  is implemented (ChecklistDatabase, which is a Room-database to store the data locally on the
+     *  device).
+     */
+    
     private static ChecklistRepository INSTANCE;
     private final ChecklistDatabase.ItemDao mItemDao;
 
 
-    private ChecklistRepository(@NonNull Context applicationContext) {
-        ChecklistDatabase db = ChecklistDatabase.getInstance(applicationContext);
+    private ChecklistRepository(@NonNull Context context) {
+        ChecklistDatabase db = ChecklistDatabase.getInstance(context);
         mItemDao = db.itemDao();
     }
 
-    // TODO: Singleton cannot have argument!!
-    public static synchronized ChecklistRepository getInstance(@NonNull final Context applicationContext) {
+    public static synchronized ChecklistRepository getInstance(@NonNull Context context) {
         if (INSTANCE == null) {
-            INSTANCE = new ChecklistRepository(applicationContext);
+            INSTANCE = new ChecklistRepository(context);
         }
         return INSTANCE;
     }
 
     public LiveData<List<String>> getAllChecklistTitles() {
-        // The Room database will notify the  observers of LiveData
-        // if any of the data in the Checklist table changes, not just
-        // the title of a checklist, so distinctUntilChanged() is required.
+        // distinctUntilChanged() is required, because the room database would notify the LiveData 
+        // observers if ANY column in the DbChecklist table changes, not just the title of a
+        // checklist.
         return Transformations.distinctUntilChanged(
                 Transformations.map(
                         mItemDao.getAllChecklists(),
                         checklists -> checklists.stream()
-                                .map(DbChecklist::getChecklistTitle)
+                                .map(DbChecklist::getListTitle)
                                 .collect(Collectors.toList())));
     }
 
     public LiveData<String> getActiveChecklistTitle() {
-        // The Room database would notify the  observers of LiveData
-        // if any of the data in the Checklist table changes, not just
-        // the "active" attribute, so distinctUntilChanged() is required.
+        // distinctUntilChanged() is required, because the room database would notify the LiveData 
+        // observers if ANY column in the DbChecklist table changes, not just the "active" attribute.
         return Transformations.distinctUntilChanged(
                 Transformations.map(
                         mItemDao.getActiveChecklist(), dbChecklist -> {
                             if (dbChecklist != null) {
-                                return dbChecklist.getChecklistTitle();
+                                return dbChecklist.getListTitle();
                             } else {
                                 return null;
                             }
                         }));
     }
 
-    public void setActiveChecklist(@Nullable String checklistTitle) {
-        // Make Checklist with title "checklistTitle" active, and all other
-        // Checklists inactive.
-        // Make no Checklist active if null.
-        mItemDao.setActiveChecklist(checklistTitle);
+    public void setActiveChecklist(@Nullable String listTitle) {
+        // Set the checklist "listTitle" active, set all other checklists "inactive". If title is 
+        // null, set all checklists inactive.
+        mItemDao.setActiveChecklist(listTitle);
     }
 
-    public void insertChecklist(String listTitle) {
+    public void updateChecklistTitle(@NonNull String listTitle, @NonNull String newListTitle) {
+        mItemDao.update(listTitle, newListTitle);
+    }
+
+    public void insertChecklist(@NonNull String listTitle) {
         mItemDao.insert(new DbChecklist(listTitle, false));
     }
 
-    public void update(List<DbChecklistItem> items) {
-        mItemDao.update(items);
-    }
-
-    public void updateChecklistName(String checklistTitle, String newTitle) {
-        mItemDao.update(checklistTitle, newTitle);
-    }
-
-    public void deleteChecklist(String listTitle) {
+    public void deleteChecklist(@NonNull String listTitle) {
         mItemDao.delete(listTitle);
     }
 
-    public void insertAndUpdate(DbChecklistItem itemToInsert,
-                                List<DbChecklistItem> itemsToUpdate) {
+    public List<DbChecklistItem> getAllItems() {
+        // Return all items in the database.
+        return mItemDao.getAllItems();
+    }
+
+    public List<DbChecklistItem> getItems(@NonNull String listTitle) {
+        // Return all items from a checklist.
+        return mItemDao.getItems(listTitle);
+    }
+
+    public LiveData<List<DbChecklistItem>> getItemsLiveData(@NonNull String listTitle) {
+        // Same as getItems(), but items are wrapped in a LiveData holder.
+        return mItemDao.getItemsLiveData(listTitle);
+    }
+
+    public List<DbChecklistItem> getItemSubsetSorted(@NonNull String listTitle,
+                                                     @NonNull Boolean isChecked) {
+        // Return all items from the checklist that are "isChecked".
+        // The items are sorted by their "position".
+        return mItemDao.getItemSubsetSorted(listTitle, isChecked);
+    }
+
+    public LiveData<List<DbChecklistItem>> getItemSubsetSortedLiveData(@NonNull String listTitle, @NonNull Boolean isChecked) {
+        // Same as getItemSubsetSorted(), but items are wrapped in a LiveData holder.
+        return mItemDao.getItemSubsetSortedLiveData(listTitle, isChecked);
+    }
+
+    public void updateItems(@NonNull List<DbChecklistItem> items) {
+        // Update the database items so they match the items in "items". Their "itemId" is used to
+        // find the right items in the database.
+        mItemDao.update(items);
+    }
+
+    public void insertAndUpdateItems(@NonNull DbChecklistItem itemToInsert, @NonNull List<DbChecklistItem> itemsToUpdate) {
+        // Insert a new item, then update all items in "itemsToUpdate".
         mItemDao.insertAndUpdate(itemToInsert, itemsToUpdate);
     }
 
@@ -94,39 +120,9 @@ public class ChecklistRepository {
         mItemDao.delete(item);
     }
 
-    public List<DbChecklistItem> getAllItemsFromAllLists() {
-        return mItemDao.getAllItemsFromAllLists();
-    }
-
-    public List<DbChecklistItem> getAllItems(@NonNull final String listTitle) {
-        return mItemDao.getItemsFromChecklist(listTitle);
-    }
-
     public long getMinIncidence(@NonNull String listTitle) {
-        // Returns 0 if list is empty
+        // Return the smallest "incidence" value in the checklist.
+        // Returns 0 if the list is empty.
         return mItemDao.getMinIncidence(listTitle);
-    }
-
-    public LiveData<List<DbChecklistItem>> getAllItemsLiveData(@NonNull final String listTitle) {
-        return mItemDao.getItemsFromChecklistLiveData(listTitle);
-    }
-
-    public List<DbChecklistItem> getItems(@NonNull String listTitle, @NonNull Boolean isChecked) {
-        return mItemDao.getItems(listTitle, isChecked);
-    }
-
-    public List<DbChecklistItem> getItemsSortedByPosition(@NonNull String listTitle, @NonNull Boolean isChecked) {
-        return mItemDao.getItemsSortedByPosition(listTitle, isChecked);
-    }
-
-    public LiveData<List<DbChecklistItem>> getItemsSortedByPositionLiveData(@NonNull String listTitle, @NonNull Boolean isChecked) {
-        // TODO: Why are still both observers (checked and unchecked fragment) being called?
-//        return Transformations.distinctUntilChanged(
-//                mItemDao.getItemsSortedByPositionLiveData(listTitle, isChecked));
-        return mItemDao.getItemsSortedByPositionLiveData(listTitle, isChecked);
-    }
-
-    public LiveData<Integer> getItemsFromChecklistCount(@NonNull final String listTitle) {
-        return mItemDao.getItemsFromChecklistCount(listTitle);
     }
 }

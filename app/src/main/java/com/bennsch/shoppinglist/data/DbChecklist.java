@@ -9,20 +9,20 @@ import androidx.room.PrimaryKey;
 public class DbChecklist {
 
     @PrimaryKey
-    @NonNull private String checklistTitle;
+    @NonNull private final String listTitle;
     // True if this Checklist is currently selected by the user, false otherwise.
     // Only one Checklist should be active at all times.
     // TODO: consider using separate table (1 column) for "active checklist"
     private boolean active;
 
-    public DbChecklist(@NonNull String checklistTitle, boolean active) {
-        this.checklistTitle = checklistTitle;
+    public DbChecklist(@NonNull String listTitle, boolean active) {
+        this.listTitle = listTitle;
         this.active = active;
     }
 
     @NonNull
-    public String getChecklistTitle() {
-        return checklistTitle;
+    public String getListTitle() {
+        return listTitle;
     }
 
     public boolean isActive() {

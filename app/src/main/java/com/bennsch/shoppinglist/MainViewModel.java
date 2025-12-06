@@ -274,7 +274,7 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<Boolean> isChecklistEmpty(String listTitle) {
         MediatorLiveData<Boolean> mediator = new MediatorLiveData<>();
         mediator.addSource(
-                    mChecklistRepo.getAllItemsLiveData(listTitle),
+                    mChecklistRepo.getItemsLiveData(listTitle),
                     dbChecklistItems
                         -> mediator.setValue(dbChecklistItems.isEmpty()));
         return Transformations.distinctUntilChanged(mediator);
@@ -311,7 +311,7 @@ public class MainViewModel extends AndroidViewModel {
         } else {
             // TODO: map() runs on UI-thread!
             return Transformations.map(
-                    mChecklistRepo.getAllItemsLiveData(listTitle),
+                    mChecklistRepo.getItemsLiveData(listTitle),
                     dbChecklistItems
                             -> dbChecklistItems
                             .stream()
@@ -355,7 +355,7 @@ public class MainViewModel extends AndroidViewModel {
         }
         mExecutor.execute(() -> {
             String trashed_title = TRASH_LABEL + checklistTitle + "(" + Calendar.getInstance().getTime() + ")";
-            mChecklistRepo.updateChecklistName(checklistTitle, trashed_title);
+            mChecklistRepo.updateChecklistTitle(checklistTitle, trashed_title);
             assert mChecklistTitles.getValue() != null;
             String ac = mChecklistTitles.getValue().stream()
                     .filter(listTitle ->
@@ -373,7 +373,7 @@ public class MainViewModel extends AndroidViewModel {
         if (mChecklistTitles.getValue().contains(title)) {
             String newTitleValidated = validateChecklistTitle(newTitle);
             mExecutor.execute(() -> {
-                mChecklistRepo.updateChecklistName(title, newTitleValidated);
+                mChecklistRepo.updateChecklistTitle(title, newTitleValidated);
             });
         } else {
             throw new InvalidNameException("List \"" + title + "\" doesn't exist" );
@@ -382,13 +382,13 @@ public class MainViewModel extends AndroidViewModel {
 
     public LiveData<List<ChecklistItem>> getItemsSortedByPosition(String listTitle, boolean isChecked) {
         return Transformations.map(
-                mChecklistRepo.getItemsSortedByPositionLiveData(listTitle, isChecked),
+                mChecklistRepo.getItemSubsetSortedLiveData(listTitle, isChecked),
                 MainViewModel::toChecklistItems);
     }
 
     public void deleteItem(@NonNull String listTitle, @NonNull ChecklistItem clItem) {
         mExecutor.execute(() -> {
-            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), clItem.getName());
+            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getItems(listTitle), clItem.getName());
             assert dbItem != null;
             mChecklistRepo.deleteItem(dbItem);
         });
@@ -406,7 +406,7 @@ public class MainViewModel extends AndroidViewModel {
             if (strippedName.isEmpty()) {
                 throw new InvalidNameException("Name is empty");
             }
-            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getAllItems(listTitle), strippedName);
+            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getItems(listTitle), strippedName);
             if (dbItem == null){
                 // Item does not exist in database, so insert a new item.
                 // The new item will have the lowest incidence.
@@ -417,25 +417,25 @@ public class MainViewModel extends AndroidViewModel {
                 // to avoid multiple LiveData updates. So we need to get a copy the list, modify
                 // the copy and then update the database using that copy.
                 List<DbChecklistItem> dbItems =
-                        mChecklistRepo.getItemsSortedByPosition(listTitle, isChecked);
+                        mChecklistRepo.getItemSubsetSorted(listTitle, isChecked);
                 dbItems.add(newDbItem);
                 // This function updates all positions, but we only care about the newDbItem's position.
                 updatePositionByOrder(dbItems);
                 // Single database transaction
-                mChecklistRepo.insertAndUpdate(newDbItem, dbItems);
+                mChecklistRepo.insertAndUpdateItems(newDbItem, dbItems);
             } else {
                 // Item already exists in database.
                 if (dbItem.isChecked() == isChecked) {
                     // The user tries to add an item with the same "isChecked" as the existing item,
                     // so just move it to the bottom of the list (as a visual feedback).
                     List<DbChecklistItem> items = mChecklistRepo
-                            .getItemsSortedByPosition(listTitle, dbItem.isChecked());
+                            .getItemSubsetSorted(listTitle, dbItem.isChecked());
                     assert dbItem.getPosition() != null: "dbItem.getPosition() returned null";
                     // Remove and add the same item to move it to the end of the list.
                     items.remove((int)dbItem.getPosition());
                     items.add(dbItem);
                     updatePositionByOrder(items);
-                    mChecklistRepo.update(items);
+                    mChecklistRepo.updateItems(items);
                 } else {
                     // The user tries to add an item with the opposite "isChecked", so we can simply
                     // flip the existing item (to make it appear in the list that the user is trying
@@ -453,7 +453,7 @@ public class MainViewModel extends AndroidViewModel {
         mExecutor.execute(() -> {
             // Get a copy of the list in the database, so that we can apply several modifications
             // but only perform a single database transaction at the end.
-            List<DbChecklistItem> allItems = mChecklistRepo.getAllItems(listTitle);
+            List<DbChecklistItem> allItems = mChecklistRepo.getItems(listTitle);
             DbChecklistItem itemToFlip = findDbItem(allItems, name);
             assert itemToFlip != null: "findDbItem() returned null for name == " + name;
             // If an item is flipped from "checked" to "unchecked", we want it to be placed at
@@ -475,7 +475,7 @@ public class MainViewModel extends AndroidViewModel {
             sortByIncidenceDescending(checkedItems); // Only "checked" items are sorted by incidence
             updatePositionByOrder(checkedItems);
             // Commit the local changes in a single database transaction
-            mChecklistRepo.update(allItems);
+            mChecklistRepo.updateItems(allItems);
         });
     }
 
@@ -487,7 +487,7 @@ public class MainViewModel extends AndroidViewModel {
         mExecutor.execute(() -> {
             // Get a copy of the list in the database, so that we can apply several modifications
             // but only perform a single database transaction at the end.
-            List<DbChecklistItem> dbItems = mChecklistRepo.getItems(listTitle, areChecked);
+            List<DbChecklistItem> dbItems = mChecklistRepo.getItemSubsetSorted(listTitle, areChecked);
             // Number of items should match the database.
             assert items.size() == dbItems.size(): "Unexpected number of items";
             long prevIncidence = 0;
@@ -505,7 +505,7 @@ public class MainViewModel extends AndroidViewModel {
                 prevIncidence = dbItem.getIncidence();
             }
             // Commit the local changes in a single database transaction
-            mChecklistRepo.update(dbItems);
+            mChecklistRepo.updateItems(dbItems);
         });
     }
 
