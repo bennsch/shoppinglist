@@ -34,7 +34,7 @@ TODO: Update gradle packages
 TODO: highlight action icon while delete mode is active?
 TODO: Limit number of characters for every text input
 TODO: Make all TextFields use textColor as highlight color
-TODO: Put all hardcoded strings to strings.xml
+TODO: Put all hardcoded strings in strings.xml
 TODO: Provide translations
 TODO: Feature: Save reward cards (picture of bar code)
 TODO: Add setting: ChecklistItem text size

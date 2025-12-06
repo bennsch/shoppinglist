@@ -12,7 +12,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.bennsch.shoppinglist.IMEHelper;
-import com.bennsch.shoppinglist.MainViewModel;
 import com.bennsch.shoppinglist.ThemeHelper;
 import com.bennsch.shoppinglist.databinding.DialogEditListBinding;
 
@@ -20,20 +19,24 @@ import java.util.Objects;
 
 
 public class EditListDialog extends DialogFragment {
+    /*
+     *  Dialog to change the name or a delete a checklist.
+     */
 
-    private static final String ARG_LIST_TITLE = "list_title";
-
-    // Using interface, because we cannot override DialogFragment constructor
-    // (Fragment gets recreated on e.g. screen rotation and arguments would be lost)
-    // Using "onAttach()" is recommended by API doc.
+    // Using an interface, because we cannot override DialogFragment constructor (Fragment is
+    // recreated on e.g. screen rotation and arguments would be lost) Using "onAttach()" is
+    // recommended by API doc.
     public interface DialogListener{
         void editListDialog_onSafeClicked(String oldTitle, String newTitle);
         void editListDialog_onDeleteClicked(String listTitle);
         String editListDialog_onValidateTitle(String title);
     }
 
+    private static final String ARG_LIST_TITLE = "list_title";
+
     private DialogListener mListener;
     private AlertDialog mConfirmationDialog;
+
 
     public static EditListDialog newInstance(String listTitle) {
         Bundle args = new Bundle();
@@ -49,9 +52,8 @@ public class EditListDialog extends DialogFragment {
         try {
             mListener = (DialogListener) context;
         } catch (ClassCastException e) {
-            // The activity doesn't implement the interface. Throw exception.
-            throw new ClassCastException(requireActivity()
-                    + " must implement NoticeDialogListener");
+            // The activity doesn't implement the interface, throw an exception.
+            throw new ClassCastException(requireActivity() + " must implement NoticeDialogListener");
         }
     }
 
@@ -74,9 +76,13 @@ public class EditListDialog extends DialogFragment {
         String listTitle = getArguments().getString(ARG_LIST_TITLE);
         assert listTitle != null;
 
-        DialogEditListBinding binding = DialogEditListBinding.inflate(requireActivity().getLayoutInflater());
+        DialogEditListBinding binding = DialogEditListBinding
+                .inflate(requireActivity()
+                        .getLayoutInflater());
 
+        // MaterialAlertDialogBuilder is not scaled properly on smaller screens.
         // AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
+
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setView(binding.getRoot())
                 .setTitle("Edit")
@@ -97,7 +103,8 @@ public class EditListDialog extends DialogFragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String validationFailedReason = mListener.editListDialog_onValidateTitle(s.toString());
+                String validationFailedReason = mListener
+                        .editListDialog_onValidateTitle(s.toString());
                 if (validationFailedReason == null) {
                     binding.listTitle.setError(null);
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
@@ -109,15 +116,14 @@ public class EditListDialog extends DialogFragment {
         });
 
         dialog.setOnShowListener(dlg -> {
-            // Disable positive button when dialog is first opened, so TextChangedListener
-            // decides to enable/disable the button when user enters the first character.
-            ((AlertDialog) dlg).getButton(DialogInterface.BUTTON_POSITIVE)
-                    .setEnabled(false);
+            // Disable positive button when dialog is first opened, so that TextChangedListener
+            // can enable/disable the button when user enters the first character.
+            ((AlertDialog) dlg)
+                    .getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
             // Add listener here to prevent the dialog from closing when the button is pressed.
             ((AlertDialog) dlg)
                     .getButton(DialogInterface.BUTTON_NEUTRAL)
-                    .setOnClickListener(v ->
-                            showConfirmationDialog(listTitle));
+                    .setOnClickListener(v -> showConfirmationDialog(listTitle));
             // Change color of the "Delete" button.
             Context context = getContext();
             assert context != null: "getContext() returned null";
