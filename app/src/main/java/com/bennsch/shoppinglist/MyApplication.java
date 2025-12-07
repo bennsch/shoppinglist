@@ -30,6 +30,15 @@ public class MyApplication extends Application {
         applyDynamicColors();
         observePrefNightMode();
         observePrefOrientation();
+
+        // For debugging only:
+        if (BuildConfig.DEBUG){
+            if (PreferencesRepository.DBG_PRETEND_FIRST_STARTUP){
+                PreferencesRepository prefRepo = PreferencesRepository.getInstance(this);
+                prefRepo.setPrefFirstStartup(true);
+                prefRepo.setPrefOnboardingCompleted(false);
+            }
+        }
     }
 
     private void applyDynamicColors() {

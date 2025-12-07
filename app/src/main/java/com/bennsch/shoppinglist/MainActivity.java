@@ -91,12 +91,10 @@ public class MainActivity extends AppCompatActivity
                 onBackButtonPressed();
             }
         });
+        // Only for debugging:
         if (BuildConfig.DEBUG){
             mBinding.versionLabel.setText("v" + mViewModel.getVersionName());
             mBinding.versionLabel.setVisibility(View.VISIBLE);
-            if (PreferencesRepository.DBG_PRETEND_FIRST_STARTUP){
-                mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.START_ONBOARDING);
-            }
         }
     }
 

@@ -1,6 +1,7 @@
 
 
 PUBLISH:
+TODO: Instantiate MainViewModel per activity/fragment instead of entire application??
 TODO: find better words for "checked" and "unchecked"
 TODO: Rename to "SimpleShoppingList", or "BasicShoppingList"...?
 TODO: Sign with release certificate
