@@ -68,6 +68,8 @@ public class ChecklistPagerFragment extends Fragment {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
+        // Retrieve the MainActivity's ViewModel instance, to communicate and share data between the
+        // fragments easily.
         mViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
         mViewPagerAdapter = new ViewPagerAdapter(this);
     }

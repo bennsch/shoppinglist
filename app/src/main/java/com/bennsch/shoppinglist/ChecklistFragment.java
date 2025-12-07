@@ -32,7 +32,7 @@ import java.util.List;
 
 public class ChecklistFragment extends Fragment {
     /*
-     *  Fragment to display a single Checklist page (checked or unchecked items)
+     *  Fragment to display a single Checklist page (checked or unchecked items).
      */
 
     private static final String ARG_LIST_TITLE = "list_title";
@@ -65,6 +65,8 @@ public class ChecklistFragment extends Fragment {
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
         mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
         mRecyclerViewAdapter = new RecyclerViewAdapter();
+        // Retrieve the MainActivity's ViewModel instance, to communicate and share data between the
+        // fragments easily.
         mViewModel = new ViewModelProvider(requireActivity()).get(MainViewModel.class);
     }
 

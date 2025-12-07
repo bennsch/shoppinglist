@@ -64,7 +64,9 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(mBinding.toolbar);
         setupNavDrawer();
         addNavViewPadding();
-        // Retrieve global ViewModel instance.
+        // Create a ViewModel instance scoped to the MainActivity. The ChecklistPagerFragment and
+        // ChecklistFragments will retrieve the same instance to communicate and share data between
+        // the fragments.
         mViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         mActiveChecklist = mViewModel.getActiveChecklist();
         mDeleteItemsMode = mViewModel.getDeleteItemsMode();

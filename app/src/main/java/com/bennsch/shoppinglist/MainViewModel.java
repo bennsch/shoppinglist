@@ -34,8 +34,7 @@ public class MainViewModel extends AndroidViewModel {
     /*
      *  The ViewModel is the interface between the UI-layer (Activities, Fragments etc.) and the
      *  data-layer (databases, repositories etc.). All the application's business logic should be
-     *  handled here. The ViewModel should be unaware of any UI implementation details. A single
-     *  instance of the MainViewModel is used for the entire app.
+     *  handled here. The ViewModel should be unaware of any UI implementation details.
      *
      *  Note: The UI-layer components (Activities, Fragments etc.) should not perform any logic or
      *  modify data. Their sole purpose is to display the data provided by the ViewModel, and to
@@ -43,14 +42,14 @@ public class MainViewModel extends AndroidViewModel {
      *
      *  Example: User presses a button to add a new item:
      *
-     *     1) User presses button
+     *     1) User presses button.
      *
-     *     2) UI-layer (e.g. MainActivity) notifies the ViewModel that a new item needs to be added
+     *     2) UI-layer (e.g. MainActivity) notifies the ViewModel that a new item needs to be added.
      *
-     *     3) ViewModel performs some logic related to adding a new item (e.g. check item contents)
-     *        and adds a new item to the data repository
+     *     3) ViewModel performs some logic (e.g. check item contents, sort items etc.) and adds a
+     *        new item to the data repository.
      *
-     *     4) UI-layer, which is observing the items (LiveData objects retrieved from the ViewModel),
+     *     4) UI-layer, which is observing the items (LiveData holders retrieved from the ViewModel),
      *        gets notified that the items have changed and updates the UI accordingly.
      */
 
@@ -115,7 +114,7 @@ public class MainViewModel extends AndroidViewModel {
                     mStage.setValue(State.TAP_ITEM);
                 }
             } else if (mStage.getValue() == State.COMPLETED) {
-                // Do nothing
+                // Do nothing.
             } else {
                 switch (event) {
                     case LIST_EMPTY:
@@ -299,7 +298,8 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public LiveData<List<String>> getAutoCompleteDataset(@NonNull String listTitle, boolean isCheckedVisible) {
+    public LiveData<List<String>> getAutoCompleteDataset(@NonNull String listTitle,
+                                                         boolean isCheckedVisible) {
         // Return a list of strings that should be used as the dataset for the adapter of an
         // AutoCompleteTextView. It's the names of all the items (both checked and unchecked) in the
         // Checklist titled "listTitle". Which of those suggestions will actually be displayed to
@@ -354,7 +354,8 @@ public class MainViewModel extends AndroidViewModel {
             throw new InvalidNameException("List \"" + checklistTitle +  "\" does not exists");
         }
         mExecutor.execute(() -> {
-            String trashed_title = TRASH_LABEL + checklistTitle + "(" + Calendar.getInstance().getTime() + ")";
+            String trashed_title =
+                    TRASH_LABEL + checklistTitle + "(" + Calendar.getInstance().getTime() + ")";
             mChecklistRepo.updateChecklistTitle(checklistTitle, trashed_title);
             assert mChecklistTitles.getValue() != null;
             String ac = mChecklistTitles.getValue().stream()
@@ -368,7 +369,8 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    public void renameChecklist(@NonNull final String title, @NonNull final String newTitle) throws InvalidNameException {
+    public void renameChecklist(@NonNull final String title,
+                                @NonNull final String newTitle) throws InvalidNameException {
         assert mChecklistTitles.getValue() != null;
         if (mChecklistTitles.getValue().contains(title)) {
             String newTitleValidated = validateChecklistTitle(newTitle);
@@ -380,7 +382,8 @@ public class MainViewModel extends AndroidViewModel {
         }
     }
 
-    public LiveData<List<ChecklistItem>> getItemsSortedByPosition(String listTitle, boolean isChecked) {
+    public LiveData<List<ChecklistItem>> getItemsSortedByPosition(String listTitle,
+                                                                  boolean isChecked) {
         return Transformations.map(
                 mChecklistRepo.getItemSubsetSortedLiveData(listTitle, isChecked),
                 MainViewModel::toChecklistItems);
@@ -388,7 +391,8 @@ public class MainViewModel extends AndroidViewModel {
 
     public void deleteItem(@NonNull String listTitle, @NonNull ChecklistItem clItem) {
         mExecutor.execute(() -> {
-            DbChecklistItem dbItem = findDbItem(mChecklistRepo.getItems(listTitle), clItem.getName());
+            DbChecklistItem dbItem =
+                    findDbItem(mChecklistRepo.getItems(listTitle), clItem.getName());
             assert dbItem != null;
             mChecklistRepo.deleteItem(dbItem);
         });
@@ -419,7 +423,8 @@ public class MainViewModel extends AndroidViewModel {
                 List<DbChecklistItem> dbItems =
                         mChecklistRepo.getItemSubsetSorted(listTitle, isChecked);
                 dbItems.add(newDbItem);
-                // This function updates all positions, but we only care about the newDbItem's position.
+                // This function updates all positions, but we only care about the newDbItem's
+                // position.
                 updatePositionByOrder(dbItems);
                 // Single database transaction
                 mChecklistRepo.insertAndUpdateItems(newDbItem, dbItems);
@@ -487,7 +492,8 @@ public class MainViewModel extends AndroidViewModel {
         mExecutor.execute(() -> {
             // Get a copy of the list in the database, so that we can apply several modifications
             // but only perform a single database transaction at the end.
-            List<DbChecklistItem> dbItems = mChecklistRepo.getItemSubsetSorted(listTitle, areChecked);
+            List<DbChecklistItem> dbItems
+                    = mChecklistRepo.getItemSubsetSorted(listTitle, areChecked);
             // Number of items should match the database.
             assert items.size() == dbItems.size(): "Unexpected number of items";
             long prevIncidence = 0;

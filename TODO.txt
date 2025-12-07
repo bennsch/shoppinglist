@@ -1,14 +1,12 @@
 
 
 PUBLISH:
-TODO: Instantiate MainViewModel per activity/fragment instead of entire application??
 TODO: find better words for "checked" and "unchecked"
 TODO: Rename to "SimpleShoppingList", or "BasicShoppingList"...?
 TODO: Sign with release certificate
 TODO: Set version label to "1.0"
 TODO: Create promotional gif and screenshots
 TODO: Update github README (description, screenshots, how to build)
-TODO: fix compiler warnings
 
 TODO: Remove all logic from GUI. The ViewModel should contain all logic.
 TODO: Deactivate DeleteItemsMode if the last item in the current page was deleted
