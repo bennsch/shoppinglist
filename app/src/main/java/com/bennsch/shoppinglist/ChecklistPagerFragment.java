@@ -336,7 +336,7 @@ public class ChecklistPagerFragment extends Fragment {
 
     private void vibrate() {
         Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
-        vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
+        vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK));
     }
 
     private static void updateConstraint(ConstraintLayout parent, int startID, int startSide, int endID, int endSide) {
