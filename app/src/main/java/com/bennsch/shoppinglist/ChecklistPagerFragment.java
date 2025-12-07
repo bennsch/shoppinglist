@@ -205,26 +205,36 @@ public class ChecklistPagerFragment extends Fragment {
         // Provide an adapter to enable auto-complete suggestions:
         ArrayAdapter<String> autoCompleteAdapter = new ArrayAdapter<>(
                 requireContext(),
-                android.R.layout.simple_dropdown_item_1line);
-        MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>(true);
+                android.R.layout.simple_dropdown_item_1line
+        );
+        // Provide different autoCompleteItems, depending on which page is currently displayed.
+        MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>();
         LiveData<List<String>> autoCompleteItems = Transformations.switchMap(
                 isCurrentPageChecked,
-                currPageChecked ->
-                        mViewModel.getAutoCompleteDataset(mListTitle, currPageChecked));
+                currPageChecked -> {
+                    if (currPageChecked == null) {
+                        return null;
+                    } else {
+                        return mViewModel.getAutoCompleteDataset(mListTitle, currPageChecked);
+                    }
+                }
+        );
+        // Update the autoCompleteAdapter whenever autoCompleteItems changes.
         autoCompleteItems.observe(
                 getViewLifecycleOwner(),
                 strings -> {
                     autoCompleteAdapter.clear();
                     autoCompleteAdapter.addAll(strings);
-                });
+                }
+        );
         // Update "isCurrentPageChecked" whenever the user changes the page.
         mBinding.viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 mBinding.itemNameBox.dismissDropDown();
-                if (isCurrentPageChecked.getValue() != null
-                        && isCurrentPageChecked.getValue() != isCurrentPageChecked()) {
+                if (isCurrentPageChecked.getValue() != null &&
+                    isCurrentPageChecked.getValue() != isCurrentPageChecked()) {
                     mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.SWIPED);
                 }
                 isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: postValue()?
