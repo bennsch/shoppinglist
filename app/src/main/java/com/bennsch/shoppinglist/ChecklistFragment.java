@@ -142,6 +142,7 @@ public class ChecklistFragment extends Fragment {
         mViewModel.itemsHaveBeenMoved(mListTitle, mDisplayChecked, itemsSortedByPosition);
     }
 
+    @SuppressWarnings("deprecation")
     private void vibrate() {
         Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
         if (Build.VERSION.SDK_INT < 29) {
