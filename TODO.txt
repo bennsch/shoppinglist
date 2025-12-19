@@ -8,6 +8,7 @@ TODO: Set version label to "1.0"
 TODO: Create promotional gif and screenshots
 TODO: Update github README (description, screenshots, how to build)
 
+TODO: Add setting: ChecklistItem text size
 TODO: Remove all logic from GUI. The ViewModel should contain all logic.
 TODO: Deactivate DeleteItemsMode if the last item in the current page was deleted
 TODO: Add button to show Intro tutorial again
@@ -24,20 +25,14 @@ TODO: Save database backup to  shoppinglist/media/ folder
 TODO: Add animation to DeleteItemsMode, FAB, ItemNameBox etc...
 TODO: Handle integer overflow for incidence
 TODO: Add description for each preference?
-TODO: fix build warning: uses or overrides deprecated API
-TODO: Update gradle packages
 TODO: highlight action icon while delete mode is active?
 TODO: Limit number of characters for every text input
 TODO: Make all TextFields use textColor as highlight color
 TODO: Put all hardcoded strings in strings.xml
 TODO: Provide translations
 TODO: Feature: Save reward cards (picture of bar code)
-TODO: Add setting: ChecklistItem text size
 TODO: Add setting: ChecklistItems condensed view (less top/bottom padding)
 TODO: Add setting: Dynamic color seed
 TODO: Add Checklist setting: Sort by incidence
 TODO: Add Checklist setting: Hide title bar
 TODO: Add Checklist setting: Show typing suggestions
-
-TESTS:
-    Check entire GUI in night mode, landscape, large screens
