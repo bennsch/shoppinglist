@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist;
 
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -143,7 +144,11 @@ public class ChecklistFragment extends Fragment {
 
     private void vibrate() {
         Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
-        vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
+        if (Build.VERSION.SDK_INT < 29) {
+            vibrator.vibrate(30);
+        } else {
+            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK));
+        }
     }
 
     private void showEmptyListPlaceholder(boolean show) {

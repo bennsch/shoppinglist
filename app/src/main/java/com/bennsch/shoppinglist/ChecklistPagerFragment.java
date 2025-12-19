@@ -2,6 +2,7 @@ package com.bennsch.shoppinglist;
 
 import android.content.Context;
 import android.graphics.Outline;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.ComponentActivity;
@@ -348,7 +349,11 @@ public class ChecklistPagerFragment extends Fragment {
 
     private void vibrate() {
         Vibrator vibrator = requireContext().getSystemService(Vibrator.class);
-        vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK));
+        if (Build.VERSION.SDK_INT < 29) {
+            vibrator.vibrate(150);
+        } else {
+            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK));
+        }
     }
 
     private static void updateConstraint(ConstraintLayout parent, int startID, int startSide, int endID, int endSide) {
