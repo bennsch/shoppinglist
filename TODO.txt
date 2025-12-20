@@ -9,6 +9,8 @@ TODO: Create promotional gif and screenshots
 TODO: Update github README (description, screenshots, how to build)
 
 TODO: Add setting: ChecklistItem text size
+TODO: Add setting: Color theme for each Checklist
+TODO: scale ViewHolder text size with phone size (e.g. always 5% of screen height)
 TODO: Remove all logic from GUI. The ViewModel should contain all logic.
 TODO: Deactivate DeleteItemsMode if the last item in the current page was deleted
 TODO: Add button to show Intro tutorial again
