@@ -68,75 +68,67 @@ public class MainViewModel extends AndroidViewModel {
          *  on the user's actions.
          */
 
+        // Events triggered by the user.
         public enum Event {
-            START_ONBOARDING, // Start the onboarding process
-            ITEM_TAPPED,      // A list item has been tapped
-            SWIPED,           // The ViewPager has been swiped
-            LIST_EMPTY,       // The last item in a list got deleted, or an empty list has been selected
-            LIST_NOT_EMPTY,   // The first item got added to a list, or a non-empty list has been selected
+            START_ONBOARDING,    // Start the onboarding process
+            ITEM_TAPPED,         // A list item has been tapped
+            SWIPED_TO_CHECKED,   // The ViewPager has been swiped to the "checked" page
+            SWIPED_TO_UNCHECKED, // The ViewPager has been swiped to the "unchecked" page
+            LIST_EMPTY,          // The last item in a list got deleted, or an empty list has been selected
+            LIST_NOT_EMPTY,      // The first item got added to a list, or a non-empty list has been selected
         }
 
-        public enum State {
-            INIT,       // Onboarding has not started yet
-            HIDE,       // Hide the onboarding message
-            TAP_ITEM,   // Let the user know items can be tapped
-            SWIPE,      // Let the user know the page can be swiped left or right
-            COMPLETED   // Onboarding complete
+        // Hints to be displayed to the user.
+        public enum Hint {
+            INIT,                // Onboarding not started yet or cancelled
+            TAP_ITEM_TO_CHECK,   // Tell the user that "unchecked" items can be tapped to check them
+            SWIPE_TO_CHECKED,    // Tell the user how to swipe to the "checked" page
+            TAP_ITEM_TO_UNCHECK, // Tell the user that "checked" items can be tapped to uncheck them
+            SWIPE_TO_UNCHECKED,  // Tell the user how to swipe to the "unchecked" page
+            COMPLETED            // Onboarding complete
         }
 
         public interface CompletedListener {
             void onCompleted();
         }
 
-        private final MutableLiveData<State> mStage;
+        private final MutableLiveData<Hint> mHint;
         private final CompletedListener mCompletedListener;
-        private boolean mUserHasTapped;
-        private boolean mUserHasSwiped;
+
+        // Determine the next hint based on the event and the current hint.
+        // Null means to remain at the current hint.
+        private static final Hint[][] NEXT_HINT_LOOKUP = {
+        /*                          START_ONBOARDING        ITEM_TAPPED             SWIPED_TO_CHECKED           SWIPED_TO_UNCHECKED         LIST_EMPTY      LIST_NOT_EMPTY          */
+        /* INIT                 */ {Hint.TAP_ITEM_TO_CHECK, null,                   null,                       null,                       null,           Hint.TAP_ITEM_TO_CHECK},
+        /* TAP_ITEM_TO_CHECK    */ {null,                   Hint.SWIPE_TO_CHECKED,  Hint.TAP_ITEM_TO_UNCHECK,   null,                       Hint.INIT,      null},
+        /* SWIPE_TO_CHECKED     */ {null,                   null,                   Hint.TAP_ITEM_TO_UNCHECK,   null,                       Hint.INIT,      null},
+        /* TAP_ITEM_TO_UNCHECK  */ {null,                   Hint.SWIPE_TO_UNCHECKED,null,                       Hint.COMPLETED,             Hint.INIT,      null},
+        /* SWIPE_TO_UNCHECKED   */ {null,                   null,                   null,                       Hint.COMPLETED,             Hint.INIT,      null},
+        /* COMPLETED            */ {null,                   null,                   null,                       null,                       null,           null},
+        };
 
         private Onboarding(boolean isCompleted, @NonNull CompletedListener listener) {
             mCompletedListener = listener;
             if (isCompleted) {
-                mStage = new MutableLiveData<>(State.COMPLETED);
+                mHint = new MutableLiveData<>(Hint.COMPLETED);
             } else {
-                mStage = new MutableLiveData<>(State.INIT);
-                mUserHasTapped = false;
-                mUserHasSwiped = false;
+                mHint = new MutableLiveData<>(Hint.INIT);
             }
         }
 
-        public LiveData<State> getState() {
-            return Transformations.distinctUntilChanged(mStage);
+        public LiveData<Hint> getHint() {
+            return Transformations.distinctUntilChanged(mHint);
         }
 
         public void notify(Event event) {
-            if (mStage.getValue() == State.INIT) {
-                if (event == Event.START_ONBOARDING) {
-                    mStage.setValue(State.TAP_ITEM);
-                }
-            } else if (mStage.getValue() == State.COMPLETED) {
-                // Do nothing.
-            } else {
-                switch (event) {
-                    case LIST_EMPTY:
-                        mStage.setValue(State.HIDE);
-                        return;
-                    case ITEM_TAPPED:
-                        mUserHasTapped = true;
-                        break;
-                    case SWIPED:
-                        mUserHasSwiped = true;
-                        break;
-                    case LIST_NOT_EMPTY:
-                        break;
-                }
-                // Update Stage depending on what the user has done already:
-                if (mUserHasTapped && mUserHasSwiped) {
-                    mStage.setValue(State.COMPLETED);
+            assert mHint.getValue() != null;
+            int idxHint = mHint.getValue().ordinal();
+            int idxEvent = event.ordinal();
+            Hint nextHint = NEXT_HINT_LOOKUP[idxHint][idxEvent];
+            if (nextHint != null) {
+                mHint.setValue(nextHint);
+                if (nextHint == Hint.COMPLETED) {
                     mCompletedListener.onCompleted();
-                } else if (mUserHasTapped) {
-                    mStage.setValue(State.SWIPE);
-                } else {
-                    mStage.setValue(State.TAP_ITEM);
                 }
             }
         }

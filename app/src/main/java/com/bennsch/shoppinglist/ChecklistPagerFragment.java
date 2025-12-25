@@ -95,23 +95,27 @@ public class ChecklistPagerFragment extends Fragment {
                         mBinding.fab.show();
                     }
         });
-        mViewModel.getSimpleOnboarding().getState().observe(getViewLifecycleOwner(), stage -> {
-            switch (stage) {
+        mViewModel.getSimpleOnboarding().getHint().observe(getViewLifecycleOwner(), hint -> {
+            switch (hint) {
                 case INIT:
-                case HIDE:
                 case COMPLETED:
                     mOnboardingPopup.hide();
                     break;
-                case TAP_ITEM:
-                    mOnboardingPopup.show("Tap items to check/uncheck");
+                case TAP_ITEM_TO_CHECK:
+                    mOnboardingPopup.show("Tap an item to cross it off the list");
                     break;
-                case SWIPE:
+                case TAP_ITEM_TO_UNCHECK:
+                    mOnboardingPopup.show("Tap a crossed out item to use it again");
+                    break;
+                case SWIPE_TO_CHECKED:
                     mOnboardingPopup.show(
-                            "Swipe the screen left/right to switch" +
-                            " between checked and unchecked items");
+                            "Swipe the screen to the left to reveal the items that you crossed off");
+                    break;
+                case SWIPE_TO_UNCHECKED:
+                    mOnboardingPopup.show("Swipe the screen to the right to go back");
                     break;
                 default:
-                    throw new AssertionError("Invalid stage " + stage);
+                    throw new AssertionError("Invalid hint " + hint);
             }
         });
         mViewModel.areItemsDragged().observe(getViewLifecycleOwner(), itemDragged -> {
@@ -236,11 +240,18 @@ public class ChecklistPagerFragment extends Fragment {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 mBinding.itemNameBox.dismissDropDown();
-                if (isCurrentPageChecked.getValue() != null &&
-                    isCurrentPageChecked.getValue() != isCurrentPageChecked()) {
-                    mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.SWIPED);
+                Boolean currentAdapterPageChecked = isCurrentAdapterPageChecked();
+                // Check if the current page actually changed
+                if ((isCurrentPageChecked.getValue() != null) &&
+                    (currentAdapterPageChecked != null) &&
+                    (isCurrentPageChecked.getValue() != currentAdapterPageChecked)) {
+                    mViewModel.getSimpleOnboarding().notify(
+                            currentAdapterPageChecked ?
+                                    MainViewModel.Onboarding.Event.SWIPED_TO_CHECKED :
+                                    MainViewModel.Onboarding.Event.SWIPED_TO_UNCHECKED
+                    );
                 }
-                isCurrentPageChecked.setValue(isCurrentPageChecked()); // TODO: postValue()?
+                isCurrentPageChecked.setValue(currentAdapterPageChecked); // TODO: postValue()?
             }
         });
         mBinding.itemNameBox.setAdapter(autoCompleteAdapter);
@@ -319,7 +330,7 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void insertNewItem(@NonNull String name) {
-        Boolean currentChecked = isCurrentPageChecked();
+        Boolean currentChecked = isCurrentAdapterPageChecked();
         assert currentChecked != null;
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
@@ -342,7 +353,7 @@ public class ChecklistPagerFragment extends Fragment {
                 ContextCompat.getMainExecutor(requireContext()));
     }
 
-    @Nullable Boolean isCurrentPageChecked() {
+    @Nullable Boolean isCurrentAdapterPageChecked() {
         return mViewPagerAdapter.isPageChecked(
                 mBinding.viewpager.getCurrentItem());
     }
