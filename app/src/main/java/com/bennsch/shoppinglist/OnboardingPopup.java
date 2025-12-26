@@ -5,6 +5,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -49,11 +51,12 @@ public class OnboardingPopup {
     }
 
     private void setTextAnimated(TextView textView, String text, int animDur) {
-        Animation anim = new AlphaAnimation(1.0f, 0.0f);
-        anim.setDuration(animDur);
-        anim.setRepeatMode(Animation.REVERSE);
-        anim.setRepeatCount(1);
-        anim.setAnimationListener(new Animation.AnimationListener() {
+        Animation animAlpha = new AlphaAnimation(1.0f, 0.0f);
+        animAlpha.setDuration(animDur);
+        animAlpha.setRepeatMode(Animation.REVERSE);
+        animAlpha.setRepeatCount(1);
+
+        animAlpha.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {}
 
@@ -62,9 +65,23 @@ public class OnboardingPopup {
 
             @Override
             public void onAnimationRepeat(Animation animation) {
+                // Update the text in the middle of the animation.
                 textView.setText(text);
             }
         });
-        textView.startAnimation(anim);
+
+        Animation animScale = new ScaleAnimation(
+                1.0f, 1.2f, 1.0f, 1.2f,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        animScale.setDuration(250);
+        animScale.setRepeatMode(Animation.REVERSE);
+        animScale.setRepeatCount(1);
+
+        AnimationSet animSet = new AnimationSet(true);
+        animSet.addAnimation(animScale);
+        animSet.addAnimation(animAlpha);
+
+        textView.startAnimation(animSet);
     }
 }
