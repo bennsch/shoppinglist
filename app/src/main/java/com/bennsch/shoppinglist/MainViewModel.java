@@ -1,6 +1,7 @@
 package com.bennsch.shoppinglist;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -70,22 +71,36 @@ public class MainViewModel extends AndroidViewModel {
 
         // Events triggered by the user.
         public enum Event {
-            START_ONBOARDING,    // Start the onboarding process
-            ITEM_TAPPED,         // A list item has been tapped
-            SWIPED_TO_CHECKED,   // The ViewPager has been swiped to the "checked" page
-            SWIPED_TO_UNCHECKED, // The ViewPager has been swiped to the "unchecked" page
-            LIST_EMPTY,          // The last item in a list got deleted, or an empty list has been selected
-            LIST_NOT_EMPTY,      // The first item got added to a list, or a non-empty list has been selected
+            // Start the onboarding process.
+            START_ONBOARDING,
+            // A list item has been tapped.
+            ITEM_TAPPED,
+            // The ViewPager has been swiped to the "checked" page.
+            SWIPED_TO_CHECKED,
+            // The ViewPager has been swiped to the "unchecked" page.
+            SWIPED_TO_UNCHECKED,
+            // The last item in the list got deleted, or an empty list has been selected.
+            LIST_EMPTY,
+            // The first item was added to the list, or a non-empty list has been selected
+            // (this event is also triggered if the phone's dark theme is enabled/disabled or if
+            // the app is restarted).
+            LIST_NOT_EMPTY
         }
 
         // Hints to be displayed to the user.
         public enum Hint {
-            INIT,                // Onboarding not started yet or cancelled
-            TAP_ITEM_TO_CHECK,   // Tell the user that "unchecked" items can be tapped to check them
-            SWIPE_TO_CHECKED,    // Tell the user how to swipe to the "checked" page
-            TAP_ITEM_TO_UNCHECK, // Tell the user that "checked" items can be tapped to uncheck them
-            SWIPE_TO_UNCHECKED,  // Tell the user how to swipe to the "unchecked" page
-            COMPLETED            // Onboarding complete
+            // Onboarding not started yet or cancelled
+            INIT,
+            // Tell the user that "unchecked" items can be tapped to check them
+            TAP_ITEM_TO_CHECK,
+            // Tell the user how to swipe to the "checked" page
+            SWIPE_TO_CHECKED,
+            // Tell the user that "checked" items can be tapped to uncheck them
+            TAP_ITEM_TO_UNCHECK,
+            // Tell the user how to swipe to the "unchecked" page
+            SWIPE_TO_UNCHECKED,
+            // Onboarding complete
+            COMPLETED
         }
 
         public interface CompletedListener {
@@ -100,10 +115,10 @@ public class MainViewModel extends AndroidViewModel {
         private static final Hint[][] NEXT_HINT_LOOKUP = {
         /*                          START_ONBOARDING        ITEM_TAPPED             SWIPED_TO_CHECKED           SWIPED_TO_UNCHECKED         LIST_EMPTY      LIST_NOT_EMPTY          */
         /* INIT                 */ {Hint.TAP_ITEM_TO_CHECK, null,                   null,                       null,                       null,           Hint.TAP_ITEM_TO_CHECK},
-        /* TAP_ITEM_TO_CHECK    */ {null,                   Hint.SWIPE_TO_CHECKED,  Hint.TAP_ITEM_TO_UNCHECK,   null,                       Hint.INIT,      null},
-        /* SWIPE_TO_CHECKED     */ {null,                   null,                   Hint.TAP_ITEM_TO_UNCHECK,   null,                       Hint.INIT,      null},
-        /* TAP_ITEM_TO_UNCHECK  */ {null,                   Hint.SWIPE_TO_UNCHECKED,null,                       Hint.COMPLETED,             Hint.INIT,      null},
-        /* SWIPE_TO_UNCHECKED   */ {null,                   null,                   null,                       Hint.COMPLETED,             Hint.INIT,      null},
+        /* TAP_ITEM_TO_CHECK    */ {null,                   Hint.SWIPE_TO_CHECKED,  Hint.TAP_ITEM_TO_UNCHECK,   null,                       Hint.INIT,      Hint.TAP_ITEM_TO_CHECK},
+        /* SWIPE_TO_CHECKED     */ {null,                   null,                   Hint.TAP_ITEM_TO_UNCHECK,   null,                       Hint.INIT,      Hint.TAP_ITEM_TO_CHECK},
+        /* TAP_ITEM_TO_UNCHECK  */ {null,                   Hint.SWIPE_TO_UNCHECKED,null,                       Hint.COMPLETED,             Hint.INIT,      Hint.TAP_ITEM_TO_CHECK},
+        /* SWIPE_TO_UNCHECKED   */ {null,                   null,                   null,                       Hint.COMPLETED,             Hint.INIT,      Hint.TAP_ITEM_TO_CHECK},
         /* COMPLETED            */ {null,                   null,                   null,                       null,                       null,           null},
         };
 
@@ -125,6 +140,7 @@ public class MainViewModel extends AndroidViewModel {
             int idxHint = mHint.getValue().ordinal();
             int idxEvent = event.ordinal();
             Hint nextHint = NEXT_HINT_LOOKUP[idxHint][idxEvent];
+            Log.e("BEN", "notify event = " + event + ", nextHint = " + nextHint);
             if (nextHint != null) {
                 mHint.setValue(nextHint);
                 if (nextHint == Hint.COMPLETED) {

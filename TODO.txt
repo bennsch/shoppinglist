@@ -1,7 +1,6 @@
 
 
 PUBLISH:
-TODO: onboarding breaks if settings opened and closed in the middle of onboarding
 TODO: find better words for "checked" and "unchecked"
 TODO: Rename to "SimpleShoppingList", or "BasicShoppingList"...?
 TODO: Sign with release certificate

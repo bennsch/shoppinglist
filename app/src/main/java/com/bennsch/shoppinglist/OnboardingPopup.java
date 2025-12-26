@@ -28,7 +28,7 @@ public class OnboardingPopup {
     // To flash the background, we blend it with a more contrasted hue of the same background color.
     private static final int COLOR_BG_FLASH = com.google.android.material.R.attr.colorTertiaryContainer;
     // Color blend ratio.
-    private static final float COLOR_BG_FLASH_BLEND = 0.5f;
+    private static final float COLOR_BG_FLASH_BLEND = 0.7f;
     // Use default animation duration.
     private static final @IntegerRes int ANIM_DUR = android.R.integer.config_shortAnimTime;
 
