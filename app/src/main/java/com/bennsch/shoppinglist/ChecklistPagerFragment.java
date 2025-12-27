@@ -102,20 +102,19 @@ public class ChecklistPagerFragment extends Fragment {
                     mOnboardingPopup.hide();
                     break;
                 case TAP_ITEM_TO_CHECK:
-                    mOnboardingPopup.show("Tap an item to cross it off the list");
+                    mOnboardingPopup.show("TAP items to cross them off the list");
                     break;
                 case TAP_ITEM_TO_UNCHECK:
-                    mOnboardingPopup.show("Tap a crossed out item to use it again");
-                    break;
-                case SWIPE_TO_CHECKED:
-                    mOnboardingPopup.show(
-                            "Swipe the screen to the left to reveal the items that you crossed off");
+                    mOnboardingPopup.show("TAP crossed out items to use them again");
                     break;
                 case SWIPE_TO_UNCHECKED:
-                    mOnboardingPopup.show("Swipe the screen to the right to go back");
+                    mOnboardingPopup.show("SWIPE the screen RIGHT to go back");
+                    break;
+                case SWIPE_TO_CHECKED:
+                    mOnboardingPopup.show("SWIPE the screen LEFT to reveal items you crossed off");
                     break;
                 default:
-                    throw new AssertionError("Invalid hint " + hint);
+                    assert false: "Invalid hint " + hint;
             }
         });
         mViewModel.areItemsDragged().observe(getViewLifecycleOwner(), itemDragged -> {

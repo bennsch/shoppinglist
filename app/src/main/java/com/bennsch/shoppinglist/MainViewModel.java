@@ -140,7 +140,6 @@ public class MainViewModel extends AndroidViewModel {
             int idxHint = mHint.getValue().ordinal();
             int idxEvent = event.ordinal();
             Hint nextHint = NEXT_HINT_LOOKUP[idxHint][idxEvent];
-            Log.e("BEN", "notify event = " + event + ", nextHint = " + nextHint);
             if (nextHint != null) {
                 mHint.setValue(nextHint);
                 if (nextHint == Hint.COMPLETED) {

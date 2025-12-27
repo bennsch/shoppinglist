@@ -6,8 +6,17 @@ TODO: Rename to "SimpleShoppingList", or "BasicShoppingList"...?
 TODO: Sign with release certificate
 TODO: Set version label to "1.0"
 TODO: Create promotional gif and screenshots
+TODO: Promotional description:
+    - as simple as it gets
+    - you won't find a simpler more straight forward app
+    - two lists. browse your crossed off items for inspiration (they are sorted by how often you use them) or add new items
+    - Big text (configurable)
+    - Create multiple lists
+    - can also be used for checklists and such
+    - That's it! no fuzz
 TODO: Update github README (description, screenshots, how to build)
 
+TODO: Show "swipe left" arrow (with animation) when "You're all done!" is displayed
 TODO: Add setting: ChecklistItem text size
 TODO: Add setting: Color theme for each Checklist
 TODO: scale ViewHolder text size with phone size (e.g. always 5% of screen height)
@@ -15,6 +24,7 @@ TODO: Remove all logic from GUI. The ViewModel should contain all logic.
 TODO: Deactivate DeleteItemsMode if the last item in the current page was deleted
 TODO: Add button to show Intro tutorial again
 TODO: Add "Export to CSV" again?
+TODO: Strike out animation when checking an item
 TODO: Is auto backup working?
 TODO: Apply debug settings without restarting app
 TODO: Remove *.txt from exported CSV file
