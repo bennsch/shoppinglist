@@ -52,6 +52,11 @@
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
 
+        <!-- Setting "statusBarColor" and "navigationBarColor" to transparent, emulates the behavior
+             as if those attributes don't exist (they are deprecated and disabled since API 35) -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
         <!-- Apply Material3 styling to all AlertDialogs (including dialogs in PreferenceScreen) -->
         <item name="alertDialogTheme">@style/Material3AlertDialog</item>
         <!-- <item name="materialAlertDialogTheme">@style/Material3AlertDialog</item>-->

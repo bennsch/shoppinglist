@@ -24,7 +24,7 @@ public class ThemeHelper {
 
     public static @ColorInt int getColor(int resId, @NonNull Context context) {
         if ((Build.VERSION.SDK_INT < 26) && (resId == android.R.attr.colorError)) {
-            // android.R.attr.colorError was introduced in SDK 26
+            // android.R.attr.colorError was introduced in API 26
             return Color.rgb(186, 26, 26);
         } else {
             TypedValue typedValue = new TypedValue();
