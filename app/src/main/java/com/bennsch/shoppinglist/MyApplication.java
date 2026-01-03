@@ -1,15 +1,9 @@
 package com.bennsch.shoppinglist;
 
-import android.app.Activity;
 import android.app.Application;
 import android.app.UiModeManager;
-import android.content.pm.ActivityInfo;
 import android.os.Build;
-import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.bennsch.shoppinglist.datamodel.PreferencesRepository;
@@ -29,7 +23,6 @@ public class MyApplication extends Application {
         super.onCreate();
         applyDynamicColors();
         observePrefNightMode();
-        observePrefOrientation();
 
         // For debugging only:
         if (BuildConfig.DEBUG){
@@ -98,45 +91,5 @@ public class MyApplication extends Application {
                         }
                     }
                 });
-    }
-
-    private void observePrefOrientation() {
-        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(@NonNull Activity activity,
-                                          @Nullable Bundle savedInstanceState) {
-                PreferencesRepository.getInstance(activity.getApplicationContext())
-                        .getPrefOrientation()
-                        .observe((AppCompatActivity)activity, orientation -> {
-                            // TODO: When returning to MainActivity, the old orientation is still
-                            //  visible briefly before it rotates.
-                            switch (orientation) {
-                                case PORTRAIT:
-                                    activity.setRequestedOrientation(
-                                            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); break;
-                                case LANDSCAPE:
-                                    activity.setRequestedOrientation(
-                                            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); break;
-                                case AUTO:
-                                    activity.setRequestedOrientation(
-                                            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); break;
-                            }
-                        });
-            }
-
-            @Override
-            public void onActivityStarted(@NonNull Activity activity) {}
-            @Override
-            public void onActivityResumed(@NonNull Activity activity) {}
-            @Override
-            public void onActivityPaused(@NonNull Activity activity) {}
-            @Override
-            public void onActivityStopped(@NonNull Activity activity) {}
-            @Override
-            public void onActivitySaveInstanceState(@NonNull Activity activity,
-                                                    @NonNull Bundle outState) {}
-            @Override
-            public void onActivityDestroyed(@NonNull Activity activity) {}
-        });
     }
 }

@@ -48,34 +48,11 @@ public class PreferencesRepository {
         }
     }
 
-    // TODO: Find better solution. E.g. simply use integers instead of strings
-    public enum Orientation {
-        PORTRAIT,
-        LANDSCAPE,
-        AUTO;
-
-        public static Orientation fromPrefEntryValue(@NonNull String entryValue) {
-            // Needs to match resource array "pref_orientation_entry_values".
-            switch (entryValue) {
-                case "portrait":
-                    return Orientation.PORTRAIT;
-                case "landscape":
-                    return Orientation.LANDSCAPE;
-                case "auto":
-                    return Orientation.AUTO;
-                default:
-                    assert false : "Invalid entryValue: " + entryValue;
-                    return null;
-            }
-        }
-    }
-
     private static PreferencesRepository INSTANCE;
     private final SharedPreferences mSharedPreferences;
     private final String mKeyMessageListDeleted;
     private final String mKeyUseDynamicColors;
     private final String mKeyNightMode;
-    private final String mKeyOrientation;
     private final String mKeyFirstStartup;
     private final String mKeyOnboardingCompleted;
 
@@ -88,7 +65,6 @@ public class PreferencesRepository {
     private final MutableLiveData<String> mPrefMessageListCompleted = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefUseDynamicColors = new MutableLiveData<>();
     private final MutableLiveData<NightMode> mPrefNightMode = new MutableLiveData<>();
-    private final MutableLiveData<Orientation> mPrefOrientation = new MutableLiveData<>();
 
     public static synchronized PreferencesRepository getInstance(
             @NonNull Context context) {
@@ -108,10 +84,6 @@ public class PreferencesRepository {
 
     public LiveData<NightMode> getPrefNightMode() {
         return mPrefNightMode;
-    }
-
-    public LiveData<Orientation> getPrefOrientation() {
-        return mPrefOrientation;
     }
 
     public boolean getPrefFirstStartup() {
@@ -136,7 +108,6 @@ public class PreferencesRepository {
         mKeyMessageListDeleted = context.getResources().getString(R.string.key_complete_msg);
         mKeyUseDynamicColors = context.getResources().getString(R.string.key_use_dynamic_colors);
         mKeyNightMode = context.getResources().getString(R.string.key_night_mode);
-        mKeyOrientation = context.getResources().getString(R.string.key_orientation);
         mKeyFirstStartup = context.getResources().getString(R.string.key_first_startup);
         mKeyOnboardingCompleted = context.getResources().getString(R.string.key_onboarding_completed);
 
@@ -156,8 +127,6 @@ public class PreferencesRepository {
                 mSharedPreferences.getBoolean(mKeyUseDynamicColors, false));
         mPrefNightMode.setValue(
                 NightMode.fromPrefEntryValue(mSharedPreferences.getString(mKeyNightMode, "")));
-        mPrefOrientation.setValue(
-                Orientation.fromPrefEntryValue(mSharedPreferences.getString(mKeyOrientation, "")));
 
         // We cannot use anonymous inner class, because the PreferenceManager does not store a
         // strong reference to the listener and it would be destroyed by the garbage collector.
@@ -178,9 +147,6 @@ public class PreferencesRepository {
                 } else if (key.contentEquals(mKeyNightMode)) {
                     mPrefNightMode.setValue(
                             NightMode.fromPrefEntryValue(sharedPreferences.getString(key, "")));
-                } else if (key.contentEquals(mKeyOrientation)) {
-                    mPrefOrientation.setValue(
-                            Orientation.fromPrefEntryValue(sharedPreferences.getString(key, "")));
                 }
             }
         };

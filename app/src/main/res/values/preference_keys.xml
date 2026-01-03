@@ -3,7 +3,6 @@
     <string name="key_complete_msg">message_list_completed</string>
     <string name="key_use_dynamic_colors">use_dynamic_colors</string>
     <string name="key_night_mode">night_mode</string>
-    <string name="key_orientation">orientation</string>
     <string name="key_export_csv">export_csv</string>
     <string name="key_first_startup">first_startup</string>
     <string name="key_onboarding_completed">onboarding_completed</string>

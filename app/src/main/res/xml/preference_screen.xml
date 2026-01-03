@@ -15,14 +15,6 @@
         app:defaultValue="@string/pref_night_mode_entry_value_follow_system"
         app:useSimpleSummaryProvider="true"/>
 
-    <ListPreference
-        app:key="@string/key_orientation"
-        android:title="Orientation"
-        android:entries="@array/pref_orientation_entries"
-        android:entryValues="@array/pref_orientation_entry_values"
-        app:defaultValue="@string/pref_orientation_entry_value_portrait"
-        app:useSimpleSummaryProvider="true"/>
-
     <!-- May be used in the future -->
     <Preference
         app:key="@string/key_export_csv"
