@@ -1,9 +1,5 @@
 <resources>
 
-    <!-- <item name="android:windowTranslucentStatus">true</item>-->
-    <!-- <item name="android:windowTranslucentNavigation">false</item>-->
-    <!-- <item name="android:navigationBarColor">@color/md_theme_light_background</item>-->
-
     <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
@@ -57,6 +53,10 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
 
+        <!-- <item name="android:windowTranslucentStatus">true</item> -->
+        <!-- <item name="android:windowTranslucentNavigation">true</item> -->
+        <!-- <item name="android:navigationBarColor">@color/md_theme_light_background</item> -->
+
         <!-- Apply Material3 styling to all AlertDialogs (including dialogs in PreferenceScreen) -->
         <item name="alertDialogTheme">@style/Material3AlertDialog</item>
         <!-- <item name="materialAlertDialogTheme">@style/Material3AlertDialog</item>-->
@@ -71,7 +71,7 @@
 
     <style name="ChecklistItem">
         <item name="android:textSize">26dp</item>
-        <!--        <item name="android:maxLines">1</item>-->
+        <!-- <item name="android:maxLines">1</item> -->
     </style>
 
     <style name="ChecklistItem.Unchecked">

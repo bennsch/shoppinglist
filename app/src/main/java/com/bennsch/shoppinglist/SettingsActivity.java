@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -15,6 +17,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.Preference;
@@ -68,9 +71,16 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Enable EdgeToEdge for devices running API < 15 (it's enabled by default otherwise).
+        // Needs to be called before super.onCreate().
+        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
+
+        // Initialize views.
         mBinding = SettingsActivityBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
+        setWindowInsetListeners();
+
         // LifecycleOwners must call register*() before they are STARTED (e.g. during onCreate()).
         mCsvFileLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -83,7 +93,6 @@ public class SettingsActivity extends AppCompatActivity {
                     .commit();
         }
         setupActionBar();
-        setupEdgeToEdge();
     }
 
     @Override
@@ -169,15 +178,18 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    private void setupEdgeToEdge() {
-        EdgeToEdge.enable(this);
-        ViewCompat.setOnApplyWindowInsetsListener(
-                mBinding.settingsFragmentContainer,
-                (v, insets) -> {
-                    Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
-                    mBinding.getRoot().setPadding(0, insetsNormal.top, 0, insetsNormal.bottom);
-                    return insets;
-                    // return WindowInsetsCompat.CONSUMED;
-                });
+    private void setWindowInsetListeners() {
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.settingsLayout,
+                (view, windowInsets) -> {
+                    Insets insets = windowInsets.getInsets(
+                            WindowInsetsCompat.Type.systemBars() |
+                                    WindowInsetsCompat.Type.displayCutout()
+                    );
+                    view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+                    // Return CONSUMED to prevent the windowInsets from being passed down to
+                    // descendant views (which could cause double padding)
+                    return WindowInsetsCompat.CONSUMED;
+                }
+        );
     }
 }

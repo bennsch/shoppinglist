@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
-import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -54,16 +53,21 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Needs to be called before onCreate().
+        // Enable EdgeToEdge for devices running API < 15 (it's enabled by default otherwise).
+        // Needs to be called before super.onCreate().
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
+
+        // Initialize IMEHelper with the MainActivity's context.
         mIMEHelper = new IMEHelper(this);
-        // Initialize view.
+
+        // Initialize views.
         mBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mBinding.getRoot());
+        setWindowInsetListeners();
         setSupportActionBar(mBinding.toolbar);
         setupNavDrawer();
-        addNavViewPadding();
+
         // Create a ViewModel instance scoped to the MainActivity. The ChecklistPagerFragment and
         // ChecklistFragments will retrieve the same instance to communicate and share data between
         // the fragments.
@@ -77,6 +81,7 @@ public class MainActivity extends AppCompatActivity
                 this::onDeleteItemsModeChanged);
         mViewModel.getAllChecklistTitles(PreferencesRepository.DBG_SHOW_TRASH).observe(this,
                 this::onChecklistTitlesChanged);
+
         // Perform certain actions only the first time the app has been launched.
         PreferencesRepository preferencesRepo = PreferencesRepository
                 .getInstance(getApplicationContext());
@@ -86,6 +91,7 @@ public class MainActivity extends AppCompatActivity
                     .notify(MainViewModel.Onboarding.Event.START_ONBOARDING);
             preferencesRepo.setPrefFirstStartup(false);
         }
+
         // Register callback for the  device's "back" button.
         getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
             @Override
@@ -93,6 +99,7 @@ public class MainActivity extends AppCompatActivity
                 onBackButtonPressed();
             }
         });
+
         // Only for debugging:
         if (BuildConfig.DEBUG){
             mBinding.versionLabel.setText("v" + mViewModel.getVersionName());
@@ -324,20 +331,41 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void addNavViewPadding() {
-        // Add padding to the NavView matching the height of the bottom navigation bar
-        // (currently used to place the version number label).
-        View view = mBinding.fragmentContainerView;
-        ViewCompat.setOnApplyWindowInsetsListener(view, new OnApplyWindowInsetsListener() {
-            @NonNull
-            @Override
-            public WindowInsetsCompat onApplyWindowInsets(@NonNull View v, @NonNull WindowInsetsCompat insets) {
-                Insets insetsNormal = insets.getInsets(WindowInsetsCompat.Type.systemGestures());
-                mBinding.navView.setPadding(0, 0, 0, insetsNormal.bottom);
-                return insets;
-                // return WindowInsetsCompat.CONSUMED;
-            }
-        });
+    private void setWindowInsetListeners() {
+        // Apply insets for CoordinatorLayout and NavigationView separately. If we used the parent
+        // DrawerLayout, the navigation drawer would be cropped between status and navigation bars.
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.coordinatorLayout,
+                (view, windowInsets) -> {
+                    Insets insets = windowInsets.getInsets(
+                            WindowInsetsCompat.Type.systemBars() |
+                            WindowInsetsCompat.Type.displayCutout()
+                    );
+                    view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+                    // TODO: Why?
+                    // Workaround for older APIs (e.g. 24), where onApplyWindowInsets() is not
+                    // called for NavigationView if CoordinatorLayout consumes its insets.
+                    mBinding.navView.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+
+                    // Return CONSUMED to prevent the windowInsets from being passed down to
+                    // descendant views (which could cause double padding)
+                    return WindowInsetsCompat.CONSUMED;
+                }
+        );
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.navView,
+                (view, windowInsets) -> {
+                    Insets insets = windowInsets.getInsets(
+                            WindowInsetsCompat.Type.systemBars() |
+                            WindowInsetsCompat.Type.displayCutout()
+                    );
+                    view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
+                    // Return CONSUMED to prevent the windowInsets from being passed down to
+                    // descendant views (which could cause double padding)
+                    return WindowInsetsCompat.CONSUMED;
+                }
+        );
     }
 
     private void showNewListDialog() {
