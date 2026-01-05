@@ -334,26 +334,21 @@ public class MainActivity extends AppCompatActivity
     private void setWindowInsetListeners() {
         // Apply insets for CoordinatorLayout and NavigationView separately. If we used the parent
         // DrawerLayout, the navigation drawer would be cropped between status and navigation bars.
-
         ViewCompat.setOnApplyWindowInsetsListener(mBinding.coordinatorLayout,
                 (view, windowInsets) -> {
                     Insets insets = windowInsets.getInsets(
                             WindowInsetsCompat.Type.systemBars() |
                             WindowInsetsCompat.Type.displayCutout()
+                           | WindowInsetsCompat.Type.ime()
                     );
                     view.setPadding(insets.left, insets.top, insets.right, insets.bottom);
-
-                    // TODO: Why?
-                    // Workaround for older APIs (e.g. 24), where onApplyWindowInsets() is not
-                    // called for NavigationView if CoordinatorLayout consumes its insets.
-                    mBinding.navView.setPadding(insets.left, insets.top, insets.right, insets.bottom);
-
-                    // Return CONSUMED to prevent the windowInsets from being passed down to
-                    // descendant views (which could cause double padding)
-                    return WindowInsetsCompat.CONSUMED;
+                    // Don't consume the insets, because we need them later to detect IME
+                    // visibility changes.
+                    // Additionally, onApplyWindowInsets() won't be called for the NavigationView
+                    // if the insets are consumed here (only observed in API 24).
+                    return windowInsets;
                 }
         );
-
         ViewCompat.setOnApplyWindowInsetsListener(mBinding.navView,
                 (view, windowInsets) -> {
                     Insets insets = windowInsets.getInsets(

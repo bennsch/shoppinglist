@@ -138,7 +138,7 @@ public class ChecklistPagerFragment extends Fragment {
         setupItemNameBox(requireActivity(), requireContext(), this);
         Context context = getContext();
         assert context != null: "getContext() returned null";
-        mOnboardingPopup = new OnboardingPopup(context, mBinding.viewpager);
+        mOnboardingPopup = new OnboardingPopup(context, mBinding.checklistPagerRoot);
     }
 
     @Override
@@ -156,7 +156,7 @@ public class ChecklistPagerFragment extends Fragment {
                                   @NonNull Context context,
                                   @NonNull LifecycleOwner lifecycleOwner) {
         mIMEHelper = new IMEHelper(context);
-        mIMEHelper.setOnIMEToggledListener(mBinding.itemNameBox, this::onIMEToggled);
+        mIMEHelper.setOnIMEToggledListener(mBinding.checklistPagerRoot, this::onIMEToggled);
         // TODO: animation looks weird. Maybe wrap ConstrainedLayout in another layout?
         // mIMEHelper.enableIMETransitionAnimation(mBinding.getRoot());
 

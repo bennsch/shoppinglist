@@ -47,6 +47,10 @@ public class OnboardingPopup {
         );
         mAnimDur = context.getResources().getInteger(ANIM_DUR);
         mSnackbar= Snackbar.make(root, "", Snackbar.LENGTH_INDEFINITE);
+        mSnackbar.getView().setOnApplyWindowInsetsListener((view, windowInsets) -> {
+            // Override this method (without doing anything) do avoid insets being applied twice.
+            return windowInsets;
+        });
         mSnackbar.setAction("Dismiss", v -> {});
         mSnackbar.setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE);
         mSnackbar.setBackgroundTint(mBgColor);
