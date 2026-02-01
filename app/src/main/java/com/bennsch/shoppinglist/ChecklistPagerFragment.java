@@ -108,10 +108,10 @@ public class ChecklistPagerFragment extends Fragment {
                     mOnboardingPopup.show("TAP crossed out items to use them again");
                     break;
                 case SWIPE_TO_UNCHECKED:
-                    mOnboardingPopup.show("SWIPE the screen RIGHT to go back");
+                    mOnboardingPopup.show("SWIPE right to go back");
                     break;
                 case SWIPE_TO_CHECKED:
-                    mOnboardingPopup.show("SWIPE the screen LEFT to reveal items you crossed off");
+                    mOnboardingPopup.show("SWIPE left to reveal items you crossed off");
                     break;
                 default:
                     assert false: "Invalid hint " + hint;
