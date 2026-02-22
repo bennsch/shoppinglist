@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity
         // Perform certain actions only the first time the app has been launched.
         PreferencesRepository preferencesRepo = PreferencesRepository
                 .getInstance(getApplicationContext());
-        if (preferencesRepo.getPrefFirstStartup()) {
+        if (Boolean.TRUE.equals(preferencesRepo.getPrefFirstStartup().getValue())) {
             // showWelcomeDialog();
             mViewModel.getSimpleOnboarding()
                     .notify(MainViewModel.Onboarding.Event.START_ONBOARDING);

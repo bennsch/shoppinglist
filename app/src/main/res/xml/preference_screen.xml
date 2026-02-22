@@ -2,28 +2,28 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-        app:key="@string/key_complete_msg"
+        app:key="@string/pref_key_completed_message"
         app:title="Completion Message"
         app:defaultValue="You're all done!"
         app:useSimpleSummaryProvider="true" />
 
     <ListPreference
-        app:key="@string/key_night_mode"
-        android:title="@string/pref_night_mode_title"
-        android:entries="@array/pref_night_mode_entries"
-        android:entryValues="@array/pref_night_mode_entry_values"
-        app:defaultValue="@string/pref_night_mode_entry_value_follow_system"
+        app:key="@string/pref_key_nightmode"
+        android:title="@string/pref_nightmode_title"
+        android:entries="@array/pref_entries_nightmode"
+        android:entryValues="@array/pref_entry_values_nightmode"
+        app:defaultValue="@string/pref_entry_value_nightmode_follow_system"
         app:useSimpleSummaryProvider="true"/>
 
     <!-- May be used in the future -->
     <Preference
-        app:key="@string/key_export_csv"
+        app:key="@string/pref_key_export_csv"
         android:title="Export to CSV"
         app:isPreferenceVisible="@bool/is_debug_build"/>
 
     <!-- May be used in the future -->
     <SwitchPreferenceCompat
-        app:key="@string/key_use_dynamic_colors"
+        app:key="@string/pref_key_use_dynamic_colors"
         android:title="Use Dynamic Colors"
         app:defaultValue="false"
         app:isPreferenceVisible="@bool/is_debug_build"/>
@@ -35,17 +35,17 @@
         app:isPreferenceVisible="@bool/is_debug_build">
 
         <SwitchPreferenceCompat
-            app:key="dbg_show_incidence"
+            app:key="@string/pref_key_dbg_show_incidence"
             android:title="Show Incidence"
             app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
-            app:key="dbg_show_trash"
+            app:key="@string/pref_key_dbg_show_trash"
             android:title="Show Trash"
             app:defaultValue="false"/>
 
         <SwitchPreferenceCompat
-            app:key="dbg_first_startup"
+            app:key="@string/pref_key_dbg_pretend_first_startup"
             android:title="Pretend First Startup"
             app:defaultValue="false"/>
 

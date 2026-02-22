@@ -1,41 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="key_complete_msg">message_list_completed</string>
-    <string name="key_use_dynamic_colors">use_dynamic_colors</string>
-    <string name="key_night_mode">night_mode</string>
-    <string name="key_export_csv">export_csv</string>
-    <string name="key_first_startup">first_startup</string>
-    <string name="key_onboarding_completed">onboarding_completed</string>
 
-    <string name="pref_night_mode_entry_value_enabled">enabled</string>
-    <string name="pref_night_mode_entry_value_disabled">disabled</string>
-    <string name="pref_night_mode_entry_value_follow_system">follow_system</string>
+    <!-- Never change keys or entry values to preserve backward compatibility!
+         Introduce a new key instead and migrate the old one -->
 
-    <string name="pref_orientation_entry_value_portrait">portrait</string>
-    <string name="pref_orientation_entry_value_landscape">landscape</string>
-    <string name="pref_orientation_entry_value_auto">auto</string>
+    <string name="pref_key_completed_message">message_list_completed</string>
+    <string name="pref_key_use_dynamic_colors">use_dynamic_colors</string>
+    <string name="pref_key_export_csv">export_csv</string>
+    <string name="pref_key_first_startup">first_startup</string>
+    <string name="pref_key_onboarding_completed">onboarding_completed</string>
 
-    <string-array name="pref_night_mode_entry_values">
-        <item>@string/pref_night_mode_entry_value_disabled</item>
-        <item>@string/pref_night_mode_entry_value_enabled</item>
-        <item>@string/pref_night_mode_entry_value_follow_system</item>
+    <string name="pref_key_nightmode">night_mode</string>
+    <!-- The actual values to be stored in SharedPreferences -->
+    <string name="pref_entry_value_nightmode_enabled">enabled</string>
+    <string name="pref_entry_value_nightmode_disabled">disabled</string>
+    <string name="pref_entry_value_nightmode_follow_system">follow_system</string>
+    <string-array name="pref_entry_values_nightmode">
+        <item>@string/pref_entry_value_nightmode_disabled</item>
+        <item>@string/pref_entry_value_nightmode_enabled</item>
+        <item>@string/pref_entry_value_nightmode_follow_system</item>
+    </string-array>
+    <!-- String to be displayed to user (order must match the entry values) -->
+    <string-array name="pref_entries_nightmode">
+        <item>@string/pref_nightmode_disabled</item>
+        <item>@string/pref_nightmode_enabled</item>
+        <item>@string/pref_nightmode_follow_system</item>
     </string-array>
 
-    <string-array name="pref_orientation_entry_values">
-        <item>@string/pref_orientation_entry_value_portrait</item>
-        <item>@string/pref_orientation_entry_value_landscape</item>
-        <item>@string/pref_orientation_entry_value_auto</item>
-    </string-array>
+    <!-- ONLY FOR DEBUGGING -->
+    <string name="pref_key_dbg_pretend_first_startup">dbg_first_startup</string>
+    <string name="pref_key_dbg_show_incidence">dbg_show_incidence</string>
+    <string name="pref_key_dbg_show_trash">dbg_show_trash</string>
 
-    <string-array name="pref_night_mode_entries">
-        <item>@string/pref_night_mode_disabled</item>
-        <item>@string/pref_night_mode_enabled</item>
-        <item>@string/pref_night_mode_follow_system</item>
-    </string-array>
-
-    <string-array name="pref_orientation_entries">
-        <item>@string/pref_orientation_portrait</item>
-        <item>@string/pref_orientation_landscape</item>
-        <item>@string/pref_orientation_auto</item>
-    </string-array>
 </resources>

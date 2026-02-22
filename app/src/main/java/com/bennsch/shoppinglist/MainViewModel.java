@@ -240,7 +240,7 @@ public class MainViewModel extends AndroidViewModel {
                 this::isChecklistEmpty);
         mAreItemsDragged = new MutableLiveData<>(false);
         mOnboarding = new Onboarding(
-                mPreferencesRepo.getPrefOnboardingCompleted(),
+                Boolean.TRUE.equals(mPreferencesRepo.getPrefOnboardingCompleted().getValue()),
                 () -> mPreferencesRepo.setPrefOnboardingCompleted(true));
     }
 
