@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,8 +83,12 @@ public class ChecklistFragment extends Fragment {
         mBinding.recyclerView.addItemDecoration(decor);
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked)
-                .observe(getViewLifecycleOwner(), this::onItemsChanged);
+        mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked).observe(
+                getViewLifecycleOwner(),
+                this::onItemsChanged);
+        mViewModel.getItemFontSize().observe(
+                getViewLifecycleOwner(),
+                fontSize -> mRecyclerViewAdapter.setFontSize(fontSize));
         mDeleteItemsMode = mViewModel.getDeleteItemsMode();
         mDeleteItemsMode.observe(
                 getViewLifecycleOwner(),
@@ -177,6 +182,7 @@ public class ChecklistFragment extends Fragment {
 
         private List<ChecklistItem> mCachedItems = new ArrayList<>();
         private ItemTouchHelper mItemTouchHelper;
+        private Float mFontSize; // Font size in pixels
 
         @NonNull
         @Override
@@ -198,6 +204,10 @@ public class ChecklistFragment extends Fragment {
                 textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             } else {
                 textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
+            }
+
+            if (mFontSize != null) {
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mFontSize);
             }
 
             if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED) {
@@ -248,6 +258,11 @@ public class ChecklistFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mCachedItems.size();
+        }
+
+        public void setFontSize(Float fontSize) {
+            mFontSize = fontSize;
+            notifyDataSetChanged();
         }
 
         public void updateItems(List<ChecklistItem> newItems) {

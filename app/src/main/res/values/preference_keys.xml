@@ -27,6 +27,23 @@
         <item>@string/pref_nightmode_follow_system</item>
     </string-array>
 
+    <string name="pref_key_item_font_size">item_font_size</string>
+    <!-- The actual values to be stored in SharedPreferences -->
+    <string name="pref_entry_value_item_font_size_small">small</string>
+    <string name="pref_entry_value_item_font_size_medium">medium</string>
+    <string name="pref_entry_value_item_font_size_large">large</string>
+    <string-array name="pref_entry_values_item_font_size">
+        <item>@string/pref_entry_value_item_font_size_small</item>
+        <item>@string/pref_entry_value_item_font_size_medium</item>
+        <item>@string/pref_entry_value_item_font_size_large</item>
+    </string-array>
+    <!-- String to be displayed to user (order must match the entry values) -->
+    <string-array name="pref_entries_item_font_size">
+        <item>@string/pref_item_font_size_small</item>
+        <item>@string/pref_item_font_size_medium</item>
+        <item>@string/pref_item_font_size_large</item>
+    </string-array>
+
     <!-- ONLY FOR DEBUGGING -->
     <string name="pref_key_dbg_pretend_first_startup">dbg_first_startup</string>
     <string name="pref_key_dbg_show_incidence">dbg_show_incidence</string>

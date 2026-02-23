@@ -254,6 +254,12 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     @NonNull
+    public LiveData<Float> getItemFontSize() {
+        // Font size in pixels
+        return mPreferencesRepo.getPrefItemFontSize();
+    }
+
+    @NonNull
     public LiveData<Boolean> areItemsDragged() { // Casting to immutable LiveData for public API
         return mAreItemsDragged;
     }

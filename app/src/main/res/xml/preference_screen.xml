@@ -15,6 +15,14 @@
         app:defaultValue="@string/pref_entry_value_nightmode_follow_system"
         app:useSimpleSummaryProvider="true"/>
 
+    <ListPreference
+        app:key="@string/pref_key_item_font_size"
+        android:title="@string/pref_item_font_size_title"
+        android:entries="@array/pref_entries_item_font_size"
+        android:entryValues="@array/pref_entry_values_item_font_size"
+        app:defaultValue="@string/pref_entry_value_item_font_size_medium"
+        app:useSimpleSummaryProvider="true"/>
+
     <!-- May be used in the future -->
     <Preference
         app:key="@string/pref_key_export_csv"

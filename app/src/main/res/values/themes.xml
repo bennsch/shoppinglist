@@ -70,7 +70,6 @@
     </style>
 
     <style name="ChecklistItem">
-        <item name="android:textSize">26dp</item>
         <!-- <item name="android:maxLines">1</item> -->
     </style>
 

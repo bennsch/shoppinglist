@@ -48,6 +48,7 @@ public class PreferencesRepository {
     private final MutableLiveData<String> mPrefCompletedMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefUseDynamicColors = new MutableLiveData<>();
     private final MutableLiveData<NightMode> mPrefNightMode = new MutableLiveData<>();
+    private final MutableLiveData<Float> mPrefItemFontSize = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefFirstStartup = new MutableLiveData<>();
     private final MutableLiveData<Boolean> mPrefOnboardingCompleted = new MutableLiveData<>();
 
@@ -73,6 +74,11 @@ public class PreferencesRepository {
 
     public LiveData<NightMode> getPrefNightMode() {
         return mPrefNightMode;
+    }
+
+    public LiveData<Float> getPrefItemFontSize() {
+        // Font size in pixels
+        return mPrefItemFontSize;
     }
 
     public LiveData<Boolean> getPrefFirstStartup() {
@@ -135,6 +141,28 @@ public class PreferencesRepository {
                     } else if (Objects.equals(entryValue, context.getResources().getString(
                             R.string.pref_entry_value_nightmode_follow_system))) {
                         mPrefNightMode.setValue(NightMode.FOLLOW_SYSTEM);
+                    } else {
+                        // TODO: Add error log to all "assert" statements in this project
+                        assert false : "Unknown entry value: " + entryValue;
+                    }
+                } else if (Objects.equals(key, context.getResources().getString(
+                        R.string.pref_key_item_font_size))) {
+                    String entryValue = sharedPreferences.getString(key, null);
+                    if (Objects.equals(entryValue, context.getResources().getString(
+                            R.string.pref_entry_value_item_font_size_small))) {
+                        mPrefItemFontSize.setValue(
+                                context.getResources().getDimension(
+                                        R.dimen.item_viewholder_font_size_small));
+                    } else if (Objects.equals(entryValue, context.getResources().getString(
+                            R.string.pref_entry_value_item_font_size_medium))) {
+                        mPrefItemFontSize.setValue(
+                                context.getResources().getDimension(
+                                        R.dimen.item_viewholder_font_size_medium));
+                    } else if (Objects.equals(entryValue, context.getResources().getString(
+                            R.string.pref_entry_value_item_font_size_large))) {
+                        mPrefItemFontSize.setValue(
+                                context.getResources().getDimension(
+                                        R.dimen.item_viewholder_font_size_large));
                     } else {
                         // TODO: Add error log to all "assert" statements in this project
                         assert false : "Unknown entry value: " + entryValue;
