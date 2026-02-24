@@ -182,7 +182,7 @@ public class ChecklistFragment extends Fragment {
 
         private List<ChecklistItem> mCachedItems = new ArrayList<>();
         private ItemTouchHelper mItemTouchHelper;
-        private Float mFontSize; // Font size in pixels
+        private Float mFontSizePx; // Font size in pixels
 
         @NonNull
         @Override
@@ -206,8 +206,8 @@ public class ChecklistFragment extends Fragment {
                 textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
 
-            if (mFontSize != null) {
-                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mFontSize);
+            if (mFontSizePx != null) {
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, mFontSizePx);
             }
 
             if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED) {
@@ -261,7 +261,7 @@ public class ChecklistFragment extends Fragment {
         }
 
         public void setFontSize(Float fontSize) {
-            mFontSize = fontSize;
+            mFontSizePx = fontSize;
             notifyDataSetChanged();
         }
 

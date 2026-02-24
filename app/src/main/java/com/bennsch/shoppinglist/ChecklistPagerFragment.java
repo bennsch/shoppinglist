@@ -24,6 +24,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.InputType;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,10 +83,13 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.viewpager.setAdapter(mViewPagerAdapter);
         mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
         // mBinding.viewpager.setPageTransformer(new FanTransformer());
+
         mBinding.fab.setOnClickListener(view -> this.onFabClicked());
+
         mViewModel.isChecklistEmpty(mListTitle)
                 .observe(getViewLifecycleOwner(),
                         this::onChecklistEmptyChanged);
+
         mViewModel.getDeleteItemsMode()
                 .observe(getViewLifecycleOwner(), deleteItemsMode -> {
                     // hide() and show() will animate the transition.
@@ -95,6 +99,12 @@ public class ChecklistPagerFragment extends Fragment {
                         mBinding.fab.show();
                     }
         });
+
+        mViewModel.getItemFontSize()
+                .observe(getViewLifecycleOwner(),
+                        fontSizePx -> mBinding.itemNameBox.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, fontSizePx));
+
         mViewModel.getSimpleOnboarding().getHint().observe(getViewLifecycleOwner(), hint -> {
             switch (hint) {
                 case INIT:
@@ -117,6 +127,7 @@ public class ChecklistPagerFragment extends Fragment {
                     assert false: "Invalid hint " + hint;
             }
         });
+
         mViewModel.areItemsDragged().observe(getViewLifecycleOwner(), itemDragged -> {
             if (itemDragged) {
                 mBinding.fab.hide();
@@ -135,7 +146,7 @@ public class ChecklistPagerFragment extends Fragment {
                 mBinding.viewpager,
                 (tab, position) -> {})
                 .attach();
-        setupItemNameBox(requireActivity(), requireContext(), this);
+        setupItemNameBox();
         Context context = getContext();
         assert context != null: "getContext() returned null";
         mOnboardingPopup = new OnboardingPopup(context, mBinding.checklistPagerRoot);
@@ -152,10 +163,8 @@ public class ChecklistPagerFragment extends Fragment {
         return bundle;
     }
 
-    private void setupItemNameBox(@NonNull ComponentActivity activity,
-                                  @NonNull Context context,
-                                  @NonNull LifecycleOwner lifecycleOwner) {
-        mIMEHelper = new IMEHelper(context);
+    private void setupItemNameBox() {
+        mIMEHelper = new IMEHelper(requireContext());
         mIMEHelper.setOnIMEToggledListener(mBinding.checklistPagerRoot, this::onIMEToggled);
         // TODO: animation looks weird. Maybe wrap ConstrainedLayout in another layout?
         // mIMEHelper.enableIMETransitionAnimation(mBinding.getRoot());
@@ -166,7 +175,11 @@ public class ChecklistPagerFragment extends Fragment {
                 onBackPressed();
             }
         };
-        activity.getOnBackPressedDispatcher().addCallback(lifecycleOwner, mOnBackPressedCallback);
+
+        requireActivity()
+                .getOnBackPressedDispatcher()
+                .addCallback(getViewLifecycleOwner(), mOnBackPressedCallback);
+
         int itemActionId = EditorInfo.IME_ACTION_DONE;
         mBinding.itemNameBox.setImeOptions(itemActionId);
         mBinding.itemNameBox.setOnEditorActionListener((v, actionId, event) -> {
@@ -178,7 +191,6 @@ public class ChecklistPagerFragment extends Fragment {
             }
         });
 
-        // Setup the text input style:
         mBinding.itemNameBox.setInputType(
                 InputType.TYPE_CLASS_TEXT |
                 InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
@@ -213,6 +225,7 @@ public class ChecklistPagerFragment extends Fragment {
                 requireContext(),
                 android.R.layout.simple_dropdown_item_1line
         );
+
         // Provide different autoCompleteItems, depending on which page is currently displayed.
         MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>();
         LiveData<List<String>> autoCompleteItems = Transformations.switchMap(
@@ -225,6 +238,7 @@ public class ChecklistPagerFragment extends Fragment {
                     }
                 }
         );
+
         // Update the autoCompleteAdapter whenever autoCompleteItems changes.
         autoCompleteItems.observe(
                 getViewLifecycleOwner(),
@@ -233,6 +247,7 @@ public class ChecklistPagerFragment extends Fragment {
                     autoCompleteAdapter.addAll(strings);
                 }
         );
+
         // Update "isCurrentPageChecked" whenever the user changes the page.
         mBinding.viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
