@@ -55,7 +55,7 @@
             android:layout_marginEnd="8dp"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
-            android:background="@drawable/text_input_box_background"
+            android:background="@drawable/item_name_box_background"
             android:backgroundTint="?colorPrimaryContainer"
             android:textCursorDrawable="@null"
             android:elevation="@dimen/fab_elevation"

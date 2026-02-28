@@ -5,7 +5,6 @@ import android.graphics.Outline;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,7 +12,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -31,6 +29,7 @@ import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.bennsch.shoppinglist.databinding.FragmentChecklistPagerBinding;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -99,11 +98,6 @@ public class ChecklistPagerFragment extends Fragment {
                         mBinding.fab.show();
                     }
         });
-
-        mViewModel.getItemFontSize()
-                .observe(getViewLifecycleOwner(),
-                        fontSizePx -> mBinding.itemNameBox.setTextSize(
-                                TypedValue.COMPLEX_UNIT_PX, fontSizePx));
 
         mViewModel.getSimpleOnboarding().getHint().observe(getViewLifecycleOwner(), hint -> {
             switch (hint) {
@@ -220,11 +214,29 @@ public class ChecklistPagerFragment extends Fragment {
             scrollCurrentChecklist();
         });
 
-        // Provide an adapter to enable auto-complete suggestions:
-        ArrayAdapter<String> autoCompleteAdapter = new ArrayAdapter<>(
+        // Update the text size of the item name box.
+        mViewModel.getItemFontSize()
+                .observe(getViewLifecycleOwner(),
+                        fontSizePx -> mBinding.itemNameBox.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, fontSizePx));
+
+        // Provide adapter to enable autocomplete suggestions.
+        ArrayAdapter<String> autoCompleteAdapter = new ArrayAdapter<String>(
                 requireContext(),
-                android.R.layout.simple_dropdown_item_1line
-        );
+                R.layout.item_name_box_suggestion) {
+            // Override the ArrayAdapter to update the text size of the auto-complete suggestions.
+            @NonNull
+            @Override
+            public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                Float itemFontSizePx = mViewModel.getItemFontSize().getValue();
+                if (itemFontSizePx != null) {
+                    // Make the text size slightly smaller compared to the list items.
+                    ((TextView)view).setTextSize(TypedValue.COMPLEX_UNIT_PX, (itemFontSizePx * 0.85f));
+                }
+                return view;
+            }
+        };
 
         // Provide different autoCompleteItems, depending on which page is currently displayed.
         MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>();
