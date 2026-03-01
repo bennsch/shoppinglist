@@ -70,6 +70,7 @@
     </style>
 
     <style name="ChecklistItem">
+         <item name="android:textSize">@dimen/item_viewholder_font_size_medium</item>
         <!-- <item name="android:maxLines">1</item> -->
     </style>
 
