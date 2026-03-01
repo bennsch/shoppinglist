@@ -19,7 +19,7 @@
     <string name="pref_nightmode_enabled">Dark</string>
     <string name="pref_nightmode_follow_system">System default</string>
 
-    <string name="pref_item_font_size_title">Item Text Size</string>
+    <string name="pref_item_font_size_title">Font</string>
     <string name="pref_item_font_size_small">Small</string>
     <string name="pref_item_font_size_medium">Medium</string>
     <string name="pref_item_font_size_large">Large</string>

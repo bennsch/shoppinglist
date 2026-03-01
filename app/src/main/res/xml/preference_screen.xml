@@ -1,12 +1,6 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <EditTextPreference
-        app:key="@string/pref_key_placeholder_unchecked"
-        app:title="@string/pref_placeholder_unchecked_title"
-        app:defaultValue="@string/pref_placeholder_unchecked_default"
-        app:useSimpleSummaryProvider="true" />
-
     <ListPreference
         app:key="@string/pref_key_nightmode"
         android:title="@string/pref_nightmode_title"
@@ -22,6 +16,12 @@
         android:entryValues="@array/pref_entry_values_item_font_size"
         app:defaultValue="@string/pref_entry_value_item_font_size_medium"
         app:useSimpleSummaryProvider="true"/>
+
+    <EditTextPreference
+        app:key="@string/pref_key_placeholder_unchecked"
+        app:title="@string/pref_placeholder_unchecked_title"
+        app:defaultValue="@string/pref_placeholder_unchecked_default"
+        app:useSimpleSummaryProvider="true" />
 
     <!-- May be used in the future -->
     <Preference
