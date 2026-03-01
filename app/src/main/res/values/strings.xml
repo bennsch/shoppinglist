@@ -3,10 +3,16 @@
 
     <string name="navdrawer_open">Open navigation drawer</string>
     <string name="navdrawer_close">Close navigation drawer</string>
+    <string name="no_lists_placeholder">You don\'t have any lists.</string>
+    <string name="no_lists_button">Create New List…</string>
+    <string name="placeholder_checked">No Items</string>
 
     <string name="git_repo_url">https://github.com/bennsch/shoppinglist</string>
 
-    <string name="title_activity_settings">Settings</string>
+    <string name="settings_activity_label">Settings</string>
+
+    <string name="pref_placeholder_unchecked_title">Completion Message</string>
+    <string name="pref_placeholder_unchecked_default">You\'re all done!</string>
 
     <string name="pref_nightmode_title">Theme</string>
     <string name="pref_nightmode_disabled">Light</string>

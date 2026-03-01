@@ -118,7 +118,7 @@ public class PreferencesRepository {
                 // We don't need to worry about the default values, because
                 // PreferenceManager.setDefaultValues() has been called already at this point.
                 if (Objects.equals(key, context.getResources().getString(
-                        R.string.pref_key_completed_message))) {
+                        R.string.pref_key_placeholder_unchecked))) {
                     mPrefCompletedMessage.setValue(sharedPreferences.getString(key, null));
                 } else if (Objects.equals(key, context.getResources().getString(
                         R.string.pref_key_use_dynamic_colors))) {

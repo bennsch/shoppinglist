@@ -2,9 +2,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-        app:key="@string/pref_key_completed_message"
-        app:title="Completion Message"
-        app:defaultValue="You're all done!"
+        app:key="@string/pref_key_placeholder_unchecked"
+        app:title="@string/pref_placeholder_unchecked_title"
+        app:defaultValue="@string/pref_placeholder_unchecked_default"
         app:useSimpleSummaryProvider="true" />
 
     <ListPreference

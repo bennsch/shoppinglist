@@ -4,7 +4,7 @@
     <!-- Never change keys or entry values to preserve backward compatibility!
          Introduce a new key instead and migrate the old one -->
 
-    <string name="pref_key_completed_message">message_list_completed</string>
+    <string name="pref_key_placeholder_unchecked">message_list_completed</string>
     <string name="pref_key_use_dynamic_colors">use_dynamic_colors</string>
     <string name="pref_key_export_csv">export_csv</string>
     <string name="pref_key_first_startup">first_startup</string>
