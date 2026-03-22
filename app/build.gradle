@@ -15,14 +15,14 @@ android {
         applicationId = 'com.bennsch.shoppinglist'
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
-        versionName = '0.7'
+        versionCode = 8
+        versionName = '0.8'
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            versionNameSuffix = ' [testing]'
+            versionNameSuffix = ' [open testing]'
             minifyEnabled = true
             shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
