@@ -5,4 +5,5 @@
 Sleek and simple shopping list for Android.
 <br>
 
-<img width="3540" height="2280" alt="shoppinglist_screens" src="https://github.com/user-attachments/assets/248d571d-f1de-4747-bd09-8038cc6ef02a" />
+
+<img width="2500" height="3978" alt="g176-2" src="https://github.com/user-attachments/assets/b9f4f5a3-c230-4d6e-b232-3b0a42729e7f" />
