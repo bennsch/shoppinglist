@@ -5,5 +5,6 @@
 Sleek and simple shopping list for Android.
 <br>
 
+**Google Play Store**: [Shopping List](https://play.google.com/store/apps/details?id=com.bennsch.shoppinglist)
 
 <img width="2500" height="3978" alt="g176-2" src="https://github.com/bennsch/shoppinglist/blob/master/screenshots.png" />
