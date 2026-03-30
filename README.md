@@ -1,4 +1,4 @@
-# <img height="50" alt="app_icon" src="https://github.com/bennsch/shoppinglist/blob/master/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp" /> Shopping List 
+# <img height="50" alt="app_icon" src="https://github.com/bennsch/shoppinglist/blob/master/app/src/release/res/mipmap-xxhdpi/ic_launcher_round.webp" /> Shopping List 
 
 <br>
 
