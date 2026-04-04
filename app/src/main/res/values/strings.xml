@@ -1,26 +1,67 @@
 <resources>
-    <string name="app_name">Shopping List</string>
+    <string name="app_name" translatable="false">Shopping List</string>
+
+    <string name="git_repo_url" translatable="false">https://github.com/bennsch/shoppinglist</string>
 
     <string name="navdrawer_open">Open navigation drawer</string>
     <string name="navdrawer_close">Close navigation drawer</string>
-    <string name="no_lists_placeholder">You don\'t have any lists.</string>
-    <string name="no_lists_button">Create New List…</string>
-    <string name="placeholder_checked">No Items</string>
+    <string name="navdrawer_new_list">New List…</string>
+    <string name="navdrawer_settings">Settings</string>
+    <string name="navdrawer_about">About</string>
+    <string name="navdrawer_dummy" translatable="false">Dummy</string>
 
-    <string name="git_repo_url">https://github.com/bennsch/shoppinglist</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_close">Close</string>
+    <string name="dialog_about_version">Version %s</string>
+    <string name="dialog_edit_list_title">Edit</string>
+    <string name="dialog_edit_list_delete_list">Delete List</string>
+    <string name="dialog_edit_list_save">Save</string>
+    <string name="dialog_edit_list_delete">Delete</string>
+    <string name="dialog_edit_list_confirm">Are you sure to delete \"%s\"?</string>
+    <string name="dialog_new_list_title">Create a new list</string>
+    <string name="dialog_new_list_msg">Please enter the name of your list</string>
+    <string name="dialog_new_list_create">Create</string>
+    <string name="dialog_welcome_ok">Got it</string>
 
-    <string name="settings_activity_label">Settings</string>
+    <string name="menu_delete_items">Delete Items</string>
+    <string name="menu_edit_list">Edit List…</string>
 
-    <string name="pref_placeholder_unchecked_title">Completion Message</string>
-    <string name="pref_placeholder_unchecked_default">You\'re all done!</string>
+    <!-- Will be overridden with the name of the current list -->
+    <string name="activity_main_title">Unknown</string>
 
-    <string name="pref_nightmode_title">Theme</string>
-    <string name="pref_nightmode_disabled">Light</string>
-    <string name="pref_nightmode_enabled">Dark</string>
-    <string name="pref_nightmode_follow_system">System default</string>
+    <string name="activity_settings_title">Settings</string>
 
+    <string name="pref_night_mode_title">Theme</string>
+    <string name="pref_night_mode_disabled">Light</string>
+    <string name="pref_night_mode_enabled">Dark</string>
+    <string name="pref_night_mode_follow_system">System default</string>
     <string name="pref_item_font_size_title">Font</string>
     <string name="pref_item_font_size_small">Small</string>
     <string name="pref_item_font_size_medium">Medium</string>
     <string name="pref_item_font_size_large">Large</string>
+    <string name="pref_placeholder_unchecked_title">Completion Message</string>
+    <string name="pref_placeholder_unchecked_default">You\'re all done!</string>
+
+    <string name="placeholder_no_lists">You don\'t have any lists.</string>
+    <string name="placeholder_no_lists_button">Create New List…</string>
+    <string name="placeholder_no_items">Use the \"+\" button to add a new item.</string>
+    <string name="placeholder_checked">No Items</string>
+    <string name="input_hint">New Item…</string>
+
+    <string name="onboarding_tap_to_check">TAP items to cross them off the list</string>
+    <string name="onboarding_tap_to_uncheck">TAP crossed out items to use them again</string>
+    <string name="onboarding_swipe_to_unchecked">SWIPE right to go back</string>
+    <string name="onboarding_swipe_to_checked">SWIPE left to reveal items you crossed off</string>
+    <string name="onboarding_dismiss">Dismiss</string>
+
+    <string name="database_init_title">Groceries</string>
+    <string name="database_init_unchecked0">Bacon</string>
+    <string name="database_init_unchecked1">Eggs</string>
+    <string name="database_init_unchecked2">Orange Juice</string>
+    <string name="database_init_checked0">Butter</string>
+    <string name="database_init_checked1">Avocados</string>
+
+    <string name="debug_incidence" translatable="false">[%d] %s</string>
+    <string name="debug_version_label" translatable="false">v%s</string>
+
 </resources>

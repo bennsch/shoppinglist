@@ -51,7 +51,7 @@ public class OnboardingPopup {
             // Override this method (without doing anything) do avoid insets being applied twice.
             return windowInsets;
         });
-        mSnackbar.setAction("Dismiss", v -> {});
+        mSnackbar.setAction(context.getString(R.string.onboarding_dismiss), v -> {});
         mSnackbar.setAnimationMode(Snackbar.ANIMATION_MODE_SLIDE);
         mSnackbar.setBackgroundTint(mBgColor);
         mTextView = mSnackbar.getView().findViewById(

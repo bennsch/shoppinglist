@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.bennsch.shoppinglist.R;
 import com.bennsch.shoppinglist.databinding.DialogAboutBinding;
 
 
@@ -36,13 +37,13 @@ public class AboutDialog extends DialogFragment {
 
         @NonNull DialogAboutBinding binding = DialogAboutBinding.inflate(
                 requireActivity().getLayoutInflater());
-        binding.aboutVersion.setText("Version " + versionName);
+        binding.aboutVersion.setText(getString(R.string.dialog_about_version, versionName));
 
         // AlertDialog.Builder builder = new MaterialAlertDialogBuilder(requireActivity());
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         return builder
                 .setView(binding.getRoot())
-                .setNegativeButton("Close", null)
+                .setNegativeButton(getString(R.string.dialog_close), null)
                 .create();
     }
 }

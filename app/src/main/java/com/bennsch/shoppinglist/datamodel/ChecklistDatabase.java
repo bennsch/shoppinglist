@@ -16,6 +16,8 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.bennsch.shoppinglist.R;
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -110,55 +112,51 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         }
     }
 
-
     private static volatile ChecklistDatabase INSTANCE;
     private static final ExecutorService executor = Executors.newFixedThreadPool(1);
     private static final String DATABASE_NAME = "checklist_database";
 
     abstract ItemDao itemDao();
 
-    private static final Runnable populateDatabaseRunnable = () -> {
-        // Create an initial list for demonstration purposes.
+    private static void populateInitList(Context context) {
+        // Populate the database with an initial list for demonstration purposes.
         INSTANCE.clearAllTables();
         ItemDao dao = INSTANCE.itemDao();
-        DbChecklist list = new DbChecklist("Groceries", true);
+        DbChecklist list = new DbChecklist(context.getString(R.string.database_init_title), true);
         dao.insert(list);
-        dao.insert(new DbChecklistItem("Bacon", false, 0, list.getListTitle(), 0));
-        dao.insert(new DbChecklistItem("Eggs", false, 1, list.getListTitle(), 0));
-        dao.insert(new DbChecklistItem("Orange Juice", false, 2, list.getListTitle(), 0));
-        dao.insert(new DbChecklistItem("Butter", true, 0, list.getListTitle(), 0));
-        dao.insert(new DbChecklistItem("Avocados", true, 1, list.getListTitle(), 0));
-    };
-
-    private static final RoomDatabase.Callback onCreateCallback = new RoomDatabase.Callback() {
-        @Override
-        public void onCreate(@NonNull SupportSQLiteDatabase db) {
-            // Called only if no data is present yet (after app got installed or user deleted app
-            // storage)
-            super.onCreate(db);
-            executor.execute(populateDatabaseRunnable);
-        }
-    };
-
-    private static final RoomDatabase.Callback onOpenCallback = new Callback() {
-        @Override
-        public void onOpen(@NonNull SupportSQLiteDatabase db) {
-            // Called everytime the database is opened.
-            super.onOpen(db);
-            if (PreferencesRepository.DBG_PRETEND_FIRST_STARTUP) {
-                executor.execute(populateDatabaseRunnable);
-            }
-        }
-    };
+        dao.insert(new DbChecklistItem(context.getString(R.string.database_init_unchecked0), false, 0, list.getListTitle(), 0));
+        dao.insert(new DbChecklistItem(context.getString(R.string.database_init_unchecked1), false, 1, list.getListTitle(), 0));
+        dao.insert(new DbChecklistItem(context.getString(R.string.database_init_unchecked2), false, 2, list.getListTitle(), 0));
+        dao.insert(new DbChecklistItem(context.getString(R.string.database_init_checked0),   true,  0, list.getListTitle(), 0));
+        dao.insert(new DbChecklistItem(context.getString(R.string.database_init_checked1),   true,  1, list.getListTitle(), 0));
+    }
 
     static ChecklistDatabase getInstance(@NonNull Context context) {
         if (INSTANCE == null) {
             synchronized (ChecklistDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(
-                            context, ChecklistDatabase.class, DATABASE_NAME)
-                            .addCallback(onCreateCallback)
-                            .addCallback(onOpenCallback)
+                            context.getApplicationContext(), ChecklistDatabase.class, DATABASE_NAME)
+                            .addCallback(new Callback() {
+                                @Override
+                                public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                                    // Called only if no data is present yet
+                                    // (after app was installed or user deleted app storage)
+                                    super.onCreate(db);
+                                    executor.execute(() -> populateInitList(
+                                            context.getApplicationContext()));
+                                }
+
+                                @Override
+                                public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                                    // Called everytime the database is opened.
+                                    super.onOpen(db);
+                                    if (PreferencesRepository.DBG_PRETEND_FIRST_STARTUP) {
+                                        executor.execute(() -> populateInitList(
+                                                context.getApplicationContext()));
+                                    }
+                                }
+                            })
                             .build();
                 }
             }
@@ -166,4 +164,3 @@ public abstract class ChecklistDatabase extends RoomDatabase {
         return INSTANCE;
     }
 }
-

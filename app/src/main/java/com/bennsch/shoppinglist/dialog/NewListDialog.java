@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.bennsch.shoppinglist.IMEHelper;
+import com.bennsch.shoppinglist.R;
 import com.bennsch.shoppinglist.databinding.DialogNewListBinding;
 
 import java.util.Objects;
@@ -56,13 +57,13 @@ public class NewListDialog extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setView(binding.getRoot())
-                .setTitle("Create a new list")
-                .setMessage("Please enter the name of your list")
-                .setPositiveButton("Create", (dialog, which) -> {
+                .setTitle(getString(R.string.dialog_new_list_title))
+                .setMessage(getString(R.string.dialog_new_list_msg))
+                .setPositiveButton(getString(R.string.dialog_new_list_create), (dialog, which) -> {
                     listener.newListDialog_onCreateClicked(
                             Objects.requireNonNull(binding.listTitle.getText()).toString());
                 })
-                .setNegativeButton("Cancel", null);
+                .setNegativeButton(getString(R.string.dialog_cancel), null);
         AlertDialog dialog = builder.create();
 
         binding.listTitle.addTextChangedListener(new TextWatcher() {

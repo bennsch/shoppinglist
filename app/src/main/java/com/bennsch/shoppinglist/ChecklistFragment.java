@@ -197,7 +197,8 @@ public class ChecklistFragment extends Fragment {
             TextView textView = holder.getBinding().textView;
             textView.setText(item.getName());
             if (PreferencesRepository.DBG_SHOW_INCIDENCE) {
-                textView.setText(item.getIncidence() + "--" + item.getName());
+                textView.setText(getString(
+                        R.string.debug_incidence, item.getIncidence(), item.getName()));
             }
             if (mDisplayChecked) {
                 textView.setTextAppearance(R.style.ChecklistItem_Checked);

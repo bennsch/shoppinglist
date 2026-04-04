@@ -4,34 +4,34 @@
     <!-- Never change keys or entry values to preserve backward compatibility!
          Introduce a new key instead and migrate the old one -->
 
-    <string name="pref_key_placeholder_unchecked">message_list_completed</string>
-    <string name="pref_key_use_dynamic_colors">use_dynamic_colors</string>
-    <string name="pref_key_export_csv">export_csv</string>
-    <string name="pref_key_first_startup">first_startup</string>
-    <string name="pref_key_onboarding_completed">onboarding_completed</string>
+    <string name="pref_key_placeholder_unchecked" translatable="false">message_list_completed</string>
+    <string name="pref_key_use_dynamic_colors" translatable="false">use_dynamic_colors</string>
+    <string name="pref_key_export_csv" translatable="false">export_csv</string>
+    <string name="pref_key_first_startup" translatable="false">first_startup</string>
+    <string name="pref_key_onboarding_completed" translatable="false">onboarding_completed</string>
 
-    <string name="pref_key_nightmode">night_mode</string>
+    <string name="pref_key_night_mode" translatable="false">night_mode</string>
     <!-- The actual values to be stored in SharedPreferences -->
-    <string name="pref_entry_value_nightmode_enabled">enabled</string>
-    <string name="pref_entry_value_nightmode_disabled">disabled</string>
-    <string name="pref_entry_value_nightmode_follow_system">follow_system</string>
+    <string name="pref_entry_value_night_mode_enabled" translatable="false">enabled</string>
+    <string name="pref_entry_value_night_mode_disabled" translatable="false">disabled</string>
+    <string name="pref_entry_value_night_mode_follow_system" translatable="false">follow_system</string>
     <string-array name="pref_entry_values_nightmode">
-        <item>@string/pref_entry_value_nightmode_disabled</item>
-        <item>@string/pref_entry_value_nightmode_enabled</item>
-        <item>@string/pref_entry_value_nightmode_follow_system</item>
+        <item>@string/pref_entry_value_night_mode_disabled</item>
+        <item>@string/pref_entry_value_night_mode_enabled</item>
+        <item>@string/pref_entry_value_night_mode_follow_system</item>
     </string-array>
     <!-- String to be displayed to user (order must match the entry values) -->
-    <string-array name="pref_entries_nightmode">
-        <item>@string/pref_nightmode_disabled</item>
-        <item>@string/pref_nightmode_enabled</item>
-        <item>@string/pref_nightmode_follow_system</item>
+    <string-array name="pref_entries_night_mode">
+        <item>@string/pref_night_mode_disabled</item>
+        <item>@string/pref_night_mode_enabled</item>
+        <item>@string/pref_night_mode_follow_system</item>
     </string-array>
 
-    <string name="pref_key_item_font_size">item_font_size</string>
+    <string name="pref_key_item_font_size" translatable="false">item_font_size</string>
     <!-- The actual values to be stored in SharedPreferences -->
-    <string name="pref_entry_value_item_font_size_small">small</string>
-    <string name="pref_entry_value_item_font_size_medium">medium</string>
-    <string name="pref_entry_value_item_font_size_large">large</string>
+    <string name="pref_entry_value_item_font_size_small" translatable="false">small</string>
+    <string name="pref_entry_value_item_font_size_medium" translatable="false">medium</string>
+    <string name="pref_entry_value_item_font_size_large" translatable="false">large</string>
     <string-array name="pref_entry_values_item_font_size">
         <item>@string/pref_entry_value_item_font_size_small</item>
         <item>@string/pref_entry_value_item_font_size_medium</item>
@@ -45,8 +45,8 @@
     </string-array>
 
     <!-- ONLY FOR DEBUGGING -->
-    <string name="pref_key_dbg_pretend_first_startup">dbg_first_startup</string>
-    <string name="pref_key_dbg_show_incidence">dbg_show_incidence</string>
-    <string name="pref_key_dbg_show_trash">dbg_show_trash</string>
+    <string name="pref_key_dbg_pretend_first_startup" translatable="false">dbg_first_startup</string>
+    <string name="pref_key_dbg_show_incidence" translatable="false">dbg_show_incidence</string>
+    <string name="pref_key_dbg_show_trash" translatable="false">dbg_show_trash</string>
 
 </resources>

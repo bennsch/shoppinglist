@@ -29,7 +29,7 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:label="@string/settings_activity_label">
+            android:label="@string/activity_settings_title">
         </activity>
 
     </application>

@@ -22,7 +22,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="?attr/actionBarSize"
-                app:title="Title" />
+                app:title="@string/activity_main_title" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -50,7 +50,7 @@
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="v?.?"
+            android:text="@string/debug_version_label"
             android:textColor="?colorOnSurfaceVariant"
             android:layout_gravity="bottom"
             android:paddingLeft="8dp"/>

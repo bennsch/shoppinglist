@@ -130,16 +130,16 @@ public class PreferencesRepository {
                         R.string.pref_key_first_startup))) {
                     mPrefFirstStartup.setValue(sharedPreferences.getBoolean(key, false));
                 } else if (Objects.equals(key, context.getResources().getString(
-                        R.string.pref_key_nightmode))) {
+                        R.string.pref_key_night_mode))) {
                     String entryValue = sharedPreferences.getString(key, null);
                     if (Objects.equals(entryValue, context.getResources().getString(
-                            R.string.pref_entry_value_nightmode_disabled))) {
+                            R.string.pref_entry_value_night_mode_disabled))) {
                         mPrefNightMode.setValue(NightMode.DISABLED);
                     } else if (Objects.equals(entryValue, context.getResources().getString(
-                            R.string.pref_entry_value_nightmode_enabled))) {
+                            R.string.pref_entry_value_night_mode_enabled))) {
                         mPrefNightMode.setValue(NightMode.ENABLED);
                     } else if (Objects.equals(entryValue, context.getResources().getString(
-                            R.string.pref_entry_value_nightmode_follow_system))) {
+                            R.string.pref_entry_value_night_mode_follow_system))) {
                         mPrefNightMode.setValue(NightMode.FOLLOW_SYSTEM);
                     } else {
                         // TODO: Add error log to all "assert" statements in this project

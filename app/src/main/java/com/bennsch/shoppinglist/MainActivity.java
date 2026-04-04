@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity
 
         // Only for debugging:
         if (BuildConfig.DEBUG){
-            mBinding.versionLabel.setText("v" + mViewModel.getVersionName());
+            mBinding.versionLabel.setText(getString(
+                    R.string.debug_version_label, mViewModel.getVersionName()));
             mBinding.versionLabel.setVisibility(View.VISIBLE);
         }
     }

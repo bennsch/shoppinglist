@@ -37,7 +37,7 @@
                 <com.google.android.material.textview.MaterialTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Use the '+' button to add a new item."
+                    android:text="@string/placeholder_no_items"
                     android:gravity="center"
                     android:theme="@style/ChecklistItem"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -58,7 +58,7 @@
             android:backgroundTint="?colorPrimaryContainer"
             android:textCursorDrawable="@null"
             android:elevation="@dimen/fab_elevation"
-            android:hint="New Item..."
+            android:hint="@string/input_hint"
             android:imeOptions="flagNoFullscreen"
             android:maxLines="1"
             android:textColor="?colorOnPrimaryContainer"

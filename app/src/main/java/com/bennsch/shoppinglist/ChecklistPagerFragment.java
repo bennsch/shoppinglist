@@ -106,16 +106,16 @@ public class ChecklistPagerFragment extends Fragment {
                     mOnboardingPopup.hide();
                     break;
                 case TAP_ITEM_TO_CHECK:
-                    mOnboardingPopup.show("TAP items to cross them off the list");
+                    mOnboardingPopup.show(getString(R.string.onboarding_tap_to_check));
                     break;
                 case TAP_ITEM_TO_UNCHECK:
-                    mOnboardingPopup.show("TAP crossed out items to use them again");
+                    mOnboardingPopup.show(getString(R.string.onboarding_tap_to_uncheck));
                     break;
                 case SWIPE_TO_UNCHECKED:
-                    mOnboardingPopup.show("SWIPE right to go back");
+                    mOnboardingPopup.show(getString(R.string.onboarding_swipe_to_unchecked));
                     break;
                 case SWIPE_TO_CHECKED:
-                    mOnboardingPopup.show("SWIPE left to reveal items you crossed off");
+                    mOnboardingPopup.show(getString(R.string.onboarding_swipe_to_checked));
                     break;
                 default:
                     assert false: "Invalid hint " + hint;

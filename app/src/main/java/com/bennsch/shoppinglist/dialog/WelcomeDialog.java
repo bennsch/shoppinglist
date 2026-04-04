@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.bennsch.shoppinglist.R;
 import com.bennsch.shoppinglist.databinding.DialogWelcomeBinding;
 
 
@@ -37,7 +38,7 @@ public class WelcomeDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         return builder
                 .setView(binding.getRoot())
-                .setNegativeButton("Got It", mOnClickListener)
+                .setNegativeButton(getString(R.string.dialog_welcome_ok), mOnClickListener)
                 .create();
     }
 

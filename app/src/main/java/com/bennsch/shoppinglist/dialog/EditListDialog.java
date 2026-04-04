@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.bennsch.shoppinglist.IMEHelper;
+import com.bennsch.shoppinglist.R;
 import com.bennsch.shoppinglist.ThemeHelper;
 import com.bennsch.shoppinglist.databinding.DialogEditListBinding;
 
@@ -85,10 +86,10 @@ public class EditListDialog extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setView(binding.getRoot())
-                .setTitle("Edit")
-                .setNegativeButton("Cancel", null)
-                .setNeutralButton("Delete List", null) // OnClickListener is set in onShow() callback
-                .setPositiveButton("Save", (dialog, which) ->
+                .setTitle(getString(R.string.dialog_edit_list_title))
+                .setNegativeButton(getString(R.string.dialog_cancel), null)
+                .setNeutralButton(getString(R.string.dialog_edit_list_delete_list), null) // OnClickListener is set in onShow() callback
+                .setPositiveButton(getString(R.string.dialog_edit_list_save), (dialog, which) ->
                         mListener.editListDialog_onSafeClicked(
                                 listTitle,
                                 Objects.requireNonNull(binding.listTitle.getText()).toString()));
@@ -142,10 +143,10 @@ public class EditListDialog extends DialogFragment {
         assert context != null: "getContext() returned null";
         // MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext());
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Delete List")
-                .setMessage("Are you sure to delete \"" + listTitle + "\"?")
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("Delete", (dialog, which) -> {
+        builder.setTitle(getString(R.string.dialog_edit_list_delete_list))
+                .setMessage(getString(R.string.dialog_edit_list_confirm, listTitle))
+                .setNegativeButton(getString(R.string.dialog_cancel), null)
+                .setPositiveButton(getString(R.string.dialog_edit_list_delete), (dialog, which) -> {
                     mListener.editListDialog_onDeleteClicked(listTitle);
                     dismiss(); // Close the dialog.
                 });

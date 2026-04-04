@@ -89,7 +89,7 @@ public class MainViewModel extends AndroidViewModel {
 
         // Hints to be displayed to the user.
         public enum Hint {
-            // Onboarding not started yet or cancelled
+            // Onboarding not started yet or canceled
             INIT,
             // Tell the user that "unchecked" items can be tapped to check them
             TAP_ITEM_TO_CHECK,
