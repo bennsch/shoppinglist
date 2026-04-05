@@ -53,9 +53,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Enable EdgeToEdge for devices running API < 15 (it's enabled by default otherwise).
+        // Enable Edge-To-Edge display for devices running SDK < 35.
+        // On devices running SDK 35 or later, Edge-To-Edge is automatically enabled.
         // Needs to be called before super.onCreate().
         EdgeToEdge.enable(this);
+
         super.onCreate(savedInstanceState);
 
         // Initialize IMEHelper with the MainActivity's context.
