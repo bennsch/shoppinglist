@@ -62,6 +62,11 @@
     <string name="database_init_checked0">Butter</string>
     <string name="database_init_checked1">Avocados</string>
 
+    <string name="invalid_name_already_in_use">Name already in use</string>
+    <string name="invalid_name_exceeds_max_length">Name exceeds max. length</string>
+    <string name="invalid_name_is_empty">Name is empty</string>
+    <string name="invalid_name_does_not_exist">Name does not exist</string>
+
     <string name="debug_incidence" translatable="false">[%d] %s</string>
     <string name="debug_version_label" translatable="false">v%s</string>
 

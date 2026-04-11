@@ -56,8 +56,23 @@ public class MainViewModel extends AndroidViewModel {
 
 
     public static class InvalidNameException extends Exception {
-        public InvalidNameException(String reason){
-            super(reason);
+
+        public enum Reason {
+            NAME_ALREADY_IN_USE,
+            NAME_EXCEEDS_MAX_LENGTH,
+            NAME_IS_EMPTY,
+            NAME_DOES_NOT_EXIST
+        }
+
+        private final Reason reason;
+
+        public InvalidNameException(Reason reason){
+            super();
+            this.reason = reason;
+        }
+
+        public Reason getReason() {
+            return reason;
         }
     }
 
@@ -242,6 +257,7 @@ public class MainViewModel extends AndroidViewModel {
         mOnboarding = new Onboarding(
                 Boolean.TRUE.equals(mPreferencesRepo.getPrefOnboardingCompleted().getValue()),
                 () -> mPreferencesRepo.setPrefOnboardingCompleted(true));
+
     }
 
     @Override
@@ -341,11 +357,11 @@ public class MainViewModel extends AndroidViewModel {
         List<String> currentTitles = mChecklistTitles.getValue();
         assert currentTitles != null;
         if (currentTitles.contains(listTitleStripped)) {
-            throw new InvalidNameException("Name already in use");
+            throw new InvalidNameException(InvalidNameException.Reason.NAME_ALREADY_IN_USE);
         } else if (listTitleStripped.length() > LIST_TITLE_MAX_LENGTH) {
-            throw new InvalidNameException("Name exceeds max. length");
+            throw new InvalidNameException(InvalidNameException.Reason.NAME_EXCEEDS_MAX_LENGTH);
         } else if (listTitleStripped.isEmpty()) {
-            throw new InvalidNameException("Name is empty");
+            throw new InvalidNameException(InvalidNameException.Reason.NAME_IS_EMPTY);
         } else {
             return listTitleStripped;
         }
@@ -364,7 +380,7 @@ public class MainViewModel extends AndroidViewModel {
         // Those Checklists won't be displayed in the NavDrawer.
         assert mChecklistTitles.getValue() != null;
         if (!mChecklistTitles.getValue().contains(checklistTitle)) {
-            throw new InvalidNameException("List \"" + checklistTitle +  "\" does not exists");
+            throw new InvalidNameException(InvalidNameException.Reason.NAME_DOES_NOT_EXIST);
         }
         mExecutor.execute(() -> {
             String trashed_title =
@@ -391,7 +407,7 @@ public class MainViewModel extends AndroidViewModel {
                 mChecklistRepo.updateChecklistTitle(title, newTitleValidated);
             });
         } else {
-            throw new InvalidNameException("List \"" + title + "\" doesn't exist" );
+            throw new InvalidNameException(InvalidNameException.Reason.NAME_DOES_NOT_EXIST);
         }
     }
 
@@ -421,7 +437,7 @@ public class MainViewModel extends AndroidViewModel {
         return mListeningExecutor.submit(() -> {
             String strippedName = stripWhitespace(name);
             if (strippedName.isEmpty()) {
-                throw new InvalidNameException("Name is empty");
+                throw new InvalidNameException(InvalidNameException.Reason.NAME_IS_EMPTY);
             }
             DbChecklistItem dbItem = findDbItem(mChecklistRepo.getItems(listTitle), strippedName);
             if (dbItem == null){

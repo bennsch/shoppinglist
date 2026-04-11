@@ -389,13 +389,29 @@ public class MainActivity extends AppCompatActivity
                 .show(getSupportFragmentManager(), "EditListDialog");
     }
 
+    private String getMsgFromReason(MainViewModel.InvalidNameException.Reason reason) {
+        switch (reason) {
+            case NAME_ALREADY_IN_USE:
+                return getApplicationContext().getString(R.string.invalid_name_already_in_use);
+            case NAME_EXCEEDS_MAX_LENGTH:
+                return getApplicationContext().getString(R.string.invalid_name_exceeds_max_length);
+            case NAME_IS_EMPTY:
+                return getApplicationContext().getString(R.string.invalid_name_is_empty);
+            case NAME_DOES_NOT_EXIST:
+                return getApplicationContext().getString(R.string.invalid_name_does_not_exist);
+            default: return "Invalid Name";
+        }
+    }
+
     // NewListDialog.DialogListener:
     @Override
     public void newListDialog_onCreateClicked(String title) {
         try {
             mViewModel.insertChecklist(title);
         } catch (MainViewModel.InvalidNameException e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    getApplicationContext(), getMsgFromReason(e.getReason()), Toast.LENGTH_SHORT)
+                .show();
         }
     }
 
@@ -405,7 +421,7 @@ public class MainActivity extends AppCompatActivity
             mViewModel.validateChecklistTitle(title);
             return null;
         } catch (MainViewModel.InvalidNameException e) {
-            return e.getMessage();
+            return getMsgFromReason(e.getReason());
         }
     }
 
@@ -414,7 +430,9 @@ public class MainActivity extends AppCompatActivity
         try {
             mViewModel.renameChecklist(oldTitle, newTitle);
         } catch (MainViewModel.InvalidNameException e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    getApplicationContext(), getMsgFromReason(e.getReason()), Toast.LENGTH_SHORT)
+                .show();
         }
     }
 
@@ -425,7 +443,7 @@ public class MainActivity extends AppCompatActivity
             mViewModel.validateChecklistTitle(title);
             return null;
         } catch (MainViewModel.InvalidNameException e) {
-            return e.getMessage();
+            return getMsgFromReason(e.getReason());
         }
     }
 
@@ -434,7 +452,9 @@ public class MainActivity extends AppCompatActivity
         try {
             mViewModel.moveChecklistToTrash(listTitle);
         } catch (MainViewModel.InvalidNameException e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(
+                    getApplicationContext(), getMsgFromReason(e.getReason()), Toast.LENGTH_SHORT)
+                .show();
         }
     }
 }

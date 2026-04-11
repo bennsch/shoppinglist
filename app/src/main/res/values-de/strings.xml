@@ -48,4 +48,8 @@
     <string name="database_init_unchecked2">Äpfel</string>
     <string name="database_init_checked0">Bananen</string>
     <string name="database_init_checked1">Schokolade</string>
+    <string name="invalid_name_already_in_use">Name wird schon verwendet</string>
+    <string name="invalid_name_exceeds_max_length">Name ist zu lang</string>
+    <string name="invalid_name_is_empty">Name erforderlich</string>
+    <string name="invalid_name_does_not_exist">Name existiert nicht</string>
 </resources>
