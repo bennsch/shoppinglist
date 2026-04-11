@@ -7,7 +7,7 @@
     <string name="dialog_cancel">Abbrechen</string>
     <string name="dialog_close">Schließen</string>
     <string name="dialog_about_version">Version %s</string>
-    <string name="dialog_edit_list_title">Bearbeiten</string>
+    <string name="dialog_edit_list_title">Liste Bearbeiten</string>
     <string name="dialog_edit_list_delete_list">Liste Löschen</string>
     <string name="dialog_edit_list_save">Speichern</string>
     <string name="dialog_edit_list_delete">Löschen</string>
@@ -38,14 +38,14 @@
     <string name="input_hint">Neuer Eintrag…</string>
     <string name="onboarding_tap_to_check">Auf Einträge tippen um sie abzuhaken</string>
     <string name="onboarding_tap_to_uncheck">Auf abgehakte Einträge tippen um sie wiederzuverwenden</string>
-    <string name="onboarding_swipe_to_unchecked">Nach rechts wischen um zurückzugehen</string>
+    <string name="onboarding_swipe_to_unchecked">Nach rechts wischen um zurückzukehren</string>
     <string name="onboarding_swipe_to_checked">Nach links wischen um abgehakte Einträge zu sehen</string>
     <string name="onboarding_dismiss">Schließen</string>
-    <string name="database_init_title">Einkaufen</string>
+    <string name="database_init_title">Supermarkt</string>
     <string name="navdrawer_about">Info</string>
     <string name="database_init_unchecked0">Brot</string>
-    <string name="database_init_unchecked1">Leberwurst</string>
-    <string name="database_init_unchecked2">Äpfel</string>
+    <string name="database_init_unchecked1">Käse</string>
+    <string name="database_init_unchecked2">Tomaten</string>
     <string name="database_init_checked0">Bananen</string>
     <string name="database_init_checked1">Schokolade</string>
     <string name="invalid_name_already_in_use">Name wird schon verwendet</string>

@@ -13,7 +13,7 @@
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_close">Close</string>
     <string name="dialog_about_version">Version %s</string>
-    <string name="dialog_edit_list_title">Edit</string>
+    <string name="dialog_edit_list_title">Edit List</string>
     <string name="dialog_edit_list_delete_list">Delete List</string>
     <string name="dialog_edit_list_save">Save</string>
     <string name="dialog_edit_list_delete">Delete</string>
