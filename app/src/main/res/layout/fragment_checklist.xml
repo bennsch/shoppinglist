@@ -19,20 +19,25 @@
         android:id="@+id/empty_list_placeholder_unchecked"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="@dimen/empty_list_placeholder_padding"
         android:theme="@style/ChecklistItem"
         android:textStyle="normal"
         android:gravity="center"
         android:background="?android:colorBackground"
         android:visibility="gone"
-        tools:text="Done!"/>
+        tools:text="Done!"
+        tools:visibility="visible"/>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/empty_list_placeholder_checked"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="@dimen/empty_list_placeholder_padding"
         android:text="@string/placeholder_checked"
         android:theme="@style/ChecklistItem.Checked"
         android:gravity="center"
         android:background="?android:colorBackground"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        tools:text="No Items"
+        tools:visibility="visible"/>
 </FrameLayout>

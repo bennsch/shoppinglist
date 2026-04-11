@@ -41,6 +41,7 @@
     <string name="pref_item_font_size_large">Large</string>
     <string name="pref_placeholder_unchecked_title">Completion Message</string>
     <string name="pref_placeholder_unchecked_default">You\'re all done!</string>
+    <string name="pref_placeholder_unchecked_dialog">\nWill be displayed once you checked off all items</string>
 
     <string name="placeholder_no_lists">You don\'t have any lists</string>
     <string name="placeholder_no_lists_button">Create New List…</string>

@@ -21,7 +21,8 @@
         app:key="@string/pref_key_placeholder_unchecked"
         app:title="@string/pref_placeholder_unchecked_title"
         app:defaultValue="@string/pref_placeholder_unchecked_default"
-        app:useSimpleSummaryProvider="true" />
+        app:useSimpleSummaryProvider="true"
+        app:dialogMessage="@string/pref_placeholder_unchecked_dialog" />
 
     <!-- May be used in the future -->
     <Preference
