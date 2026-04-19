@@ -1,5 +1,7 @@
 package com.bennsch.shoppinglist;
 
+import static androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT;
+
 import android.content.Context;
 import android.graphics.Outline;
 import android.os.Build;
@@ -49,8 +51,6 @@ public class ChecklistPagerFragment extends Fragment {
 
     public static final String ARG_LIST_TITLE = "list_title";
 
-    private static final int OFFSCREEN_PAGE_LIMIT = 1; // Only one page will ever be offscreen.
-
     private FragmentChecklistPagerBinding mBinding;
     private ViewPagerAdapter mViewPagerAdapter;
     private MainViewModel mViewModel;
@@ -80,7 +80,7 @@ public class ChecklistPagerFragment extends Fragment {
                              Bundle savedInstanceState) {
         mBinding = FragmentChecklistPagerBinding.inflate(inflater, container, false);
         mBinding.viewpager.setAdapter(mViewPagerAdapter);
-        mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT);
+        mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT_DEFAULT);
         // mBinding.viewpager.setPageTransformer(new FanTransformer());
 
         mBinding.fab.setOnClickListener(view -> this.onFabClicked());
