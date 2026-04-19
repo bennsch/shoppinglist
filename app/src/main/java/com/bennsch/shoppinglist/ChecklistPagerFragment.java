@@ -266,10 +266,9 @@ public class ChecklistPagerFragment extends Fragment {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 mBinding.itemNameBox.dismissDropDown();
-                Boolean currentAdapterPageChecked = isCurrentAdapterPageChecked();
+                boolean currentAdapterPageChecked = isCurrentAdapterPageChecked();
                 // Check if the current page actually changed
                 if ((isCurrentPageChecked.getValue() != null) &&
-                    (currentAdapterPageChecked != null) &&
                     (isCurrentPageChecked.getValue() != currentAdapterPageChecked)) {
                     mViewModel.getSimpleOnboarding().notify(
                             currentAdapterPageChecked ?
@@ -356,12 +355,11 @@ public class ChecklistPagerFragment extends Fragment {
     }
 
     private void insertNewItem(@NonNull String name) {
-        Boolean currentChecked = isCurrentAdapterPageChecked();
-        assert currentChecked != null;
         ListenableFuture<Void> result = mViewModel.insertItem(
                 mListTitle,
-                currentChecked,
+                isCurrentAdapterPageChecked(),
                 name);
+
         Futures.addCallback(
                 result,
                 new FutureCallback<Void>() {
@@ -379,7 +377,7 @@ public class ChecklistPagerFragment extends Fragment {
                 ContextCompat.getMainExecutor(requireContext()));
     }
 
-    @Nullable Boolean isCurrentAdapterPageChecked() {
+    boolean isCurrentAdapterPageChecked() {
         return mViewPagerAdapter.isPageChecked(
                 mBinding.viewpager.getCurrentItem());
     }
@@ -443,10 +441,9 @@ public class ChecklistPagerFragment extends Fragment {
             }
         }
 
-        @Nullable
-        public Boolean isPageChecked(int position) {
+        public boolean isPageChecked(int position) {
             if (getFragment(position) == null) {
-                return null;
+                return false;
             } else {
                 return position == POS_CHECKED;
             }
