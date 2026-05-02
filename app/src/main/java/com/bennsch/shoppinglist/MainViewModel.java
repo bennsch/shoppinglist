@@ -1,7 +1,6 @@
 package com.bennsch.shoppinglist;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,28 +31,27 @@ import kotlin.jvm.functions.Function1;
 
 
 public class MainViewModel extends AndroidViewModel {
-    /*
-     *  The ViewModel is the interface between the UI-layer (Activities, Fragments etc.) and the
-     *  data-layer (databases, repositories etc.). All the application's business logic should be
-     *  handled here. The ViewModel should be unaware of any UI implementation details.
-     *
-     *  Note: The UI-layer components (Activities, Fragments etc.) should not perform any logic or
-     *  modify data. Their sole purpose is to display the data provided by the ViewModel, and to
-     *  notify the ViewModel about external events (e.g user inputs).
-     *
-     *  Example: User presses a button to add a new item:
-     *
-     *     1) User presses button.
-     *
-     *     2) UI-layer (e.g. MainActivity) notifies the ViewModel that a new item needs to be added.
-     *
-     *     3) ViewModel performs some logic (e.g. check item contents, sort items etc.) and adds a
-     *        new item to the data repository.
-     *
-     *     4) UI-layer, which is observing the items (LiveData holders retrieved from the ViewModel),
-     *        gets notified that the items have changed and updates the UI accordingly.
-     */
-
+/*
+ *  The ViewModel is the interface between the UI-layer (Activities, Fragments etc.) and the
+ *  data-layer (databases, repositories etc.). All the application's business logic should be
+ *  handled here. The ViewModel should be unaware of any UI implementation details.
+ *
+ *  Note: The UI-layer components (Activities, Fragments etc.) should not perform any logic or
+ *  modify data. Their sole purpose is to display the data provided by the ViewModel, and to
+ *  notify the ViewModel about external events (e.g. user inputs).
+ *
+ *  Example: User presses a button to add a new item:
+ *
+ *     1) User presses button.
+ *
+ *     2) UI-layer (e.g. MainActivity) notifies the ViewModel that a new item needs to be added.
+ *
+ *     3) ViewModel performs some logic (e.g. check item contents, sort items etc.) and adds a
+ *        new item to the data repository.
+ *
+ *     4) UI-layer, which is observing the items (LiveData holders retrieved from the ViewModel),
+ *        gets notified that the items have changed and updates the UI accordingly.
+ */
 
     public static class InvalidNameException extends Exception {
 
@@ -77,12 +75,12 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public static class Onboarding {
-        /*
-         *  This class encapsulates all the logic related to the onboarding process.
-         *  When the app is launched for the first time, a series of hints are displayed introducing
-         *  the user how to use the app. It's implemented as a state machine, that advances depending
-         *  on the user's actions.
-         */
+    /*
+     *  This class encapsulates all the logic related to the onboarding process.
+     *  When the app is launched for the first time, a series of hints are displayed introducing
+     *  the user how to use the app. It's implemented as a state machine, that advances depending
+     *  on the user's actions.
+     */
 
         // Events triggered by the user.
         public enum Event {
@@ -165,10 +163,10 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public static class DeleteItemsMode {
-        /*
-         *  This class encapsulates all the logic related to the "Delete Items" mode.
-         *  When the mode is enabled, the user can click items to delete them.
-         */
+    /*
+     *  This class encapsulates the logic related to the "Delete Items" mode. When the mode is
+     *  enabled, the user can click items to delete them.
+     */
 
         // DeleteItemsMode cannot be activated (i.e. the active Checklist is empty).
         public static final int DISABLED = 0;
@@ -346,7 +344,6 @@ public class MainViewModel extends AndroidViewModel {
                             .stream()
                             .map(DbChecklistItem::getName)
                             .collect(Collectors.toList()));
-
         }
     }
 
@@ -517,7 +514,7 @@ public class MainViewModel extends AndroidViewModel {
                                    boolean areChecked,
                                    final List<ChecklistItem> items) {
         // Update the database's item positions to match the order as they are in "items". If
-        // "checked" items have been moved, update the their incidences accordingly.
+        // "checked" items have been moved, update their incidences accordingly.
         mExecutor.execute(() -> {
             // Get a copy of the list in the database, so that we can apply several modifications
             // but only perform a single database transaction at the end.
@@ -544,7 +541,7 @@ public class MainViewModel extends AndroidViewModel {
         });
     }
 
-    // Helper functions:
+// ------- Helper methods --------------------------------------------------------------------------
 
     private static String stripWhitespace(@NonNull final String s) {
         // Remove leading and trailing spaces, and replace all multi-spaces with single
