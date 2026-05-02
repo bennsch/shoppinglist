@@ -7,8 +7,8 @@
     <string name="dialog_cancel">Abbrechen</string>
     <string name="dialog_close">Schließen</string>
     <string name="dialog_about_version">Version %s</string>
-    <string name="dialog_edit_list_title">Liste Bearbeiten</string>
-    <string name="dialog_edit_list_delete_list">Liste Löschen</string>
+    <string name="dialog_edit_list_title">Liste bearbeiten</string>
+    <string name="dialog_edit_list_delete_list">Liste löschen</string>
     <string name="dialog_edit_list_save">Speichern</string>
     <string name="dialog_edit_list_delete">Löschen</string>
     <string name="dialog_edit_list_confirm">\"%s\" wirklich löschen?</string>
@@ -16,8 +16,8 @@
     <string name="dialog_new_list_msg">Gib deiner Liste einen Namen</string>
     <string name="dialog_new_list_create">Erstellen</string>
     <string name="dialog_welcome_ok">Alles Klar</string>
-    <string name="menu_delete_items">Einträge Löschen</string>
-    <string name="menu_edit_list">Liste Bearbeiten…</string>
+    <string name="menu_delete_items">Einträge löschen</string>
+    <string name="menu_edit_list">Liste bearbeiten…</string>
     <string name="activity_main_title">Unbenannt</string>
     <string name="activity_settings_title">Einstellungen</string>
     <string name="pref_night_mode_title">Darstellung</string>
