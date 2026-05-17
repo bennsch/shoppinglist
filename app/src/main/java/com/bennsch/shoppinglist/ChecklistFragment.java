@@ -1,11 +1,14 @@
 package com.bennsch.shoppinglist;
 
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
@@ -203,6 +206,17 @@ public class ChecklistFragment extends Fragment {
             if (mDisplayChecked) {
                 textView.setTextAppearance(R.style.ChecklistItem_Checked);
                 textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                // Apply a ColorFilter to tint the emoji
+                textView.getViewTreeObserver().addOnDrawListener(() ->
+                    textView.getPaint().setColorFilter(
+                        // We must create a new ColorFilter object everytime or otherwise the filter
+                        // won't be applied once the View is redrawn.
+                        new PorterDuffColorFilter(
+                            // Use the current text color with alpha applied
+                            ColorUtils.setAlphaComponent(textView.getCurrentTextColor(), 160),
+                            PorterDuff.Mode.SRC_ATOP)
+                        )
+                );
             } else {
                 textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }

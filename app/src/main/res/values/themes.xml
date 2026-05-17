@@ -75,6 +75,7 @@
     </style>
 
     <style name="ChecklistItem.Unchecked">
+        <item name="android:textColor">?colorOnSurfaceVariant</item>
         <item name="android:textStyle">bold</item>
     </style>
 
