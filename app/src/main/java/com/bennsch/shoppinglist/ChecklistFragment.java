@@ -37,15 +37,15 @@ import java.util.List;
 
 public class ChecklistFragment extends Fragment {
     /*
-     *  Fragment to display a single Checklist page (checked or unchecked items).
+     *  Fragment to display a Checklist page. It is used for both checked and unchecked items.
      */
 
     private static final String ARG_LIST_TITLE = "list_title";
-    private static final String ARG_DISPLAY_CHECKED = "display_checked";
+    private static final String ARG_DISPLAY_CHECKED_ITEMS = "display_checked_items";
 
     private FragmentChecklistBinding mBinding;
     private RecyclerViewAdapter mRecyclerViewAdapter;
-    private boolean mDisplayChecked;
+    private boolean mDisplayCheckedItems; // Whether this fragment displays checked or unchecked items
     private String mListTitle;
     private MainViewModel mViewModel;
     private MainViewModel.DeleteItemsMode mDeleteItemsMode;
@@ -54,11 +54,11 @@ public class ChecklistFragment extends Fragment {
         // Required empty public constructor.
     }
 
-    public static ChecklistFragment newInstance(String listTitle, boolean displayChecked) {
+    public static ChecklistFragment newInstance(String listTitle, boolean displayCheckedItems) {
         ChecklistFragment fragment = new ChecklistFragment();
         Bundle args = new Bundle();
         args.putString(ARG_LIST_TITLE, listTitle);
-        args.putBoolean(ARG_DISPLAY_CHECKED, displayChecked);
+        args.putBoolean(ARG_DISPLAY_CHECKED_ITEMS, displayCheckedItems);
         fragment.setArguments(args);
         return fragment;
     }
@@ -68,7 +68,7 @@ public class ChecklistFragment extends Fragment {
         super.onCreate(savedInstanceState);
         assert getArguments() != null;
         mListTitle = getArguments().getString(ARG_LIST_TITLE);
-        mDisplayChecked = getArguments().getBoolean(ARG_DISPLAY_CHECKED);
+        mDisplayCheckedItems = getArguments().getBoolean(ARG_DISPLAY_CHECKED_ITEMS);
         mRecyclerViewAdapter = new RecyclerViewAdapter();
         // Retrieve the MainActivity's ViewModel instance, to communicate and share data between the
         // fragments easily.
@@ -79,30 +79,44 @@ public class ChecklistFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container,
                              Bundle savedInstanceState) {
+
         mBinding = FragmentChecklistBinding.inflate(inflater, container, false);
+
         MaterialDividerItemDecoration decor = new MaterialDividerItemDecoration(
                 requireContext(), MaterialDividerItemDecoration.VERTICAL);
         // decor.setLastItemDecorated(false);
         mBinding.recyclerView.addItemDecoration(decor);
         mBinding.recyclerView.setAdapter(mRecyclerViewAdapter);
         mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mViewModel.getItemsSortedByPosition(mListTitle, mDisplayChecked).observe(
+
+        mViewModel.getItemsSortedByPosition(mListTitle, mDisplayCheckedItems).observe(
                 getViewLifecycleOwner(),
                 this::onItemsChanged);
+
         mViewModel.getItemFontSize().observe(
                 getViewLifecycleOwner(),
                 fontSize -> mRecyclerViewAdapter.setFontSize(fontSize));
+
         mDeleteItemsMode = mViewModel.getDeleteItemsMode();
         mDeleteItemsMode.observe(
                 getViewLifecycleOwner(),
                 mode -> mRecyclerViewAdapter.notifyDataSetChanged());
-        // Update the placeholder text if the preference changes.
-        PreferencesRepository
-                .getInstance(requireContext().getApplicationContext())
-                .getPrefMessageListDeleted()
-                .observe(
-                        getViewLifecycleOwner(),
-                        s -> mBinding.emptyListPlaceholderUnchecked.setText(s));
+
+        if (mDisplayCheckedItems) {
+            mBinding.emptyListPlaceholderMsg.setTextAppearance(R.style.ChecklistText_Checked);
+            mBinding.emptyListPlaceholderMsg.setText(getString(R.string.placeholder_checked));
+            mBinding.emptyListPlaceholderHint.setText(getString(R.string.placeholder_hint_checked));
+        } else {
+            mBinding.emptyListPlaceholderHint.setText(getString(R.string.placeholder_hint_unchecked));
+            // Update the placeholder text if the preference changes
+            PreferencesRepository
+                    .getInstance(requireContext().getApplicationContext())
+                    .getPrefMessageListDeleted()
+                    .observe(
+                            getViewLifecycleOwner(),
+                            s -> mBinding.emptyListPlaceholderMsg.setText(s));
+        }
+
         return mBinding.getRoot();
     }
 
@@ -147,7 +161,7 @@ public class ChecklistFragment extends Fragment {
     }
 
     protected void onItemsMoved(List<ChecklistItem> itemsSortedByPosition) {
-        mViewModel.itemsHaveBeenMoved(mListTitle, mDisplayChecked, itemsSortedByPosition);
+        mViewModel.itemsHaveBeenMoved(mListTitle, mDisplayCheckedItems, itemsSortedByPosition);
     }
 
     @SuppressWarnings("deprecation")
@@ -161,23 +175,17 @@ public class ChecklistFragment extends Fragment {
     }
 
     private void showEmptyListPlaceholder(boolean show) {
-        View placeholder = mDisplayChecked ?
-                mBinding.emptyListPlaceholderChecked :
-                mBinding.emptyListPlaceholderUnchecked;
-
-        int animDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
         if (show) {
-            placeholder.setVisibility(View.VISIBLE);
-            placeholder.setAlpha(0f);
-            placeholder.animate()
+            mBinding.emptyListPlaceholderContainer.setVisibility(View.VISIBLE);
+            mBinding.emptyListPlaceholderContainer.setAlpha(0f);
+            mBinding.emptyListPlaceholderContainer.animate()
                     .alpha(1f)
-                    .setDuration(animDuration)
+                    .setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime))
                     .setListener(null); // Clear any animation listener
         } else {
-            // Don't animate, because this page is shown briefly before first item is added to
-            // checklist, and looks weird when empty_list_placeholder_both is being hidden.
-            placeholder.setVisibility(View.GONE);
+            // Don't animate because this page is shown briefly before first item is added to
+            // checklist, and it looks weird.
+            mBinding.emptyListPlaceholderContainer.setVisibility(View.GONE);
         }
     }
 
@@ -203,8 +211,8 @@ public class ChecklistFragment extends Fragment {
                 textView.setText(getString(
                         R.string.debug_incidence, item.getIncidence(), item.getName()));
             }
-            if (mDisplayChecked) {
-                textView.setTextAppearance(R.style.ChecklistItem_Checked);
+            if (mDisplayCheckedItems) {
+                textView.setTextAppearance(R.style.ChecklistText_Checked_Item);
                 textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 // Apply a ColorFilter to tint the emoji
                 textView.getViewTreeObserver().addOnDrawListener(() ->
@@ -217,8 +225,6 @@ public class ChecklistFragment extends Fragment {
                             PorterDuff.Mode.SRC_ATOP)
                         )
                 );
-            } else {
-                textView.setTextAppearance(R.style.ChecklistItem_Unchecked);
             }
 
             if (mFontSizePx != null) {

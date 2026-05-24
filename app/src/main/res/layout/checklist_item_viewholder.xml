@@ -25,7 +25,7 @@
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
             android:paddingEnd="8dp"
-            android:theme="@style/ChecklistItem.Unchecked"
+            android:textAppearance="@style/ChecklistText.Item"
             tools:text="CheckList Item"/>
 
         <!-- Used as spacer -->

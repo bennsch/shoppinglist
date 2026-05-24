@@ -35,10 +35,11 @@
     <string name="placeholder_no_lists_button">Neue Liste erstellen…</string>
     <string name="placeholder_no_items">Mit \"+\" neue Einträge hinzufügen</string>
     <string name="placeholder_checked">Keine Einträge</string>
+    <string name="placeholder_hint_unchecked">Nach links wischen um alte Einträge zu sehen</string>
     <string name="input_hint">Neuer Eintrag…</string>
     <string name="onboarding_tap_to_check">Auf Einträge tippen um sie abzuhaken</string>
     <string name="onboarding_tap_to_uncheck">Auf abgehakte Einträge tippen um sie wiederzuverwenden</string>
-    <string name="onboarding_swipe_to_unchecked">Nach rechts wischen um zurückzukehren</string>
+    <string name="onboarding_swipe_to_unchecked">Nach rechts wischen um zurückzugehen</string>
     <string name="onboarding_swipe_to_checked">Nach links wischen um abgehakte Einträge zu sehen</string>
     <string name="onboarding_dismiss">Schließen</string>
     <string name="database_init_title">Supermarkt</string>
@@ -52,4 +53,5 @@
     <string name="invalid_name_exceeds_max_length">Name ist zu lang</string>
     <string name="invalid_name_is_empty">Name erforderlich</string>
     <string name="invalid_name_does_not_exist">Name existiert nicht</string>
+    <string name="placeholder_hint_checked">Nach rechts wischen um zurückzugehen</string>
 </resources>

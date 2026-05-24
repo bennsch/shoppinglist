@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ChecklistFragment">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -15,29 +16,40 @@
         the padding area. So we can achieve visible gap between item_name_box
         and the RecyclerView, but if we scroll it will disappear -->
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/empty_list_placeholder_unchecked"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/empty_list_placeholder_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/empty_list_placeholder_padding"
-        android:theme="@style/ChecklistItem"
-        android:textStyle="normal"
-        android:gravity="center"
-        android:background="?android:colorBackground"
-        android:visibility="gone"
-        tools:text="Done!"
-        tools:visibility="visible"/>
+        android:paddingLeft="@dimen/empty_list_placeholder_padding"
+        android:paddingRight="@dimen/empty_list_placeholder_padding">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/empty_list_placeholder_checked"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/empty_list_placeholder_padding"
-        android:text="@string/placeholder_checked"
-        android:theme="@style/ChecklistItem.Checked"
-        android:gravity="center"
-        android:background="?android:colorBackground"
-        android:visibility="gone"
-        tools:text="No Items"
-        tools:visibility="visible"/>
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/empty_list_placeholder_msg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/empty_list_placeholder_hint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            android:gravity="center"
+            android:textAppearance="@style/ChecklistText"
+            tools:text="This text is configured in preferences"/>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/empty_list_placeholder_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/empty_list_placeholder_msg"
+            android:paddingTop="@dimen/empty_list_placeholder_spacing"
+            android:gravity="center"
+            android:textAppearance="@style/ChecklistText.Hint"
+            tools:text="This text depends on checked or unchecked" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </FrameLayout>

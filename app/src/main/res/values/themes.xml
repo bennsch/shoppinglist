@@ -69,18 +69,26 @@
         <item name="android:background">?colorSurfaceContainerHigh</item>
     </style>
 
-    <style name="ChecklistItem">
-         <item name="android:textSize">@dimen/item_viewholder_font_size_medium</item>
-        <!-- <item name="android:maxLines">1</item> -->
+    <!-- Default appearance for text within ChecklistFragments. Matching the action bar text size
+    for consistent styling. Text size of items will be overwritten by the "Font Size" preference -->
+    <style name="ChecklistText" parent="TextAppearance.Material3.ActionBar.Title">
+        <item name="android:textColor">@color/checklist_text_unchecked</item>
     </style>
 
-    <style name="ChecklistItem.Unchecked">
-        <item name="android:textColor">?colorOnSurfaceVariant</item>
+    <style name="ChecklistText.Item">
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="ChecklistItem.Checked">
-        <item name="android:textColor">?colorOutlineVariant</item>
+    <style name="ChecklistText.Checked">
+        <item name="android:textColor">@color/checklist_text_checked</item>
+    </style>
+
+    <style name="ChecklistText.Checked.Item">
         <item name="android:textStyle">normal</item>
     </style>
+
+    <style name="ChecklistText.Hint" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/checklist_text_checked</item>
+    </style>
+
 </resources>

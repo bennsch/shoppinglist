@@ -1,5 +1,7 @@
 <resources>
     <color name="brand_color">#FAD058</color>
+    <color name="checklist_text_unchecked">@color/md_theme_onSurfaceVariant</color>
+    <color name="checklist_text_checked">@color/md_theme_outlineVariant</color>
 
     <color name="md_theme_primary">#7D570E</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>

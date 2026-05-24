@@ -1,6 +1,7 @@
 <resources>
     <dimen name="item_name_box_spacing">8dp</dimen>
-    <dimen name="empty_list_placeholder_padding">48dp</dimen>
+    <dimen name="empty_list_placeholder_padding">32dp</dimen>
+    <dimen name="empty_list_placeholder_spacing">24dp</dimen>
 
     <dimen name="item_viewholder_padding_start">8dp</dimen>
     <dimen name="item_viewholder_padding_end">16dp</dimen>
