@@ -234,8 +234,9 @@ public class ChecklistFragment extends Fragment {
             }
 
             if (mDeleteItemsMode.getValue() == MainViewModel.DeleteItemsMode.ACTIVATED) {
-                holder.getBinding().deleteIcon.setVisibility(View.VISIBLE);
+                // For "animateLayoutChanges" (XML), it matters which View  is made visible/gone first
                 holder.getBinding().dragHandle.setVisibility(View.GONE);
+                holder.getBinding().deleteIcon.setVisibility(View.VISIBLE);
             } else {
                 holder.getBinding().deleteIcon.setVisibility(View.GONE);
                 holder.getBinding().dragHandle.setVisibility(View.VISIBLE);
