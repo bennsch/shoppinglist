@@ -35,7 +35,7 @@
     <string name="placeholder_no_lists_button">Neue Liste erstellen…</string>
     <string name="placeholder_no_items">Mit \"+\" neue Einträge hinzufügen</string>
     <string name="placeholder_checked">Keine Einträge</string>
-    <string name="placeholder_hint_unchecked">Nach links wischen um alte Einträge zu sehen</string>
+    <string name="placeholder_hint_unchecked">Nach links wischen um Einträge zu durchsuchen</string>
     <string name="input_hint">Neuer Eintrag…</string>
     <string name="onboarding_tap_to_check">Auf Einträge tippen um sie abzuhaken</string>
     <string name="onboarding_tap_to_uncheck">Auf abgehakte Einträge tippen um sie wiederzuverwenden</string>
