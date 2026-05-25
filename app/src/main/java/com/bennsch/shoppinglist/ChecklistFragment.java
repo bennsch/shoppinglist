@@ -100,7 +100,9 @@ public class ChecklistFragment extends Fragment {
         mDeleteItemsMode = mViewModel.getDeleteItemsMode();
         mDeleteItemsMode.observe(
                 getViewLifecycleOwner(),
-                mode -> mRecyclerViewAdapter.notifyDataSetChanged());
+                mode -> mRecyclerViewAdapter.notifyItemRangeChanged(
+                        // Add payload to prevent item animation
+                        0, mRecyclerViewAdapter.getItemCount(), new Object()));
 
         if (mDisplayCheckedItems) {
             mBinding.emptyListPlaceholderMsg.setTextAppearance(R.style.ChecklistText_Checked);
@@ -283,7 +285,7 @@ public class ChecklistFragment extends Fragment {
 
         public void setFontSize(Float fontSize) {
             mFontSizePx = fontSize;
-            notifyDataSetChanged();
+            notifyItemRangeChanged(0, getItemCount());
         }
 
         public void updateItems(List<ChecklistItem> newItems) {
@@ -318,7 +320,7 @@ public class ChecklistFragment extends Fragment {
                 }
             });
             if (PreferencesRepository.DBG_SHOW_INCIDENCE) {
-                notifyDataSetChanged();
+                notifyItemRangeChanged(0, getItemCount());
             }
         }
 
