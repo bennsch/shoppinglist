@@ -45,7 +45,7 @@
 
     <string name="placeholder_no_lists">You don\'t have any lists</string>
     <string name="placeholder_no_lists_button">Create New List…</string>
-    <string name="placeholder_no_items">Use the \"+\" button to add a new item</string>
+    <string name="placeholder_no_items">Use the \"+\" button to add new items</string>
     <string name="placeholder_checked">No Items</string>
     <string name="placeholder_hint_checked">Swipe right to go back</string>
     <string name="placeholder_hint_unchecked">Swipe left to browse your history</string>
