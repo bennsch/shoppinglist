@@ -120,9 +120,9 @@ public class ChecklistRepository {
         mItemDao.delete(item);
     }
 
-    public long getMinIncidence(@NonNull String listTitle) {
-        // Return the smallest "incidence" value in the checklist.
+    public long getMinIncidence(@NonNull String listTitle, @NonNull Boolean isChecked) {
+        // Return the smallest "incidence" value in the subset.
         // Returns 0 if the list is empty.
-        return mItemDao.getMinIncidence(listTitle);
+        return mItemDao.getMinIncidence(listTitle, isChecked);
     }
 }

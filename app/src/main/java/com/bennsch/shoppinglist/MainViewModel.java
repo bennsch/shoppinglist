@@ -20,6 +20,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
@@ -213,6 +214,66 @@ public class MainViewModel extends AndroidViewModel {
                 default:
                     assert false: "Invalid value: " + getValue();
             }
+        }
+    }
+
+    public static class Pava {
+    /*
+     *  Pool Adjacent Violators Algorithm (PAVA) to produce a monotonically non-increasing sequence.
+     */
+
+        private static class Block {
+            long sum;
+            long weight;
+            int startIndex;
+            int endIndex;
+
+            Block(long sum, long weight, int startIndex, int endIndex) {
+                this.sum = sum;
+                this.weight = weight;
+                this.startIndex = startIndex;
+                this.endIndex = endIndex;
+            }
+        }
+
+        public static @NonNull List<Long> smoothenNonIncreasing(@NonNull List<Long> values) {
+            if (values.size() <= 1) {
+                return new ArrayList<>();
+            }
+            int n = values.size();
+            List<Block> blocks = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                Long val = values.get(i);
+                long v = (val != null) ? val : 0L;
+                Block current = new Block(v, 1, i, i);
+                // For non-increasing order, a violation occurs if last.average < current.average.
+                // Cross-multiplication: last.sum * current.weight < current.sum * last.weight
+                while (!blocks.isEmpty()) {
+                    Block last = blocks.get(blocks.size() - 1);
+                    if (last.sum * current.weight < current.sum * last.weight) {
+                        blocks.remove(blocks.size() - 1);
+                        current = new Block(
+                                last.sum + current.sum,
+                                last.weight + current.weight,
+                                last.startIndex,
+                                current.endIndex
+                        );
+                    } else {
+                        break;
+                    }
+                }
+                blocks.add(current);
+            }
+            Long[] resultArray = new Long[n];
+            for (Block block : blocks) {
+                long avg = Math.round((double) block.sum / block.weight);
+                for (int i = block.startIndex; i <= block.endIndex; i++) {
+                    resultArray[i] = avg;
+                }
+            }
+            List<Long> result = new ArrayList<>(n);
+            result.addAll(Arrays.asList(resultArray).subList(0, n));
+            return result;
         }
     }
 
@@ -427,10 +488,11 @@ public class MainViewModel extends AndroidViewModel {
     public ListenableFuture<Void> insertItem(final @NonNull String listTitle,
                                              final boolean isChecked,
                                              final @NonNull String name) {
-        // Insert a new item named "name" to Checklist "listTitle".
-        // If an item with the same name already exists, then either move it to the bottom of the
-        // list (if "isChecked" equals the existing item's "isChecked"), or flip it (if "isChecked"
-        // differs).
+        // Insert a new item named "name" to Checklist "listTitle". "isChecked" indicates whether
+        // the item will be added as "checked" or "unchecked".
+        // If an item with the same name already exists, then either
+        //      - move it to the end of the list (if the item is currently "unchecked")
+        //      - flip it (if the item is currently "checked")
         return mListeningExecutor.submit(() -> {
             String strippedName = stripWhitespace(name);
             if (strippedName.isEmpty()) {
@@ -438,9 +500,17 @@ public class MainViewModel extends AndroidViewModel {
             }
             DbChecklistItem dbItem = findDbItem(mChecklistRepo.getItems(listTitle), strippedName);
             if (dbItem == null){
-                // Item does not exist in database, so insert a new item.
-                // The new item will have the lowest incidence.
-                long incidence = mChecklistRepo.getMinIncidence(listTitle) - 1;
+                // An item with the same name does not exist in database, insert a new item:
+
+                // The new item starts with the same incidence as the currently lowest
+                // (among the checked items), so that when it is flipped (and the incidence
+                // increments by 1) it will appear above the one-time items (items that have been
+                // added and flipped only once). The idea is that one-time items are unlikely to be
+                // reused, so we don't want new, potentially reusable items to end up at the bottom.
+                // Note: Because incidences can be updated when "checked" items are moved around,
+                // we can NOT simply assume that one-time items have an incidence of 1.
+                long incidence = mChecklistRepo.getMinIncidence(listTitle, true);
+                // Create the item
                 DbChecklistItem newDbItem = new DbChecklistItem(
                         strippedName, isChecked, null, listTitle, incidence);
                 // Within each executor runnable we must only perform a single database transaction
@@ -455,10 +525,10 @@ public class MainViewModel extends AndroidViewModel {
                 // Single database transaction
                 mChecklistRepo.insertAndUpdateItems(newDbItem, dbItems);
             } else {
-                // Item already exists in database.
+                // Item already exists in database:
                 if (dbItem.isChecked() == isChecked) {
                     // The user tries to add an item with the same "isChecked" as the existing item,
-                    // so just move it to the bottom of the list (as a visual feedback).
+                    // so just move it to the end of the list (as a visual feedback).
                     List<DbChecklistItem> items = mChecklistRepo
                             .getItemSubsetSorted(listTitle, dbItem.isChecked());
                     assert dbItem.getPosition() != null: "dbItem.getPosition() returned null";
@@ -485,22 +555,19 @@ public class MainViewModel extends AndroidViewModel {
             // Get a copy of the list in the database, so that we can apply several modifications
             // but only perform a single database transaction at the end.
             List<DbChecklistItem> allItems = mChecklistRepo.getItems(listTitle);
+            // Find the item that is being flipped
             DbChecklistItem itemToFlip = findDbItem(allItems, name);
             assert itemToFlip != null: "findDbItem() returned null for name == " + name;
-            // If an item is flipped from "checked" to "unchecked", we want it to be placed at
-            // the end of the list.
-            if (itemToFlip.isChecked()) {
-                itemToFlip.setPosition(Integer.MAX_VALUE);
-            }
-            // Increment the incidence every time an item is flipped.
-            itemToFlip.setIncidence(itemToFlip.getIncidence() + 1);
             // Invert "isChecked", i.e. flip it.
             itemToFlip.setChecked(!itemToFlip.isChecked());
-            // After the item has been flipped, we need to update the positions of all items.
-            // Items are sorted differently depending on whether they are "checked" or "unchecked",
-            // so we need to filter them first:
+            // Increment the incidence every time an item is flipped.
+            itemToFlip.setIncidence(itemToFlip.getIncidence() + 1);
+            // The below logic assumes that "allItems" is sorted by position.
+            sortByPositionAscending(allItems);
+            // Move the item to the end.
+            allItems.add(allItems.remove(allItems.indexOf(itemToFlip)));
+            // After the item has been flipped, we need to update the positions within the subsets.
             List<DbChecklistItem> uncheckedItems = filterByChecked(allItems, false);
-            sortByPositionAscending(uncheckedItems);
             updatePositionByOrder(uncheckedItems);
             List<DbChecklistItem> checkedItems = filterByChecked(allItems, true);
             sortByIncidenceDescending(checkedItems); // Only "checked" items are sorted by incidence
@@ -512,29 +579,39 @@ public class MainViewModel extends AndroidViewModel {
 
     public void itemsHaveBeenMoved(String listTitle,
                                    boolean areChecked,
-                                   final List<ChecklistItem> items) {
-        // Update the database's item positions to match the order as they are in "items". If
-        // "checked" items have been moved, update their incidences accordingly.
+                                   final List<ChecklistItem> itemAfterMove) {
+        // Update the database items' position to match their new position in the UI.
+        // If "checked" items have been moved, update their incidences accordingly.
         mExecutor.execute(() -> {
             // Get a copy of the list in the database, so that we can apply several modifications
             // but only perform a single database transaction at the end.
             List<DbChecklistItem> dbItems
                     = mChecklistRepo.getItemSubsetSorted(listTitle, areChecked);
             // Number of items should match the database.
-            assert items.size() == dbItems.size(): "Unexpected number of items";
-            long prevIncidence = 0;
-            for (int i = 0; i < items.size(); i++) {
-                ChecklistItem item = items.get(i);
+            assert itemAfterMove.size() == dbItems.size(): "Unexpected number of items";
+            // Update the position to match the order in "itemsAfterMove".
+            for (int i = 0; i < itemAfterMove.size(); i++) {
+                ChecklistItem item = itemAfterMove.get(i);
                 DbChecklistItem dbItem = findDbItem(dbItems, item.getName());
                 assert dbItem != null: "Could not find item with name = " + item.getName();
                 dbItem.setPosition(i);
-                if (areChecked && (i > 0)) {
-                    if (item.getIncidence() >= prevIncidence) {
-                        // Note: Incidences may become negative to maintain existing order.
-                        dbItem.setIncidence(prevIncidence - 1);
-                    }
+            }
+            // The "checked" items are sorted by incidence (items that are being most frequently
+            // appear at the beginning of the list). If the user moves a "checked" item we need to
+            // update the incidences to be in line with the new item positions.
+            if (areChecked) {
+                // Make sure the items in the list are sorted by position
+                sortByPositionAscending(dbItems);
+                // The incidences of "checked" items should always be monotonically
+                // non-increasing. Use the PAVA algorithm to smoothen outliers.
+                List<Long> incidences = dbItems.stream()
+                        .map(DbChecklistItem::getIncidence)
+                        .collect(Collectors.toList());
+                List<Long> smoothedIncidences = Pava.smoothenNonIncreasing(incidences);
+                // Update the database items
+                for (int i = 0; i < dbItems.size(); i++) {
+                    dbItems.get(i).setIncidence(smoothedIncidences.get(i));
                 }
-                prevIncidence = dbItem.getIncidence();
             }
             // Commit the local changes in a single database transaction
             mChecklistRepo.updateItems(dbItems);

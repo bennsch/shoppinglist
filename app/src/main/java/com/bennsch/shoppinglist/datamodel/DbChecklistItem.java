@@ -47,7 +47,7 @@ public class DbChecklistItem {
     private Integer position;
 
     // How often the user has "touched" this item. Incremented whenever the user checks or unchecks
-    // the item.
+    // the item. It can also change if the user moves items in the "checked" list
     @ColumnInfo(defaultValue = "0") // Default value required for automatic database migration.
     private long incidence;
 
