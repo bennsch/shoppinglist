@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity
                 .getInstance(getApplicationContext());
         if (Boolean.TRUE.equals(preferencesRepo.getPrefFirstStartup().getValue())) {
             // showWelcomeDialog();
-            mViewModel.getSimpleOnboarding()
+            mViewModel.getOnboarding()
                     .notify(MainViewModel.Onboarding.Event.START_ONBOARDING);
             preferencesRepo.setPrefFirstStartup(false);
         }
@@ -379,7 +379,7 @@ public class MainActivity extends AppCompatActivity
     private void showWelcomeDialog() {
         WelcomeDialog dialog = WelcomeDialog.newInstance();
         dialog.setOnClickListener(
-                (dialog1, which) -> mViewModel.getSimpleOnboarding()
+                (dialog1, which) -> mViewModel.getOnboarding()
                         .notify(MainViewModel.Onboarding.Event.START_ONBOARDING));
         dialog.show(getSupportFragmentManager(), "WelcomeDialog");
     }

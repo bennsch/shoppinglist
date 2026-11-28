@@ -146,6 +146,18 @@ public class ChecklistFragment extends Fragment {
     protected void onItemsChanged(List<ChecklistItem> newItemsSorted) {
         mRecyclerViewAdapter.updateItems(newItemsSorted);
         showEmptyListPlaceholder(newItemsSorted.isEmpty());
+        // Deactivate DeleteItemsMode when this subset becomes empty.
+        Boolean isCurrentPageChecked = mViewModel.isCurrentPageChecked().getValue();
+        assert isCurrentPageChecked != null;
+        if (newItemsSorted.isEmpty() &&
+            (mViewModel.getDeleteItemsMode().getValue()
+                    == MainViewModel.DeleteItemsMode.ACTIVATED) &&
+                // Check if this page is currently visible.
+                (isCurrentPageChecked == mDisplayCheckedItems)) {
+            // If this was the last item in the Checklist, DeleteItemsMode will be disabled and
+            // toggle() has no effect (there is no race-condition).
+            mViewModel.getDeleteItemsMode().toggle();
+        }
     }
 
     private void onItemClicked(ChecklistItem item, int position) {
@@ -154,7 +166,7 @@ public class ChecklistFragment extends Fragment {
             vibrate();
         } else {
             mViewModel.flipItem(mListTitle, item.getName());
-            mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.ITEM_TAPPED);
+            mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.ITEM_TAPPED);
         }
     }
 

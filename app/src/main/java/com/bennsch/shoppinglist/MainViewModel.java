@@ -28,8 +28,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import kotlin.jvm.functions.Function1;
-
 
 public class MainViewModel extends AndroidViewModel {
 /*
@@ -179,15 +177,17 @@ public class MainViewModel extends AndroidViewModel {
         private final MediatorLiveData<Integer> mValue;
 
         public DeleteItemsMode(int initValue,
-                               @NonNull LiveData<String> activeChecklist,
-                               @NonNull Function1<String, LiveData<Boolean>> isChecklistEmpty) {
+                               @NonNull LiveData<Boolean> isActiveChecklistEmpty) {
             mValue = new MediatorLiveData<>(initValue);
-            // Disable DeleteItemsMode if the active Checklist is or becomes empty. Set it to
+            // Set it to DISABLED if the active Checklist is or becomes empty. Set it to
             // DEACTIVATED once items have been added again (list not empty anymore).
-            mValue.addSource(
-                    Transformations.switchMap(activeChecklist, isChecklistEmpty),
-                    isActiveChecklistEmpty -> mValue.setValue(
-                            isActiveChecklistEmpty ? DISABLED : DEACTIVATED));
+            mValue.addSource(isActiveChecklistEmpty, empty -> {
+                if (empty) {
+                    mValue.postValue(DISABLED);
+                } else {
+                    mValue.postValue(DEACTIVATED);
+                }
+            });
         }
 
         public int getValue() {
@@ -301,6 +301,7 @@ public class MainViewModel extends AndroidViewModel {
     private final DeleteItemsMode mDeleteItemsMode;
     private final Onboarding mOnboarding;
     private final MutableLiveData<Boolean> mAreItemsDragged;
+    private final MutableLiveData<Boolean> mIsCurrentPageChecked;
 
 
     public MainViewModel(@NonNull Application application) {
@@ -308,10 +309,10 @@ public class MainViewModel extends AndroidViewModel {
         mChecklistRepo = ChecklistRepository.getInstance(application.getApplicationContext());
         mPreferencesRepo = PreferencesRepository.getInstance(application.getApplicationContext());
         mChecklistTitles = mChecklistRepo.getAllChecklistTitles();
+        mIsCurrentPageChecked = new MutableLiveData<>(false);
         mDeleteItemsMode = new DeleteItemsMode(
                 DeleteItemsMode.DISABLED,
-                getActiveChecklist(),
-                this::isChecklistEmpty);
+                Transformations.switchMap(getActiveChecklist(), this::isChecklistEmpty));
         mAreItemsDragged = new MutableLiveData<>(false);
         mOnboarding = new Onboarding(
                 Boolean.TRUE.equals(mPreferencesRepo.getPrefOnboardingCompleted().getValue()),
@@ -345,7 +346,19 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     @NonNull
-    public Onboarding getSimpleOnboarding() {
+    public LiveData<Boolean> isCurrentPageChecked() {
+        return mIsCurrentPageChecked;
+    }
+
+    public void onCurrentPageChanged(boolean isCurrentPageChecked) {
+        mIsCurrentPageChecked.setValue(isCurrentPageChecked);
+        mOnboarding.notify(isCurrentPageChecked ?
+                MainViewModel.Onboarding.Event.SWIPED_TO_CHECKED :
+                MainViewModel.Onboarding.Event.SWIPED_TO_UNCHECKED);
+    }
+
+    @NonNull
+    public Onboarding getOnboarding() {
         return mOnboarding;
     }
 

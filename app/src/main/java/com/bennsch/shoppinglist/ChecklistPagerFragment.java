@@ -82,6 +82,17 @@ public class ChecklistPagerFragment extends Fragment {
         mBinding.viewpager.setAdapter(mViewPagerAdapter);
         mBinding.viewpager.setOffscreenPageLimit(OFFSCREEN_PAGE_LIMIT_DEFAULT);
         // mBinding.viewpager.setPageTransformer(new FanTransformer());
+        mBinding.viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                // Check if the current page actually changed and notify the ViewModel
+                Boolean isChecked = mViewModel.isCurrentPageChecked().getValue();
+                if ((isChecked != null) && (isChecked != isCurrentAdapterPageChecked())) {
+                    mViewModel.onCurrentPageChanged(isCurrentAdapterPageChecked());
+                }
+            }
+        });
 
         mBinding.fab.setOnClickListener(view -> this.onFabClicked());
 
@@ -99,7 +110,7 @@ public class ChecklistPagerFragment extends Fragment {
                     }
         });
 
-        mViewModel.getSimpleOnboarding().getHint().observe(getViewLifecycleOwner(), hint -> {
+        mViewModel.getOnboarding().getHint().observe(getViewLifecycleOwner(), hint -> {
             switch (hint) {
                 case INIT:
                 case COMPLETED:
@@ -238,10 +249,14 @@ public class ChecklistPagerFragment extends Fragment {
             }
         };
 
+        // Hide the suggestions dropdown once the user changes the page.
+        mViewModel.isCurrentPageChecked().observe(
+                getViewLifecycleOwner(),
+                isCurrentPageChecked -> mBinding.itemNameBox.dismissDropDown());
+
         // Provide different autoCompleteItems, depending on which page is currently displayed.
-        MutableLiveData<Boolean> isCurrentPageChecked = new MutableLiveData<>();
         LiveData<List<String>> autoCompleteItems = Transformations.switchMap(
-                isCurrentPageChecked,
+                mViewModel.isCurrentPageChecked(),
                 currPageChecked -> {
                     if (currPageChecked == null) {
                         return null;
@@ -260,25 +275,6 @@ public class ChecklistPagerFragment extends Fragment {
                 }
         );
 
-        // Update "isCurrentPageChecked" whenever the user changes the page.
-        mBinding.viewpager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                mBinding.itemNameBox.dismissDropDown();
-                boolean currentAdapterPageChecked = isCurrentAdapterPageChecked();
-                // Check if the current page actually changed
-                if ((isCurrentPageChecked.getValue() != null) &&
-                    (isCurrentPageChecked.getValue() != currentAdapterPageChecked)) {
-                    mViewModel.getSimpleOnboarding().notify(
-                            currentAdapterPageChecked ?
-                                    MainViewModel.Onboarding.Event.SWIPED_TO_CHECKED :
-                                    MainViewModel.Onboarding.Event.SWIPED_TO_UNCHECKED
-                    );
-                }
-                isCurrentPageChecked.setValue(currentAdapterPageChecked); // TODO: postValue()?
-            }
-        });
         mBinding.itemNameBox.setAdapter(autoCompleteAdapter);
         mBinding.itemNameBox.setThreshold(MainViewModel.AUTOCOMPLETE_THRESHOLD);
     }
@@ -338,11 +334,11 @@ public class ChecklistPagerFragment extends Fragment {
             mBinding.viewpager.setVisibility(View.GONE);
             // Change ViewPager page, so that the first item will be added to "unchecked" items.
             mBinding.viewpager.setCurrentItem(ViewPagerAdapter.POS_UNCHECKED);
-            mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.LIST_EMPTY);
+            mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.LIST_EMPTY);
         } else {
             mBinding.emptyListPlaceholderBoth.setVisibility(View.GONE);
             mBinding.viewpager.setVisibility(View.VISIBLE);
-            mViewModel.getSimpleOnboarding().notify(MainViewModel.Onboarding.Event.LIST_NOT_EMPTY);
+            mViewModel.getOnboarding().notify(MainViewModel.Onboarding.Event.LIST_NOT_EMPTY);
         }
     }
 
@@ -410,7 +406,7 @@ public class ChecklistPagerFragment extends Fragment {
 
         private final ChecklistFragment[] mCachedFragments = new ChecklistFragment[2];
 
-        // Use this constructor if ViewPager2 lives directly in a Fragment. Otherwise the child
+        // Use this constructor if ViewPager2 lives directly in a Fragment. Otherwise, the child
         // fragments of ViewPager2 will not be destroyed when this fragment is being destroyed.
         public ViewPagerAdapter(@NonNull Fragment fragment) {
             super(fragment);
